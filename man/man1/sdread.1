@@ -1,0 +1,68 @@
+.\" manpage for sdread
+
+.TH sdread 1 "Jan 2022" "0.2.4" "sdread manpage"
+
+.SH NAME
+sdread \- SD language plain-text interpreter
+
+.SH SYNOPSIS
+.B sdread
+[\-|<filename>] "<expression>"
+
+.SH DESCRIPTION
+.
+.P
+.B sdread
+is the default plain-text interpreter for the SD language.
+It wraps around
+.B sdparse
+which itself wraps arround IST (intermediary SD tree) functionality to JIT-compile native SD source code
+and execute it on the fly.
+
+.P
+It is used inside
+.B script.sd
+functioning as a package manager as an interpreter for
+general configuration and package-wise configuration,
+reading from package.sd files.
+
+.SH OPTIONS
+
+.TP
+.B \-
+stream <filename> from
+.B STDIN
+(pipe).
+
+.TP
+.B \-h
+displays a help message, then exits.
+
+.TP
+.B \-v
+displays the current version, then exits.
+
+.SH EXPRESSIONS
+.P
+Expressions are optional to pass in
+.B sdread.
+However if passed they have to comply with standard SD language syntax.
+
+.P
+They are evaluated and executed right after the file is fully loaded into memory.
+They inherit all variables and imports made by the file, and the expression is put into the end of the root of the file.
+For this reason, the writer of the main file can take the fact that the file is going to be read by sdread and
+.I async
+variables for insertion via sdread.
+
+Expressions may not exceed one argument long. It is recomended to either wrap the expression in quotes or
+.I xargs
+the output of a file into the expression.
+
+.SH SEE ALSO
+.BR sdparse(1),
+.BR sdexec(1),
+.BR sdlang(4)
+
+.SH AUTHOR
+mH (https://github.com/matthmr)

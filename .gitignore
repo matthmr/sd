@@ -1,0 +1,13 @@
+# Objects / Archives
+**/*.o
+**/*.a
+**/*.so
+
+# Units
+**/unit/
+
+# Gzip
+**/*.gz
+
+# Tags
+**/tags

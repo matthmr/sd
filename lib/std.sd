@@ -1,0 +1,16 @@
+% Made by mH (https://github.com/matthmr)
+
+%{
+	This file is the source code for the standard
+	library of the SD language, all interpreters
+	of SD do NOT load data from this file but
+	from the its compiled version.
+
+	This file contains headers for binary compiled
+	in C.
+%}
+
+object Math;
+object Object;
+object Bool;
+object Env;
