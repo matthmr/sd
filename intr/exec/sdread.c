@@ -14,11 +14,11 @@
 
 #include <stdio.h>
 
-#define VERSION "sdread v0.2.4\n"
+#define VERSION "v0.2.4"
 #define LOCK_PARSE
 
-#include "sdparse.h"
-#include "utils/utils.h"
+#include "../txt/sdparse.h"
+#include "../../utils/utils.h"
 
 /**
  * Lock type *AFTER* including utils.h because
@@ -26,8 +26,8 @@
  */
 #define LOCK_TYPES
 
-#include "utils/sharedtypes.h"
-#include "intr/limits.h"
+#include "../../utils/sharedtypes.h"
+#include "../limits.h"
 
 int main (int argc, char** argv) {
 
@@ -38,7 +38,7 @@ int main (int argc, char** argv) {
 	if (argc > 1) {
 		if (argv[1][0] == '-') switch (argv[1][1]) {
 			case 'v':
-				printf (VERSION);
+				printf ("sdread " VERSION "\n");
 				return 0; break;
 			case '\0':
 				LOCK (pipe);
@@ -47,8 +47,8 @@ int main (int argc, char** argv) {
 				fprintf (stderr,
 					"\nMade by mH (https://github.com/matthmr)\n"
 					"\tsdread\t\t => The standard SD plain-text interpreter\n\n"
-					"Usage:\t[data stream] | sdread - \"[expression]\"\n"
-					"\tsdread [file] \"[expression]\"\n\n"
+					"Usage:\t[data stream] | sdread - \"<expression>\"\n"
+					"\tsdread <filename> \"<expression>\"\n\n"
 					"Info:\tsdread -h\t => Displays this message and exits\n"
 					"\tsdread -v\t => Displays the version and exits\n\n");
 				return 0; break;

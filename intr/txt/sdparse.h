@@ -11,7 +11,7 @@
 #  define LOCK_TYPES
 #  undef LOCK_UNSIGNED_INT
 
-#  include "utils/sharedtypes.h"
+#  include "../../utils/sharedtypes.h"
 
 // -- `t_find` exit status -- //
 #  define not_found 0
@@ -24,14 +24,6 @@
 #  define up_down 1
 #  define down_up 2
 
-// -- `s_update` operations -- //
-#  define push 0
-#  define pop 1
-
-/**
- * the indices stored by this variable
- * have a 'one up' offset
- */
 static bool direction;
 static uint offset;
 
@@ -52,7 +44,7 @@ void StreamParser (char**);
 #  define LOCK_TYPES
 #  undef LOCK_UNSIGNED_INT
 
-#  include "utils/sharedtypes.h"
+#  include "../../utils/sharedtypes.h"
 
 /* This is the main wrappable function */
 void StartParse (FILE*, char*, uint,

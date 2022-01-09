@@ -7,28 +7,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "utils/sharedtypes.h"
-#include "utils/utils.h"
+#include "../../utils/sharedtypes.h"
+#include "../../utils/utils.h"
 
-#include "lang/tokens.h"
-#include "lang/langutils.h"
-#include "lang/bytecode/bytecode_tokens.h"
+#include "../../lang/tokens.h"
+#include "../../lang/langutils.h"
+#include "../../lang/bytecode/bytecode_tokens.h"
 
 #include "sdparse.h"
 
-/// The last element tracks the number of elements
 static uint t_start, t_end;
 
-/**
- * This function is static,
- * it needs manual update
- * when recompiling
- */
-
-bool t_find_def (char c, uint* m_index) {
+bool t_find_def (char c) {
 
 	bool exit_status;
-	char prev_match_t = (char) 0;
+	char prev_match_t = '\0';
+	uint t;
 
 	if (!direction) {
 
@@ -52,7 +46,7 @@ bool t_find_def (char c, uint* m_index) {
 				return not_found;
 
 			r_repeats: {
-			for (uint t = t_start; s_comp (t, t_end); s_advance (t)) {
+			for (t = t_start; s_comp (t, t_end); s_advance (t)) {
 				if (c == Keyword_manifest[t][offset]) {
 					if (!prev_match_t)
 						prev_match_t = Keyword_manifest[t][offset];
@@ -63,22 +57,21 @@ bool t_find_def (char c, uint* m_index) {
 					goto s_found;
 			}
 
-			if (prev_match_t) /// in case of fall-thru
+			if (prev_match_t) /// in case of fall-through
 				goto s_found;
 			}
 		}
-		/**
-		 * if `c` is not letter, compared it
-		 * against `Token_manifest`. if it
-		 * is not found, then `c` is a
-		 * number.
-		 */
+
 		else {
+
+			if (NUMBER (c))
+					return number;
 
 			for (uint t = 0; t < Token_manifest_len; t++)
 				if (c == Token_manifest[t])
 					return token;
-			return number;
+
+			return not_found;
 
 		}
 	}
@@ -98,6 +91,7 @@ bool t_find_def (char c, uint* m_index) {
 	s_repeats: {
 		H_RESET (prev_match_t);
 		s_regress (t);
+		t_start = t;
 		offset++;
 		return repeats;
 	}
@@ -112,11 +106,11 @@ void StreamParser (char** data) {
 	for (uint i = 0; (*data)[i] != '\0'; i++) {
 		c = (*data)[i];
 
-		if ( exit_status = t_find_def (c) == repeats)
+		if ((exit_status = t_find_def (c)) == repeats) /// handle ambigous keyword token
 			continue;
 
 		switch (exit_status) {
-			case not_found: /// handle unknown token (as literal)
+			case not_found: /// handle unknown token
 				printf ("[ DEBUG#TAKEOUT: not_found ]\n");
 				exit (0);
 				break;

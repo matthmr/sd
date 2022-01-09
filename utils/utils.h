@@ -8,7 +8,7 @@
 #ifndef LOCK_UTILS
 #  define LOCK_UTILS
 
-void Die (char *, int);
+void Die (char*, int);
 void War (char*);
 #endif
 

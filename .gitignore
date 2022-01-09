@@ -3,11 +3,22 @@
 **/*.a
 **/*.so
 
+# Executables
+**/sdread
+**/sdexec
+**/sdcomp
+**/sdasm
+**/sdlink
+**/sdsh
+
 # Units
 **/unit/
 
-# Gzip
+# Gzip man pages
 **/*.gz
 
 # Tags
 **/tags
+
+# Logging
+**/*.log

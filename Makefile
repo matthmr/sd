@@ -1,7 +1,7 @@
 # Made by mH (https://github.com/matthmr)
 
 ### COMPILER ###
-CC?=clang12
+CC?=clang # TODO: change to gcc
 CCFLAG?=
 
 ### ARCHIVER ###
@@ -9,7 +9,7 @@ AR?=ar
 ARFLAG?=rcs
 
 ### GUNZIP ###
-GZ=gzip
+GZ?=gzip
 
 ### INSTALLATION ###
 PREFIX?=/usr/local
@@ -19,56 +19,64 @@ default: install
 
 clean:
 	@echo \[ .. \] Cleaning working directory
-	@rm -rf *.a *.o **/*.a **/*.o man/**/*.gz && echo \[ OK \] Done!
+	@printf '' > error.log
+	@rm -rf intr/**/*.o intr/**/*.a man/**/*.gz
 
-install: language parser binary-parser compiler linker man
+install: log-clean language parser binary-parser compiler linker man
 	@echo \[ .. \] Moving the sd language module to '${PREFIX}/bin'
 	@mv sdread sdcomp sdexec sdlink ${PREFIX}/bin || echo \[ \!\! \] No permission to move binaries to ${PREFIX}/bin.
 	@echo \[ .. \] Moving the sd language libraries to '${PREFIX}/lib'
 	@mv libsdlang.so ${PREFIX}/lib || echo \[ \!\! \] No permission to move backend to ${PREFIX}/lib.
 	@echo \[ .. \] Moving man pages to '${PREFIX}/man'
 	@mkdir -p ${PREFIX}/man/man1/ && mv man/* ${PREFIX}/man/man1 || echo \[ \!\! \] No permission to move backend to ${PREFIX}/man.
+
+log-clean:
+	@echo \[ .. \] Cleaning log file
+	@printf '' > error.log
 ### END BASE ###
 
 ### BEGIN COMPILING ###
-parser: intr/limits.h utils/utils.o sdparse.o sdread.o\
+parser: log-clean\
+	intr/limits.h utils/utils.o intr/txt/sdparse.o intr/exec/sdread.o\
 	language parser-static
 	@echo [ .. ] Linking to 'sdread'
-	@${CC} utils/utils.o sdparse.o sdread.o -o sdread && echo [ OK ] Done!
+	@${CC} intr/libsdparse.a intr/exec/sdread.o -o sdread 2>>error.log
 
 man: man/man1/sdread.1
-	@echo [ .. ] Compressing \'sdread\' man page
-	@${GZ} -c man/man1/sdread.1 > man/man1/sdread.1.gz && echo [ OK ] Done!
+	@echo [ .. ] Compressing 'sdread' man page
+	@${GZ} -c man/man1/sdread.1 > man/man1/sdread.1.gz
 
 binary-parser:
 
+### TODO ###
 compiler:
 
 language:
 
 linker:
+### TODO ###
 
-sdread.o: utils/utils.h utils/sharedtypes.h sdread.c
+intr/exec/sdread.o: utils/utils.h utils/sharedtypes.h intr/exec/sdread.c
 	@echo [ .. ] Compiling 'sdread.o'
-	@${CC} -c ${CCFLAG} sdread.c -o sdread.o && echo [ OK ] Done!
+	@${CC} -c ${CCFLAG} intr/exec/sdread.c -o intr/exec/sdread.o 2>>error.log
 
-sdparse.o: utils/sharedtypes.h utils/utils.h lang/tokens.h sdparse.c sdparse.h
+intr/txt/sdparse.o: utils/sharedtypes.h utils/utils.h lang/tokens.h intr/txt/sdparse.c intr/txt/sdparse.h
 	@echo [ .. ] Compiling 'sdparse.o'
-	@${CC} -c ${CCFLAG} sdparse.c -o sdparse.o && echo [ OK ] Done!
+	@${CC} -c ${CCFLAG} intr/txt/sdparse.c -o intr/txt/sdparse.o 2>>error.log
 
 utils/utils.o: utils/utils.c utils/utils.h utils/sharedtypes.h
 	@echo [ .. ] Compiling 'utils.o'
-	@${CC} -c ${CCFLAG} utils/utils.c -o utils/utils.o && echo [ OK ] Done!
+	@${CC} -c ${CCFLAG} utils/utils.c -o utils/utils.o 2>>error.log
 ### END COMPILING ###
 
 ### BEGIN ARCHIVING ###
-parser-static: utils/utils.o sdparse.o
+parser-static: utils/utils.o intr/txt/sdparse.o
 	@echo [ .. ] Archiving to 'libsdparse.a'
-	@${AR} ${ARFLAG} libsdparse.a $? && echo [ OK ] Done!
+	@${AR} ${ARFLAG} intr/libsdparse.a $? 2>>error.log
 ### END ARCHIVING ###
 
+### BEGIN OPTIONAL ###
 tags:
 	@echo [ .. ] Updating tags file
-	@ctags -R . && echo [ OK ] Done!
-
-.PHONY: tags
+	@ctags -R .
+### END OPTIONAL ###
