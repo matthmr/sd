@@ -1,24 +1,26 @@
-# Objects / Archives
-**/*.o
-**/*.a
-**/*.so
+### QUICKFIX ###
 
-# Executables
-**/sdread
-**/sdexec
-**/sdcomp
-**/sdasm
-**/sdlink
-**/sdsh
-
-# Units
-**/unit/
-
-# Gzip man pages
-**/*.gz
-
-# Tags
-**/tags
-
-# Logging
-**/*.log
+## Objects / Archives
+#**/*.o
+#**/*.a
+#**/*.so
+#
+## Executables
+#**/sdread
+#**/sdexec
+#**/sdcomp
+#**/sdasm
+#**/sdlink
+#**/sdsh
+#
+## Units
+#**/unit/
+#
+## Gzip man pages
+#**/*.gz
+#
+## Tags
+#**/tags
+#
+## Logging
+#**/*.log

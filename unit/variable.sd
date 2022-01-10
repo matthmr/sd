@@ -1,0 +1,5 @@
+var x: 1;
+
+object Field {
+	var x: 1;
+};

@@ -14,16 +14,21 @@
 #include "../../lang/langutils.h"
 #include "../../lang/bytecode/bytecode_tokens.h"
 
+#include "utils/txtutils.h"
+
 #include "sdparse.h"
 
+static uint t;
 static uint t_start, t_end;
 
 bool t_find_def (char c) {
 
 	bool exit_status;
-	char prev_match_t = '\0';
-	uint t;
+	bool rep_mask = false; /// mask `r_repeats` to directly resolute `t_end`
 
+	uint match_T = 0; /// one up from the real index `t`
+	uint _t_end = 0;
+	
 	if (!direction) {
 
 		if (UPPER_ALPHA (c)) { /// all default keywords are lowcase
@@ -39,6 +44,10 @@ bool t_find_def (char c) {
 			t_end = (direction == down_up)?
 				0: Keyword_manifest_len - 1;
 
+			/// OUT
+			printf ("[global] direction: %d\n", direction);
+			printf ("[global] c: %c\n", c);
+
 			if (
 			     (direction == up_down && c < *(Keyword_manifest[t_start])) || /// might not EVER be the case, but just to be sure ...
 			     (direction == down_up && c > *(Keyword_manifest[t_start]))
@@ -46,19 +55,55 @@ bool t_find_def (char c) {
 				return not_found;
 
 			r_repeats: {
+
+			/// OUT
+			printf ("[r_repeats] t_start: %d\n", t_start);
+			printf ("[r_repeats] t_end: %d\n", t_end);
+			printf ("[r_repeats] match_T: %d\n", match_T);
+			printf ("[r_repeats] offset: %d\n", offset);
+
+			_t_end = t_end;
+
 			for (t = t_start; s_comp (t, t_end); s_advance (t)) {
-				if (c == Keyword_manifest[t][offset]) {
-					if (!prev_match_t)
-						prev_match_t = Keyword_manifest[t][offset];
+				/// OUT
+				printf ("[for@r_repeats] t: %d\n", t);
+				printf ("[for@r_repeats] match_T: %d\n", match_T);
+
+				if (c == Keyword_manifest[t][offset] && !rep_mask) {
+					if (!match_T) {
+						/// OUT
+						printf ("[!match_T@for@r_repeats]: hit\n");
+
+						H_LOCK (rep_mask);
+						_t_end = match_T = t+1;
+					}
+					else {
+						_t_end++;
+
+						/// OUT
+						printf ("[else !match_T@for@r_repeats] _t_end: %d\n", _t_end);
+					}
+				}
+				else if (match_T && !rep_mask) { /// stop: unique
+					/// OUT
+					printf ("[match_T AND !rep_mask]: hit\n");
+
+					goto s_found;
+				}
+				else if (match_T && rep_mask) /// stop: repeats
+					/// OUT
+					printf ("[match_T AND rep_mask] hit\n");
+
+					if (match_T == _t_end)
+						goto s_found;
 					else
 						goto s_repeats;
-				}
-				else if (prev_match_t)
-					goto s_found;
 			}
 
-			if (prev_match_t) /// in case of fall-through
+			if (match_T && !rep_mask) /// fall-through: repeats
 				goto s_found;
+			else if (match_T && rep_mask) /// fall-through: unique
+				goto s_repeats;
 			}
 		}
 
@@ -67,7 +112,7 @@ bool t_find_def (char c) {
 			if (NUMBER (c))
 					return number;
 
-			for (uint t = 0; t < Token_manifest_len; t++)
+			for (t = 0; t < Token_manifest_len; t++)
 				if (c == Token_manifest[t])
 					return token;
 
@@ -80,6 +125,13 @@ bool t_find_def (char c) {
 		goto r_repeats;
 
 	s_found: {
+		
+
+		/// OUT
+		printf ("[s_found] hit\n");
+
+		t = match_T-1;
+
 		H_RESET (direction);
 		H_RESET (offset);
 
@@ -88,10 +140,12 @@ bool t_find_def (char c) {
 
 		return found;
 	}
+
 	s_repeats: {
-		H_RESET (prev_match_t);
-		s_regress (t);
-		t_start = t;
+		/// OUT
+		printf ("[s_repeats] hit\n");
+
+		t_end = _t_end;
 		offset++;
 		return repeats;
 	}
@@ -106,10 +160,12 @@ void StreamParser (char** data) {
 	for (uint i = 0; (*data)[i] != '\0'; i++) {
 		c = (*data)[i];
 
-		if ((exit_status = t_find_def (c)) == repeats) /// handle ambigous keyword token
-			continue;
+		exit_status = t_find_def (c);
 
 		switch (exit_status) {
+			case repeats:
+				break;
+
 			case not_found: /// handle unknown token
 				printf ("[ DEBUG#TAKEOUT: not_found ]\n");
 				exit (0);

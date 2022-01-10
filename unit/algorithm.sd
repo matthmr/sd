@@ -1,0 +1,3 @@
+wrap [static export import @std/{String,IO}] {
+	(out (format '^' "Hello ^" "World"));
+}

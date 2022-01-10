@@ -1,0 +1,5 @@
+proc return1 {
+	sync literal int 1;
+}
+
+var value: (return1);

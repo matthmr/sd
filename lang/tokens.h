@@ -56,6 +56,8 @@ enum keyword {
 
 typedef enum keyword Keyword;
 
+#  ifndef LOCK_TOKENS_KWORDS_MANIFEST
+#    define LOCK_TOKENS_KWORDS_MANIFEST
 static const char* Keyword_manifest[] = {
 	[KW_ASSIGN] = "assign",
 	[KW_ASYNC] = "async",
@@ -87,7 +89,7 @@ static const char* Keyword_manifest[] = {
 	[KW_VAR] = "var",
 	[KW_WRAP] = "wrap"
 };
-
+#  endif
 #endif
 
 #ifndef LOCK_TOKENS_HEADER
@@ -109,6 +111,8 @@ enum token {
 
 typedef enum token Token;
 
+#  ifndef LOCK_TOKENS_HEADER_MANIFEST
+#    define LOCK_TOKENS_HEADER_MANIFEST
 static const char Token_manifest[] = {
 	[T_ASSIGN] = ':',
 	[T_CHILD] = '/',
@@ -122,10 +126,11 @@ static const char Token_manifest[] = {
 	[T_COMMENT] = '%',
 	[T_GEN_ESC] = '\\'
 };
+#  endif
 #endif
 
-#ifndef LOCK_TOKEN_MANIFEST
-#  define LOCK_TOKEN_MANIFEST
+#ifndef LOCK_MANIFEST_LEN
+#  define LOCK_MANIFEST_LEN
 
 #  include "../utils/sharedtypes.h"
 
