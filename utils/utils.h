@@ -8,8 +8,8 @@
 #ifndef LOCK_UTILS
 #  define LOCK_UTILS
 
-void Die (char*, int);
-void War (char*);
+void Die (char*, const char*, char*, int);
+void War (char*, const char*, char*);
 #endif
 
 #ifndef  LOCK_MACROS

@@ -7,7 +7,7 @@
 #  define LOCK_INTR_LIMITS
 
 #  undef LOCK_UNSIGNED_INT
-#  include "../utils/sharedtypes.h"
+#  include "../utils/types/shared.h"
 
 static const uint LINE_LIMIT = 10000; /// 10 kb
 

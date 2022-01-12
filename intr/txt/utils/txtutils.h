@@ -7,7 +7,7 @@
 #ifndef LOCK_TXT_UTILS
 #  define LOCK_TXT_UTILS
 
-#  include "../../../utils/sharedtypes.h"
+#  include "../../../utils/types/shared.h"
 
 bool streq (char*, char*);
 char* kwget(char*, char);

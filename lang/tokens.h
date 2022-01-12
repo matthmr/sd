@@ -106,6 +106,8 @@ enum token {
 	T_OBJ_REF_END_ASCII,
 	T_STRING,
 	T_COMMENT,
+	T_SELF,
+	T_DOLLAR,
 	T_GEN_ESC
 };
 
@@ -124,6 +126,8 @@ static const char Token_manifest[] = {
 	[T_OBJ_REF_END_ASCII] = ']',
 	[T_STRING] = '"',
 	[T_COMMENT] = '%',
+	[T_SELF] = '^',
+	[T_DOLLAR] = '$',
 	[T_GEN_ESC] = '\\'
 };
 #  endif
@@ -132,7 +136,7 @@ static const char Token_manifest[] = {
 #ifndef LOCK_MANIFEST_LEN
 #  define LOCK_MANIFEST_LEN
 
-#  include "../utils/sharedtypes.h"
+#  include "../utils/types/shared.h"
 
 static const uint Keyword_manifest_len =
 	sizeof (Keyword_manifest) / sizeof (*Keyword_manifest);

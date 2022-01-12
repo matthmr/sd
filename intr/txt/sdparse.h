@@ -11,7 +11,7 @@
 #  define LOCK_TYPES
 #  undef LOCK_UNSIGNED_INT
 
-#  include "../../utils/sharedtypes.h"
+#  include "../../utils/types/shared.h"
 
 // -- `t_find` exit status -- //
 #  define not_found 0
@@ -30,7 +30,7 @@ static uint offset;
 bool t_find_def (char);
 
 /// TODO: maybe some upper / lower bound check is needed?
-#  define s_comp(x,y) (direction == down_up)? x >= 0: x < y
+#  define s_comp(x,y) (direction == down_up)? x >= 0: x <= y
 #  define s_advance(x) (direction == down_up)? x--: x++
 #  define s_regress(x) (direction == down_up)? x++: x--
 
@@ -44,7 +44,7 @@ void StreamParser (char**);
 #  define LOCK_TYPES
 #  undef LOCK_UNSIGNED_INT
 
-#  include "../../utils/sharedtypes.h"
+#  include "../../utils/types/shared.h"
 
 /* This is the main wrappable function */
 void StartParse (FILE*, char*, uint,

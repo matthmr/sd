@@ -19,6 +19,7 @@
 
 #include "../txt/sdparse.h"
 #include "../../utils/utils.h"
+#include "../../utils/err/err.h"
 
 /**
  * Lock type *AFTER* including utils.h because
@@ -26,13 +27,15 @@
  */
 #define LOCK_TYPES
 
-#include "../../utils/sharedtypes.h"
+#include "../../utils/types/shared.h"
 #include "../limits.h"
 
 int main (int argc, char** argv) {
 
 	bool pipe;
 	FILE* file;
+
+	Set (argtime);
 
 	/// gets the type of input stream
 	if (argc > 1) {
@@ -42,9 +45,10 @@ int main (int argc, char** argv) {
 				return 0; break;
 			case '\0':
 				LOCK (pipe);
-				file = stdin; break;
+				file = stdin;
+				break;
 			case 'h':
-				fprintf (stderr,
+				fprintf (stdout,
 					"\nMade by mH (https://github.com/matthmr)\n"
 					"\tsdread\t\t => The standard SD plain-text interpreter\n\n"
 					"Usage:\t[data stream] | sdread - \"<expression>\"\n"
@@ -59,8 +63,8 @@ int main (int argc, char** argv) {
 				return 0; break;
 		}
 		else if (argv[1][0] != '\0') {
-			file = fopen (argv[1], "r");
-			if (!file) Die ("E01: File not found", 1);
+			if (! (file = fopen (argv[1], "r")) )
+				Err(1, argv[1]);
 		}
 	}
 	else {
@@ -70,8 +74,11 @@ int main (int argc, char** argv) {
 
 	unsigned char data[LINE_LIMIT];
 
+	/* send `file` fd to the parser
+	 * as a stream of `char` type */
 	StartParse (file, data, LINE_LIMIT, argc, argv);
 
+	/* close fd on exit */
 	if (!pipe)
 		fclose (file);
 

@@ -10,11 +10,16 @@
 
 #include "utils.h"
 
-inline void Die (char* msg, int e_code) {
-	fprintf (stderr, "%s\n", msg);
+void Die (char* fmt,
+          const char* msg,
+          char* info,
+          int e_code) {
+	fprintf (stderr, fmt, msg, info);
 	exit (e_code);
 }
 
-inline void War (char* msg) {
-	fprintf (stderr, "%s\n", msg);
+void War (char* fmt,
+          const char* msg,
+          char* info) {
+	fprintf (stderr, fmt, msg, info);
 }

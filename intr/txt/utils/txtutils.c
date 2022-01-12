@@ -17,5 +17,3 @@ char* kwget (char* string, char del) {
 
 	static int level;
 }
-
-

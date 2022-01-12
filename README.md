@@ -29,11 +29,12 @@ The `Makefile` also has a couple environment variables to pass through:
 - `CCFLAG`: additional flags to pass to the compiler ()
 - `AR`: the `.a` archiver (ar)
 - `ARFLAG`: the archiver flags (cqv)
+- `RANLIB`: the object indexer (ranlib)
 - `PREFIX`: the prefix for the installation (/usr/local)
 
 Additionally for contributors, the `Makefile` also supports ctags with the `make tags` target.
 
-It can be compiled with GCC, Clang12 or its windows equivalents.
+It can be compiled with GCC, Clang or its windows equivalents.
 
 # Documentation
 

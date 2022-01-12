@@ -7,8 +7,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../../utils/sharedtypes.h"
+#include "../../utils/types/shared.h"
 #include "../../utils/utils.h"
+#include "../../utils/err/err.h"
 
 #include "../../lang/tokens.h"
 #include "../../lang/langutils.h"
@@ -24,9 +25,9 @@ static uint t_start, t_end;
 bool t_find_def (char c) {
 
 	bool exit_status;
-	bool rep_mask = false; /// mask `r_repeats` to directly resolute `t_end`
+	bool rep_lock = false; /// masks `r_repeats` to directly resolute `t_end`
 
-	uint match_T = 0; /// one up from the real index `t`
+	uint _t = 0;
 	uint _t_end = 0;
 	
 	if (!direction) {
@@ -44,70 +45,50 @@ bool t_find_def (char c) {
 			t_end = (direction == down_up)?
 				0: Keyword_manifest_len - 1;
 
-			/// OUT
-			printf ("[global] direction: %d\n", direction);
-			printf ("[global] c: %c\n", c);
-
+			/// looks for out-of-bound chars
 			if (
-			     (direction == up_down && c < *(Keyword_manifest[t_start])) || /// might not EVER be the case, but just to be sure ...
+			     (direction == up_down && c < *(Keyword_manifest[t_start])) ||
 			     (direction == down_up && c > *(Keyword_manifest[t_start]))
 			   )
 				return not_found;
 
 			r_repeats: {
 
-			/// OUT
-			printf ("[r_repeats] t_start: %d\n", t_start);
-			printf ("[r_repeats] t_end: %d\n", t_end);
-			printf ("[r_repeats] match_T: %d\n", match_T);
-			printf ("[r_repeats] offset: %d\n", offset);
-
 			_t_end = t_end;
 
 			for (t = t_start; s_comp (t, t_end); s_advance (t)) {
-				/// OUT
-				printf ("[for@r_repeats] t: %d\n", t);
-				printf ("[for@r_repeats] match_T: %d\n", match_T);
 
-				if (c == Keyword_manifest[t][offset] && !rep_mask) {
-					if (!match_T) {
-						/// OUT
-						printf ("[!match_T@for@r_repeats]: hit\n");
-
-						H_LOCK (rep_mask);
-						_t_end = match_T = t+1;
-					}
-					else {
-						_t_end++;
-
-						/// OUT
-						printf ("[else !match_T@for@r_repeats] _t_end: %d\n", _t_end);
+				if (!rep_lock) {
+					if (c == Keyword_manifest[t][offset]) {
+						H_LOCK (rep_lock);
+						_t_end = _t = t;
 					}
 				}
-				else if (match_T && !rep_mask) { /// stop: unique
-					/// OUT
-					printf ("[match_T AND !rep_mask]: hit\n");
-
-					goto s_found;
-				}
-				else if (match_T && rep_mask) /// stop: repeats
-					/// OUT
-					printf ("[match_T AND rep_mask] hit\n");
-
-					if (match_T == _t_end)
-						goto s_found;
-					else
+				else { /// on lock
+					if (c == Keyword_manifest[t][offset])
+						s_advance (_t_end); /* shrink search time by shriking `t_end`:
+						                       when this expression is false, `t_end`
+						                       becomes a new upper bound */
+					else if (_t_end - _t > 0)
 						goto s_repeats;
+					else
+						goto s_found;
+				}
 			}
-
-			if (match_T && !rep_mask) /// fall-through: repeats
-				goto s_found;
-			else if (match_T && rep_mask) /// fall-through: unique
-				goto s_repeats;
+				/// fall-through
+				if (! rep_lock)
+					return not_found;
+				else if (_t_end - _t > 0)
+					goto s_repeats;
+				else
+					goto s_found;
 			}
 		}
 
-		else {
+		else { /// resolute number or token
+
+			if (c == '\n') /// whitespace
+				return not_found;
 
 			if (NUMBER (c))
 					return number;
@@ -125,12 +106,7 @@ bool t_find_def (char c) {
 		goto r_repeats;
 
 	s_found: {
-		
-
-		/// OUT
-		printf ("[s_found] hit\n");
-
-		t = match_T-1;
+		t = _t;
 
 		H_RESET (direction);
 		H_RESET (offset);
@@ -142,13 +118,14 @@ bool t_find_def (char c) {
 	}
 
 	s_repeats: {
-		/// OUT
-		printf ("[s_repeats] hit\n");
-
+		/* bound `t` between the first matching and the last matching token */
+		t_start = _t;
 		t_end = _t_end;
+
 		offset++;
 		return repeats;
 	}
+
 }
 
 void StreamParser (char** data) {
@@ -159,6 +136,9 @@ void StreamParser (char** data) {
 	/// loop until a manifest type is found
 	for (uint i = 0; (*data)[i] != '\0'; i++) {
 		c = (*data)[i];
+
+		if (exit_status == repeats && c == '\n') // equivalent to `not_found`
+			; /// TODO
 
 		exit_status = t_find_def (c);
 
