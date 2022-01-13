@@ -69,7 +69,7 @@ bool t_find_def (char c) {
 						s_advance (_t_end); /* shrink search time by shriking `t_end`:
 						                       when this expression is false, `t_end`
 						                       becomes a new upper bound */
-					else if (_t_end - _t > 0)
+					else if (_t_end != _t)
 						goto s_repeats;
 					else
 						goto s_found;
@@ -77,7 +77,7 @@ bool t_find_def (char c) {
 			}
 				/// fall-through
 				if (! rep_lock)
-					return not_found;
+					goto s_not_found;
 				else if (_t_end - _t > 0)
 					goto s_repeats;
 				else
@@ -104,6 +104,18 @@ bool t_find_def (char c) {
 
 	else /// resolute `repeats`
 		goto r_repeats;
+
+	s_not_found: {
+		H_RESET (direction);
+		H_RESET (offset);
+
+		H_RESET (t);
+
+		H_RESET (t_start);
+		H_RESET (t_end);
+
+		return not_found;
+	}
 
 	s_found: {
 		t = _t;
@@ -132,13 +144,19 @@ void StreamParser (char** data) {
 
 	char c;
 	bool exit_status;
+	bool trailing = true;
 
-	/// loop until a manifest type is found
 	for (uint i = 0; (*data)[i] != '\0'; i++) {
 		c = (*data)[i];
 
-		if (exit_status == repeats && c == '\n') // equivalent to `not_found`
-			; /// TODO
+		if (trailing && (c == '\x20' || c == '\x0a')) /// trailing whitespace
+			continue;
+		else if (trailing)
+			H_RESET (trailing);
+
+		if (exit_status == repeats && c == '\n' ||
+			  !exit_status && c == '\n') /// equivalent to `not_found`
+			goto _not_found;
 
 		exit_status = t_find_def (c);
 
@@ -146,22 +164,22 @@ void StreamParser (char** data) {
 			case repeats:
 				break;
 
-			case not_found: /// handle unknown token
+			case not_found: _not_found: { /// handle unknown token
 				printf ("[ DEBUG#TAKEOUT: not_found ]\n");
-				exit (0);
-				break;
+				return;
+			} break;
 			case found: /// handle known token
 				printf ("[ DEBUG#TAKEOUT: found ]\n");
-				exit (0);
+				return;
 				break;
 
 			case token: /// handle token
 				printf ("[ DEBUG#TAKEOUT: token ]\n");
-				exit (0);
+				return;
 				break;
 			case number: /// handle number
 				printf ("[ DEBUG#TAKEOUT: number ]\n");
-				exit (0);
+				return;
 				break;
 		}
 
