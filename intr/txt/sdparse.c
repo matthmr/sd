@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "../../utils/types/shared.h"
 #include "../../utils/utils.h"
@@ -21,6 +22,8 @@
 
 static uint t;
 static uint t_start, t_end;
+
+uint len;
 
 bool t_find_def (char c) {
 
@@ -109,8 +112,6 @@ bool t_find_def (char c) {
 		H_RESET (direction);
 		H_RESET (offset);
 
-		H_RESET (t);
-
 		H_RESET (t_start);
 		H_RESET (t_end);
 
@@ -143,44 +144,67 @@ bool t_find_def (char c) {
 void StreamParser (char** data) {
 
 	char c;
+
 	bool exit_status;
 	bool trailing = true;
+
+	uint lnsize = strlen (*data);
 
 	for (uint i = 0; (*data)[i] != '\0'; i++) {
 		c = (*data)[i];
 
-		if (trailing && (c == '\x20' || c == '\x0a')) /// trailing whitespace
+		if (trailing && (c == 0x20 || c == 0x0a || c == 0x09)) /// trailing whitespace
 			continue;
 		else if (trailing)
 			H_RESET (trailing);
 
 		if (exit_status == repeats && c == '\n' ||
 			  !exit_status && c == '\n') /// equivalent to `not_found`
-			goto _not_found;
+			goto case_not_found;
 
 		exit_status = t_find_def (c);
 
 		switch (exit_status) {
+
 			case repeats:
 				break;
 
-			case not_found: _not_found: { /// handle unknown token
+			case not_found:
+			case_not_found: { /// handle unknown token
 				printf ("[ DEBUG#TAKEOUT: not_found ]\n");
 				return;
 			} break;
+
 			case found: /// handle known token
-				printf ("[ DEBUG#TAKEOUT: found ]\n");
-				return;
-				break;
+			case_found: {
+
+				H_RESET (exit_status);
+
+				uint kw_len = strlen (Keyword_manifest[t]);
+				char* name = malloc (kw_len);
+
+				getname (&name, &i, *data, lnsize, DELIMITER);
+				_bool isKw = (_bool) strcmp (name, Keyword_manifest[t]);
+
+				H_RESET (t);
+				H_LOCK (trailing);
+
+				if (! isKw) {
+					/// TODO: handle keyword as an object reference
+				}
+
+			} break;
 
 			case token: /// handle token
 				printf ("[ DEBUG#TAKEOUT: token ]\n");
 				return;
 				break;
+
 			case number: /// handle number
 				printf ("[ DEBUG#TAKEOUT: number ]\n");
 				return;
 				break;
+
 		}
 
 	}
@@ -189,17 +213,6 @@ void StreamParser (char** data) {
 
 /* This wraps around `StreamParser` to use `fgets`*/
 void StartParse (FILE* file, char* data, const uint LINE_LIMIT, int argc, char** argv) {
-
-	line: {
-		if (fgets (data, LINE_LIMIT, file) == NULL)
-			goto start_parse_done;
-
+	while (fgets (data, LINE_LIMIT, file))
 		StreamParser (&data);
-
-		goto line;
-	}
-
-	start_parse_done: return;
-
 }
-

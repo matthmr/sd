@@ -9,7 +9,11 @@
 
 #  include "../../../utils/types/shared.h"
 
-bool streq (char*, char*);
-char* kwget(char*, char);
+#  define DELIMITER ':' /// assignment token
+
+extern uint len;
+
+bool streq (char*, const char*);
+void getname (char**, uint*, char*, uint, char);
 
 #endif

@@ -24,11 +24,11 @@ clean:
 
 install: log-clean language parser binary-parser compiler linker man
 	@echo [ .. ] Moving the sd language module to '${PREFIX}/bin'
-	@mv bin/sdread bin/sdcomp bin/sdexec bin/sdlink ${PREFIX}/bin || echo [ !! ] No permission to move binaries to ${PREFIX}/bin.
+	@mv bin/sdread bin/sdcomp bin/sdexec bin/sdlink ${PREFIX}/bin || echo [ !! ] No permission to move binaries to ${PREFIX}/bin
 	@echo [ .. ] Moving the sd language libraries to '${PREFIX}/lib'
-	@mv libsdlang.so ${PREFIX}/lib || echo [ !! ] No permission to move backend to ${PREFIX}/lib.
+	@mv libsdlang.so ${PREFIX}/lib || echo [ !! ] No permission to move backend to ${PREFIX}/lib
 	@echo [ .. ] Moving man pages to '${PREFIX}/man'
-	@mkdir -p ${PREFIX}/man/man1/ && mv man/* ${PREFIX}/man/man1 || echo [ !! ] No permission to move backend to ${PREFIX}/man.
+	@mkdir -p ${PREFIX}/man/man1/ && mv man/* ${PREFIX}/man/man1 || echo [ !! ] No permission to move backend to ${PREFIX}/man
 ### END BASE ###
 
 ### BEGIN COMPILING ###
@@ -40,7 +40,7 @@ parser: intr/limits.h\
 	language
 	@echo [ .. ] Linking to 'sdread'
 	@${CC} ${CCFLAG} intr/exec/sdread.o -Llib -lsdparse -o bin/sdread
-	@echo [ .. ] Finished compilation.
+	@echo [ .. ] Finished compilation
 
 man: man/man1/sdread.1
 	@echo [ .. ] Compressing 'sdread' man page

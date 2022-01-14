@@ -54,7 +54,7 @@ enum keyword {
 	KW_WRAP
 };
 
-typedef enum keyword Keyword;
+typedef enum keyword Kw;
 
 #  ifndef LOCK_TOKENS_KWORDS_MANIFEST
 #    define LOCK_TOKENS_KWORDS_MANIFEST
@@ -113,7 +113,7 @@ enum token {
 	T_GEN_ESC
 };
 
-typedef enum token Token;
+typedef enum token Tk;
 
 #  ifndef LOCK_TOKENS_HEADER_MANIFEST
 #    define LOCK_TOKENS_HEADER_MANIFEST

@@ -5,15 +5,36 @@
  * SD source code
  */
 
-#undef LOCK_BOOLEAN
-
 #include "txtutils.h"
+#include "../../../utils/utils.h"
+#include <string.h>
 
-bool streq (char* string, char* kw) { }
+static uint offset;
 
-char* kwget (char* string, char del) {
-	if (!del)
-		del = (char) 0x20;
+bool streq (char* string, const char* kw) { }
 
-	static int level;
+void getname (char** name, uint* i, char* line, uint lnsize, char del) {
+	char c;
+	len = 0;
+
+	while ((len+offset) < lnsize) {
+		c = line[len+offset];
+		if (c == del ||
+			  c == 0x20 || c == 0x0a || c == 0x09 || c == 0x00 ||
+			  ! ( LETTER (c) || NUMBER (c)) /// any other non-alpha-numeric token
+		) break;
+		else
+			len++;
+	}
+	
+	/// fall-through
+	if (!len) {
+		*name = NULL;
+		return;
+	}
+	
+	*i = (offset+len-1); /// count for increment
+
+	strncpy (*name, line+offset, len);
+	offset += len+1;
 }

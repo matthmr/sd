@@ -21,7 +21,7 @@ static const char* errfmt[] = {
 };
 
 static const char* warmsg[] = {
-	NULL /* TODO: centrelize warning messages */
+	NULL /* TODO: centralize warning messages */
 };
 
 static const char* errmsg[] = {
