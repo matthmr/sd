@@ -37,7 +37,7 @@ It can be compiled with GCC, Clang or its windows equivalents.
 
 # Documentation
 
-Find the documentation at the [main website](https://matthmr.github.io/docs.sd/index.html).
+Find the documentation at the [main website](https://matthmr.github.io/docs.sd).
 
 # License
 

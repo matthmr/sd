@@ -11,7 +11,7 @@
 
 #  define DELIMITER ':' /// assignment token
 
-extern uint len;
+extern uint offset;
 
 bool streq (char*, const char*);
 void getname (char**, uint*, char*, uint, char);

@@ -22,7 +22,7 @@ clean:
 	@echo [ .. ] Cleaning working directory
 	@rm -rf intr/**/*.o intr/libsdparse.a intr/txt/utils/*.o utils/*.o utils/**/*.o man/**/*.gz
 
-install: log-clean language parser binary-parser compiler linker man
+install: language parser binary-parser compiler linker man
 	@echo [ .. ] Moving the sd language module to '${PREFIX}/bin'
 	@mv bin/sdread bin/sdcomp bin/sdexec bin/sdlink ${PREFIX}/bin || echo [ !! ] No permission to move binaries to ${PREFIX}/bin
 	@echo [ .. ] Moving the sd language libraries to '${PREFIX}/lib'
@@ -57,7 +57,7 @@ linker:
 ### TODO ###
 
 intr/exec/sdread.o: utils/utils.h utils/types/shared.h utils/err/err.h\
-	intr/exec/sdread.c
+	intr/exec/sdread.c intr/exec/sdread.h
 	@echo [ .. ] Compiling 'sdread.o'
 	@${CC} -c ${CCFLAG} intr/exec/sdread.c -o intr/exec/sdread.o 
 

@@ -14,24 +14,29 @@
 
 #include "../../lang/tokens.h"
 #include "../../lang/langutils.h"
-#include "../../lang/bytecode/bytecode_tokens.h"
 
 #include "utils/txtutils.h"
 
 #include "sdparse.h"
 
+#define H_RESET_CONTXT H_RESET(t);\
+                       H_RESET(exit_status)
+
 static uint t;
-static uint t_start, t_end;
+uint offset;
 
-uint len;
-
-bool t_find_def (char c) {
+bool nfind_def (char c) {
 
 	bool exit_status;
 	bool rep_lock = false; /// masks `r_repeats` to directly resolute `t_end`
 
 	uint _t = 0;
 	uint _t_end = 0;
+
+	static uint t_start;
+	static uint t_end;
+
+	static uint offset;
 	
 	if (!direction) {
 
@@ -39,7 +44,7 @@ bool t_find_def (char c) {
 			return not_found;
 		}
 
-		if (LOWER_ALPHA (c)) { /// might also be a number OR a token
+		if (LOWER_ALPHA (c)) { /// might also be a literal OR a token
 
 			direction = (c > 'm')? down_up: up_down;
 
@@ -53,7 +58,7 @@ bool t_find_def (char c) {
 			     (direction == up_down && c < *(Keyword_manifest[t_start])) ||
 			     (direction == down_up && c > *(Keyword_manifest[t_start]))
 			   )
-				return not_found;
+				goto s_not_found;
 
 			r_repeats: {
 
@@ -62,6 +67,9 @@ bool t_find_def (char c) {
 			for (t = t_start; s_comp (t, t_end); s_advance (t)) {
 
 				if (!rep_lock) {
+					/// TODO: if the list of builtin objects gets bigger,
+					///       make this faster by comparing it against
+					///       character boundary
 					if (c == Keyword_manifest[t][offset]) {
 						H_LOCK (rep_lock);
 						_t_end = _t = t;
@@ -88,19 +96,19 @@ bool t_find_def (char c) {
 			}
 		}
 
-		else { /// resolute number or token
+		else { /// resolute literal or token
 
 			if (c == '\n') /// whitespace
-				return not_found;
+				goto s_not_found;
 
 			if (NUMBER (c))
-					return number;
+					return literal;
 
 			for (t = 0; t < Token_manifest_len; t++)
 				if (c == Token_manifest[t])
 					return token;
 
-			return not_found;
+			goto s_not_found;
 
 		}
 	}
@@ -141,7 +149,7 @@ bool t_find_def (char c) {
 
 }
 
-void StreamParser (char** data) {
+void parser_stream (char** data) {
 
 	char c;
 
@@ -153,16 +161,18 @@ void StreamParser (char** data) {
 	for (uint i = 0; (*data)[i] != '\0'; i++) {
 		c = (*data)[i];
 
-		if (trailing && (c == 0x20 || c == 0x0a || c == 0x09)) /// trailing whitespace
+		if (trailing && (c == 0x20 || c == 0x0a || c == 0x09)) { /// trailing whitespace
+			offset++;
 			continue;
+		}
 		else if (trailing)
 			H_RESET (trailing);
 
 		if (exit_status == repeats && c == '\n' ||
-			  !exit_status && c == '\n') /// equivalent to `not_found`
+		   !exit_status && c == '\n') /// equivalent to `not_found`
 			goto case_not_found;
 
-		exit_status = t_find_def (c);
+		exit_status = nfind_def (c);
 
 		switch (exit_status) {
 
@@ -172,47 +182,68 @@ void StreamParser (char** data) {
 			case not_found:
 			case_not_found: { /// handle unknown token
 				printf ("[ DEBUG#TAKEOUT: not_found ]\n");
-				return;
+				H_LOCK (trailing);
+				H_RESET_CONTXT;
+				/// TODO (HERE)
+				getuname (&)offset = i;
+				continue;
 			} break;
 
-			case found: /// handle known token
+			case found: /// handle known token (up to differential)
 			case_found: {
 
-				H_RESET (exit_status);
+				printf ("[ DEBUG#TAKEOUT: found ]\n");
 
 				uint kw_len = strlen (Keyword_manifest[t]);
 				char* name = malloc (kw_len);
 
 				getname (&name, &i, *data, lnsize, DELIMITER);
-				_bool isKw = (_bool) strcmp (name, Keyword_manifest[t]);
 
-				H_RESET (t);
+				_bool _isKw = true;
+
+				if (name) /// incomplete default name != non-existent
+					_isKw = (_bool) strcmp (name, Keyword_manifest[t]);
+
+				H_RESET_CONTXT;
 				H_LOCK (trailing);
 
-				if (! isKw) {
+				if (! _isKw) {
 					/// TODO: handle keyword as an object reference
+				}
+				else {
+					/// TODO: handle name with the default name handler
 				}
 
 			} break;
 
 			case token: /// handle token
 				printf ("[ DEBUG#TAKEOUT: token ]\n");
-				return;
+				H_LOCK (trailing);
+				H_RESET_CONTXT;
+				offset++;
+				continue;
 				break;
 
-			case number: /// handle number
-				printf ("[ DEBUG#TAKEOUT: number ]\n");
-				return;
+			case literal: /// handle literal
+				printf ("[ DEBUG#TAKEOUT: literal ]\n");
+				H_LOCK (trailing);
+				H_RESET_CONTXT;
+				/// TODO: increment offset by the `literal` size
+				continue;
 				break;
-
 		}
 
 	}
 
+	RESET (offset);
+
 }
 
-/* This wraps around `StreamParser` to use `fgets`*/
-void StartParse (FILE* file, char* data, const uint LINE_LIMIT, int argc, char** argv) {
-	while (fgets (data, LINE_LIMIT, file))
-		StreamParser (&data);
+/* This wraps around `parser_stream` to use `fgets`*/
+void parse_src (FILE* file, char* data, const uint LINE_LIMIT) {
+
+	Set (txtruntime);
+
+	while (fgets (data, LINE_LIMIT, file) != NULL)
+		parser_stream (&data);
 }

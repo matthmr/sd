@@ -25,7 +25,9 @@ static const char* warmsg[] = {
 };
 
 static const char* errmsg[] = {
+	NULL,
 	" E01: No such file ",
+	" E02: Missing file name "
 };
 
 inline void Set (Env env) {
@@ -33,6 +35,5 @@ inline void Set (Env env) {
 }
 
 void Err (int code, char* info) {
-	int index = code - 1;
-	Die (fmt, errmsg[index], info, code);
+	Die (fmt, errmsg[code], info, code);
 }

@@ -1,14 +1,13 @@
 /**
- * This file contains limits for the
- * interpreters of SD
+ * This file contains generic limits
+ * for the SD interpreters
  */
 
 #ifndef LOCK_INTR_LIMITS
 #  define LOCK_INTR_LIMITS
 
 #  undef LOCK_UNSIGNED_INT
-#  include "../utils/types/shared.h"
 
-static const uint LINE_LIMIT = 10000; /// 10 kb
+static const unsigned int LINE_LIMIT = 10000; /// 10 kb
 
 #endif

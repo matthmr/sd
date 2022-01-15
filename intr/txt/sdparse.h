@@ -13,11 +13,11 @@
 
 #  include "../../utils/types/shared.h"
 
-// -- `t_find` exit status -- //
+// -- `nfind` exit status -- //
 #  define not_found 0
 #  define found 1
 #  define token 2
-#  define number 3
+#  define literal 3
 #  define repeats 4
 
 // -- `direction` values -- //
@@ -25,16 +25,15 @@
 #  define down_up 2
 
 static bool direction;
-static uint offset;
 
-bool t_find_def (char);
+bool nfind_def (char);
 
 /// TODO: maybe some upper / lower bound check is needed?
-#  define s_comp(x,y) (direction == down_up)? x >= 0: x <= y
+#  define s_comp(x,y) (direction == down_up)? x > 0: x <= y
 #  define s_advance(x) (direction == down_up)? x--: x++
 #  define s_regress(x) (direction == down_up)? x++: x--
 
-void StreamParser (char**);
+void parser_stream (char**);
 
 #endif
 
@@ -47,7 +46,6 @@ void StreamParser (char**);
 #  include "../../utils/types/shared.h"
 
 /* This is the main wrappable function */
-void StartParse (FILE*, char*, uint,
-                 int, char**);
+void parse_src (FILE*, char*, uint);
 
 #endif

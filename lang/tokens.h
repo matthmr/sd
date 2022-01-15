@@ -99,6 +99,7 @@ enum token {
 	T_ASSIGN,
 	T_CHILD,
 	T_REF,
+	T_KW_REF,
 	T_EXPR_END,
 	T_OBJ_BEGIN_ASCII,
 	T_OBJ_END_ASCII,
@@ -120,6 +121,7 @@ typedef enum token Tk;
 static const char Token_manifest[] = {
 	[T_ASSIGN] = ':',
 	[T_CHILD] = '/',
+	[T_KW_REF] = '#',
 	[T_REF] = '@',
 	[T_EXPR_END] = ';',
 	[T_OBJ_BEGIN_ASCII] = '{',
