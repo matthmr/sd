@@ -6,3 +6,12 @@
  * for their respective formats
  * (binary or plain-text)
  */
+
+#ifndef LOCK_LANG
+#  define LOCK_LANG
+
+#  include "langutils.h"
+
+void* resolute_obj (Obj);
+
+#endif

@@ -1,19 +1,20 @@
 .\" manpage for sdread
 
+.\" name catg date version title
 .TH sdread 1 "Jan 2022" "0.2.4" "sdread manpage"
 
 .SH NAME
-sdread \- SD language plain-text interpreter
+sdread \- SD language interpreter
 
 .SH SYNOPSIS
 .B sdread
-[\-|<filename>] "<expression>"
+[-a,-s] <file> "<expr>"
 
 .SH DESCRIPTION
 .
 .P
 .B sdread
-is the default plain-text interpreter for the SD language.
+is the default plain-text & bytecode interpreter for the SD language.
 It wraps around
 .B sdparse
 which itself wraps arround IST (intermediary SD tree) functionality to JIT-compile native SD source code
@@ -30,9 +31,24 @@ reading from package.sd files.
 
 .TP
 .B \-
-stream <filename> from
+stream <file> from
 .B STDIN
 (pipe).
+
+.TP
+.B \-a
+parses an
+.B assembly
+file. Assembly files are the human-readable semi-direct representation of SD bytecode.
+
+.TP
+.B \-s
+parses a
+.B bytecode
+file. Bytecode files are the non-human-readable binary representation of the structure of an SD script.
+They are created by the compiler and often have an
+.I .sdo
+extension (as in SD Object).
 
 .TP
 .B \-h
@@ -59,8 +75,17 @@ Expressions may not exceed one argument long. It is recomended to either wrap th
 .I xargs
 the output of a file into the expression.
 
+.SH NOTES
+.IP \[bu]
+By default, optionless <file> is of type "
+.B source
+", aka plain-text human-readable SD source code.
+
+.IP \[bu]
+Expressions cannot be set to resolute outside the root which is defined in the file.
+
 .SH SEE ALSO
-.BR sdparse(1),
+.BR sdc(1),
 .BR sdexec(1),
 .BR sdlang(4)
 

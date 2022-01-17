@@ -8,24 +8,38 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../utils/types/shared.h"
-#include "../../utils/utils.h"
-#include "../../utils/err/err.h"
+#include <sd/utils/types/shared.h>
+#include <sd/utils/err/err.h>
+#include <sd/utils/utils.h>
 
-#include "../../lang/tokens.h"
-#include "../../lang/langutils.h"
+#include <sd/lang/langutils.h>
+#include <sd/lang/core/obj.h>
+#include <sd/lang/tokens.h>
+#include <sd/lang/lang.h>
 
-#include "utils/txtutils.h"
+#include <sd/intr/txt/utils/txtutils.h>
+#include <sd/intr/txt/sdparse.h>
 
-#include "sdparse.h"
-
-#define H_RESET_CONTXT H_RESET(t);\
-                       H_RESET(exit_status)
+#define H_RESET_TEXIT H_RESET(t);\
+                      H_RESET(exit_status)
 
 static uint t;
 uint offset;
 
-bool nfind_def (char c) {
+uint litsize_offset (uint* i, char* data) {
+	uint offset = *i;
+
+	char c = data[offset];
+
+	while ( NUMBER (c)) {
+		offset++;
+		c = data[offset];
+	}
+
+	return (*i = (offset - 1));
+}
+
+bool nfind_def (uint* i, char c) {
 
 	bool exit_status;
 	bool rep_lock = false; /// masks `r_repeats` to directly resolute `t_end`
@@ -135,6 +149,8 @@ bool nfind_def (char c) {
 		H_RESET (t_start);
 		H_RESET (t_end);
 
+		i += offset;
+
 		return found;
 	}
 
@@ -172,39 +188,44 @@ void parser_stream (char** data) {
 		   !exit_status && c == '\n') /// equivalent to `not_found`
 			goto case_not_found;
 
-		exit_status = nfind_def (c);
+		exit_status = nfind_def (&i, c);
 
 		switch (exit_status) {
 
 			case repeats:
+				offset++;
 				break;
 
 			case not_found:
-			case_not_found: { /// handle unknown token
+			case_not_found: {
 				printf ("[ DEBUG#TAKEOUT: not_found ]\n");
 				H_LOCK (trailing);
-				H_RESET_CONTXT;
-				/// TODO (HERE)
-				getuname (&)offset = i;
+				H_RESET_TEXIT;
+				/// TODO: HERE: make the `uobj` table
+				// getuname (/* TODO, */ &i, *data, lnsize, DELIMITER);
 				continue;
 			} break;
 
-			case found: /// handle known token (up to differential)
+			/**
+			 * it might be the case that a string is consired equal
+			 * to a keyword if the conditions are right. in that
+			 * case, we implement the same table as `getuname`
+			 */
+			case found:
 			case_found: {
 
 				printf ("[ DEBUG#TAKEOUT: found ]\n");
+
+				offset = i;
 
 				uint kw_len = strlen (Keyword_manifest[t]);
 				char* name = malloc (kw_len);
 
 				getname (&name, &i, *data, lnsize, DELIMITER);
 
-				_bool _isKw = true;
+				_bool _isKw = (_bool) strcmp (name, Keyword_manifest[t]);
 
-				if (name) /// incomplete default name != non-existent
-					_isKw = (_bool) strcmp (name, Keyword_manifest[t]);
-
-				H_RESET_CONTXT;
+				H_RESET_TEXIT;
 				H_LOCK (trailing);
 
 				if (! _isKw) {
@@ -219,16 +240,21 @@ void parser_stream (char** data) {
 			case token: /// handle token
 				printf ("[ DEBUG#TAKEOUT: token ]\n");
 				H_LOCK (trailing);
-				H_RESET_CONTXT;
+				H_RESET_TEXIT;
 				offset++;
 				continue;
 				break;
 
 			case literal: /// handle literal
 				printf ("[ DEBUG#TAKEOUT: literal ]\n");
+
 				H_LOCK (trailing);
-				H_RESET_CONTXT;
-				/// TODO: increment offset by the `literal` size
+				H_RESET_TEXIT;
+
+				/// TODO: resolute literal data
+				uint i_start = i;
+				offset = litsize_offset (&i, *data);
+
 				continue;
 				break;
 		}
@@ -243,6 +269,15 @@ void parser_stream (char** data) {
 void parse_src (FILE* file, char* data, const uint LINE_LIMIT) {
 
 	Set (txtruntime);
+
+	Obj root = {
+		.data = NULL,
+		.parent = NULL,
+		.children = NULL,
+		.childrenno = 0
+	};
+
+	root.parent = &root;
 
 	while (fgets (data, LINE_LIMIT, file) != NULL)
 		parser_stream (&data);

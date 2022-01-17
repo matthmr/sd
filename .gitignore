@@ -1,7 +1,8 @@
-# Objects / Archives
+# Objects / Archives / Executables
 **/*.o
 **/*.a
 **/*.so
+bin/sd*
 
 # Executables
 **/sdread

@@ -1,11 +1,13 @@
 /**
  * This file contains promises
  * set for parser frontends
+ * and misc data for sdread
+ * frontend
  */
 
 #ifndef LOCK_READ
 #  define LOCK_READ
-#include "../../utils/types/shared.h"
+#include <sd/utils/types/shared.h>
 
 #  define HELP "\nMade by mH (https://github.com/matthmr)\n"\
                "\tsdread\t\t\t  => The standard SD interpreter\n\n"\

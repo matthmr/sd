@@ -8,6 +8,7 @@
 
 #  undef LOCK_UNSIGNED_INT
 
-static const unsigned int LINE_LIMIT = 10000; /// 10 kb
+static const unsigned short int LINE_LIMIT = (1 << 16) - 1;
+static const unsigned short int CHILDREN_LIMIT = (1 << 16) - 1;
 
 #endif

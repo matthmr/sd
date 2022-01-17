@@ -7,13 +7,13 @@
 #ifndef LOCK_TXT_UTILS
 #  define LOCK_TXT_UTILS
 
-#  include "../../../utils/types/shared.h"
+#  include <sd/utils/types/shared.h>
 
 #  define DELIMITER ':' /// assignment token
 
 extern uint offset;
 
-bool streq (char*, const char*);
 void getname (char**, uint*, char*, uint, char);
+void getuname (/* TODO, */ uint*, char*, uint, char);
 
 #endif

@@ -5,11 +5,10 @@
  * centralized
  */
 
-#include "../utils.c"
-#include "err.h"
+#include <sd/utils/err/err.h>
+#include <sd/utils/utils.h>
 
 static char* fmt;
-static char* info = NULL;
 
 static const char* errfmt[] = {
 	[argtime] = "[ARGPARSE]:%s%s\n",
@@ -21,11 +20,11 @@ static const char* errfmt[] = {
 };
 
 static const char* warmsg[] = {
-	NULL /* TODO: centralize warning messages */
+	0x00 /* TODO: centralize warning messages */
 };
 
 static const char* errmsg[] = {
-	NULL,
+	0x00,
 	" E01: No such file ",
 	" E02: Missing file name "
 };

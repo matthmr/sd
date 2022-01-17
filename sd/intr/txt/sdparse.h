@@ -5,13 +5,10 @@
  * source code.
  */
 
+#include <sd/utils/types/shared.h>
+
 #ifndef LOCK_PARSE
 #  define LOCK_PARSE
-
-#  define LOCK_TYPES
-#  undef LOCK_UNSIGNED_INT
-
-#  include "../../utils/types/shared.h"
 
 // -- `nfind` exit status -- //
 #  define not_found 0
@@ -26,24 +23,21 @@
 
 static bool direction;
 
-bool nfind_def (char);
+bool nfind_def (uint*, char);
 
 /// TODO: maybe some upper / lower bound check is needed?
-#  define s_comp(x,y) (direction == down_up)? x > 0: x <= y
+#  define s_comp(x,y) (direction == down_up)? x >= y: x <= y
 #  define s_advance(x) (direction == down_up)? x--: x++
 #  define s_regress(x) (direction == down_up)? x++: x--
 
 void parser_stream (char**);
 
+uint litsize_offset (uint*, char*);
+
 #endif
 
 #ifndef LOCK_STACK
 #  define LOCK_STACK
-
-#  define LOCK_TYPES
-#  undef LOCK_UNSIGNED_INT
-
-#  include "../../utils/types/shared.h"
 
 /* This is the main wrappable function */
 void parse_src (FILE*, char*, uint);

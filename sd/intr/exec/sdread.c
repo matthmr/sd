@@ -11,25 +11,25 @@
  * used by scriptsd.
  */
 
-/// TODO: make an argparser for this to
-///       be able to differentiate bet-
-///       ween operating modes
-
-#define VERSION "v0.2.4"
+#define VERSION "v0.3.0"
 #include <stdio.h>
 
 #define LOCK_PARSE
-#include "../txt/sdparse.h"
-#include "../../utils/utils.h"
-#include "../../utils/err/err.h"
+#undef LOCK_STACK
+#include <sd/intr/txt/sdparse.h>
+#undef LOCK_ERR
+#include <sd/utils/err/err.h>
+#include <sd/utils/utils.h>
 
 #define LOCK_TYPES
-#include "../../utils/types/shared.h"
-#include "../limits.h"
-#include "sdread.h"
+#include <sd/utils/types/shared.h>
+#include <sd/intr/exec/sdread.h>
+#include <sd/intr/limits.h>
 
-/// TODO: unhandled `<expr>`
+/// TODO: unhandled `<expr>`: parse it and execute within main file context
 int main (int argc, char** argv) {
+
+	uint i = 0;
 
 	bool pipe = false;
 	bool promise = false;
@@ -40,9 +40,9 @@ int main (int argc, char** argv) {
 
 	Set (argtime);
 
-	if (argc > 1) for (uint i = 1; i < argc; i++) {
+	if (argc > 1) for (i = 1; i < argc; i++) {
 		if (! promise) {
-			if (argv[i][0] == '-')
+			if (argv[i][0] == '-') {
 				switch (argv[i][1]) {
 
 				// -- info -- //
@@ -77,17 +77,14 @@ int main (int argc, char** argv) {
 					return 0;
 					break;
 				}
-			else {
-				if (! (file = fopen (argv[i], "r")) )
-					Err (0x01, argv[i]);
-				goto expr;
+			}
+			else { /// argv[i][0] != '-'
+				f_type = SOURCE;
+				goto open;
 			}
 		}
-		else { /// promise file type
-			if (! (file = fopen (argv[i], "r")) )
-				Err (0x01, argv[i]);
-			goto expr;
-		}
+		else /// promise file type
+			goto open;
 	}
 	else { /// interpret as `sdread -`
 		LOCK (pipe);
@@ -97,11 +94,17 @@ int main (int argc, char** argv) {
 	if (promise)
 		Err (0x02, " ");
 
-	if (0) expr: { };
+	if (0) {
+	open: {
+		if (! (file = fopen (argv[i], "r")))
+			Err (0x01, argv[i]);
+	}
+	expr: ;
+	}
 
-	byte data[LINE_LIMIT];
+	Byte data[LINE_LIMIT];
 
-	/* send `file` to the appropiate parser */
+	/// TODO: maybe accept multiple files as modules? this would become a loop
 	switch (f_type) {
 		case SOURCE: parse_src (file, data, LINE_LIMIT); break;
 		case ASM: break;

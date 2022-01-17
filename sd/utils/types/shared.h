@@ -5,6 +5,12 @@
 
 #ifndef LOCK_TYPES
 #  define LOCK_TYPES
+
+typedef unsigned char bool;
+typedef unsigned char _bool;
+typedef unsigned char Byte;
+typedef unsigned short int Name;
+
 #endif
 
 #ifndef LOCK_BOOLEAN
@@ -12,10 +18,6 @@
 
 #  define true 0b1
 #  define false 0b0
-
-typedef unsigned char bool;
-typedef unsigned char _bool;
-typedef unsigned char byte;
 
 #endif
 

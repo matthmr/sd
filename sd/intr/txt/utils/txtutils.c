@@ -7,10 +7,8 @@
 
 #include <string.h>
 
-#include "txtutils.h"
-#include "../../../utils/utils.h"
-
-bool streq (char* string, const char* kw) { }
+#include <sd/intr/txt/utils/txtutils.h>
+#include <sd/utils/utils.h>
 
 void getname (char** name, uint* i, char* line, uint lnsize, char del) {
 	char c;
@@ -35,5 +33,5 @@ void getname (char** name, uint* i, char* line, uint lnsize, char del) {
 	*i = (offset+len-1); /// count for increment
 
 	strncpy (*name, line+offset, len);
-	offset += len; /// point to the unit right after this one
+	offset += len; /// point to the `name  right after this one
 }
