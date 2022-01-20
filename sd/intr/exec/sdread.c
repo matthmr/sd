@@ -74,7 +74,7 @@ int main (int argc, char** argv) {
 
 				default:
 					fprintf (stderr, "[ !! ] Bad usage. See sdread -h\n");
-					return 0;
+					return 1;
 					break;
 				}
 			}
@@ -102,7 +102,7 @@ int main (int argc, char** argv) {
 	expr: ;
 	}
 
-	Byte data[LINE_LIMIT];
+	char data[LINE_LIMIT];
 
 	/// TODO: maybe accept multiple files as modules? this would become a loop
 	switch (f_type) {

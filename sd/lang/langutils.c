@@ -4,3 +4,7 @@
  */
 
 #include <sd/lang/langutils.h>
+
+Obj* mkchild (Obj* root, Obj* obj) {
+	return 0x0;
+}

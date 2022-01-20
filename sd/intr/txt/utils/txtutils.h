@@ -11,9 +11,9 @@
 
 #  define DELIMITER ':' /// assignment token
 
-extern uint offset;
+extern uint g_offset;
 
-void getname (char**, uint*, char*, uint, char);
-void getuname (/* TODO, */ uint*, char*, uint, char);
+// TODO: void getuname (void);
+void getinptr (uint*, char*, uint, char);
 
 #endif

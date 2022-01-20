@@ -10,7 +10,11 @@
 #ifndef LOCK_PARSE
 #  define LOCK_PARSE
 
-// -- `nfind` exit status -- //
+#  include <sd/lang/core/obj.h>
+#  include <sd/lang/langutils.h>
+#  include <sd/lang/lang.h>
+
+// -- `nfind_def` exit status -- //
 #  define not_found 0
 #  define found 1
 #  define token 2
@@ -30,7 +34,7 @@ bool nfind_def (uint*, char);
 #  define s_advance(x) (direction == down_up)? x--: x++
 #  define s_regress(x) (direction == down_up)? x++: x--
 
-void parser_stream (char**);
+void parser_stream (char**, Obj*);
 
 uint litsize_offset (uint*, char*);
 

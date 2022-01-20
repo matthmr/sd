@@ -8,30 +8,25 @@
 #include <string.h>
 
 #include <sd/intr/txt/utils/txtutils.h>
+#include <sd/utils/types/shared.h>
 #include <sd/utils/utils.h>
 
-void getname (char** name, uint* i, char* line, uint lnsize, char del) {
+void getinptr (uint* i, char* line, uint lnsize, char del) {
 	char c;
 	uint len = 0;
 
-	while ((len+offset) < lnsize) {
-		c = line[len+offset];
-		if (c == del ||
-		    c == 0x20 || c == 0x0a || c == 0x09 || c == 0x00 ||
-		    ! ( LETTER (c) || NUMBER (c)) /// any other non-alpha-numeric token
-		) break;
+	while ((len+g_offset) < lnsize) {
+		c = line[len+g_offset];
+		if (c == del || WHITESPACE (c) ||
+		!  ( LETTER (c) || NUMBER (c) ))
+			break;
 		else
 			len++;
 	}
-	
-	/// fall-through
-	if (!len) {
-		*name = NULL;
-		return;
-	}
-	
-	*i = (offset+len-1); /// count for increment
 
-	strncpy (*name, line+offset, len);
-	offset += len; /// point to the `name  right after this one
+	if (!len) /// fall-through
+		return;
+	
+	g_offset += len; /// point to `i` of an adjancent name...
+	*i = (g_offset-1); /// ... counting for incremental loop
 }

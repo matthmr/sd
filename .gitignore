@@ -1,15 +1,14 @@
-# Objects / Archives / Executables
+# Objects / Archives / Cores / Executables -- binary
 **/*.o
 **/*.a
 **/*.so
+**/core.*
+**/*.core
 bin/sd*
 
 # Executables
 **/sdread
-**/sdexec
-**/sdcomp
-**/sdasm
-**/sdlink
+**/sdc
 **/sdsh
 
 # Units

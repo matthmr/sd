@@ -32,7 +32,7 @@ clean:
 
 install: language parser compiler man
 	@echo [ .. ] Moving the sd language module to '${PREFIX}/bin'
-	mv bin/sdread bin/sd bin/sd bin/sdasm ${PREFIX}/bin || echo [ !! ] No permission to move binaries to ${PREFIX}/bin
+	mv bin/sdread bin/sd bin/sdc ${PREFIX}/bin || echo [ !! ] No permission to move binaries to ${PREFIX}/bin
 	@echo [ .. ] Moving the sd language library to '${PREFIX}/lib'
 	mv libsdlang.so ${PREFIX}/lib || echo [ !! ] No permission to move backend to ${PREFIX}/lib
 	@echo [ .. ] Moving man pages to '${PREFIX}/man'
@@ -63,10 +63,13 @@ help:
 	@echo   - CTAGS: ctags-like command \(${CTAGS}\)
 	@echo   - PREFIX: prefix for installation \(${PREFIX}\)
 
+## TODO: make `-lsdlang` shared instead of static
+
 parser: sd/intr/exec/sdread.o\
-	lib/libsdparse.a
+	lib/libsdparse.a\
+	lib/libsdlang.a
 	@echo [ .. ] Linking to 'sdread'
-	${CC} ${CCFLAG} -o bin/sdread sd/intr/exec/sdread.o -Llib -lsdparse
+	${CC} ${CCFLAG} -o bin/sdread sd/intr/exec/sdread.o -Llib -lsdparse -lsdlang
 	@echo [ .. ] Finished compilation
 
 man: man/man1/sdread.1
@@ -88,15 +91,23 @@ sd/intr/exec/sdread.o: sd/intr/exec/sdread.c sd/intr/exec/sdread.h\
 
 sd/intr/txt/sdparse.o: sd/intr/txt/sdparse.c sd/intr/txt/sdparse.h\
 	sd/lang/tokens.h\
+	sd/lang/core/obj.h\
 	sd/utils/types/shared.h\
+	sd/lang/langutils.h\
 	sd/intr/txt/utils/txtutils.o\
-	sd/utils/err/err.o\
-	sd/utils/utils.o
+	sd/lang/langutils.o\
+	sd/utils/utils.o\
+	sd/utils/err/err.o
 	@echo [ .. ] Compiling 'sdparse.o'
 	${CC} ${INCLUDE} -c ${CCFLAG} sd/intr/txt/sdparse.c -o sd/intr/txt/sdparse.o
 ### END COMPILING ###
 
 ### BEGIN COMPILING UTILS ###
+sd/lang/langutils.o: sd/lang/langutils.c sd/lang/langutils.h\
+	sd/utils/types/shared.h
+	@echo [ .. ] Compiling 'langutils.o'
+	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/langutils.c -o sd/lang/langutils.o
+
 sd/intr/txt/utils/txtutils.o: sd/intr/txt/utils/txtutils.c sd/intr/txt/utils/txtutils.h\
 	sd/utils/utils.o\
 	sd/utils/types/shared.h
@@ -121,8 +132,9 @@ lib/libsdparse.a: sd/utils/utils.o\
 	@echo [ .. ] Archiving to 'libsdparse.a'
 	${AR} ${ARFLAG} lib/libsdparse.a $?
 
-lib/libsdlangcore.a:
+lib/libsdlang.a: sd/lang/langutils.o
 	@echo [ .. ] Archiving to 'libsdcore.a'
+	${AR} ${ARFLAG} lib/libsdlang.a $?
 
 lib/libsdlang.so:
 	@echo [ .. ] Compiling to 'libsdlang.so'

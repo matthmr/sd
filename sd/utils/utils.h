@@ -19,6 +19,7 @@ void War (char*, const char*, char*);
 #  define LOWER_ALPHA(X) (X) >= 'a' && (X) <= 'z'
 #  define UPPER_ALPHA(X) (X) >= 'A' && (X) <= 'Z'
 #  define LETTER(X) (LOWER_ALPHA(X) || UPPER_ALPHA(X) || (X) == '_')
+#  define WHITESPACE(X) ((X) == 0x20 || (X) == 0x0a || (X) == 0x09 || (X) == 0x00)
 #  define ATOI(X) (!(NUMBER(X)))? 0: (X) - 48
 #  define TOGGLE(X) (X) = (X)^1
 #  define LOCK(X) if (!X) (X)=1

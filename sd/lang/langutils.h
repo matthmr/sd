@@ -7,17 +7,23 @@
 #  define LOCK_LANG_UTILS
 
 #  include <sd/utils/types/shared.h>
-#  include <sd/intr/limits.h>
+
+union reference {
+	void* data; /// pass by value
+	void* obj;  /// pass by pointer
+};
+
+typedef union reference ref;
 
 struct obj {
-	Name childrenno;
-	void* data;
-	struct obj* parent;
-	struct obj* children;
+	uint cdno;
+	ref ref;
+	struct obj* pr;
+	struct obj* cd;
 };
 
 typedef struct obj Obj;
 
-Obj mkchild (Obj*, void*);
+Obj* mkchild (Obj*, Obj*);
 
 #endif

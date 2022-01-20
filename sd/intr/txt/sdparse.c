@@ -20,18 +20,21 @@
 #include <sd/intr/txt/utils/txtutils.h>
 #include <sd/intr/txt/sdparse.h>
 
-#define H_RESET_TEXIT H_RESET(t);\
-                      H_RESET(exit_status)
+#define _continue H_RESET (exit_status); continue
 
 static uint t;
-uint offset;
+uint g_offset;
+
+Kwty get_kwty (uint kw) {
+	return 0;
+}
 
 uint litsize_offset (uint* i, char* data) {
 	uint offset = *i;
 
 	char c = data[offset];
 
-	while ( NUMBER (c)) {
+	while ( NUMBER (c) ) {
 		offset++;
 		c = data[offset];
 	}
@@ -63,14 +66,14 @@ bool nfind_def (uint* i, char c) {
 			direction = (c > 'm')? down_up: up_down;
 
 			t_start = (direction == down_up)?
-				Keyword_manifest_len - 1: 0;
+				keyword_manifest_len - 1: 0;
 			t_end = (direction == down_up)?
-				0: Keyword_manifest_len - 1;
+				0: keyword_manifest_len - 1;
 
 			/// looks for out-of-bound chars
 			if (
-			     (direction == up_down && c < *(Keyword_manifest[t_start])) ||
-			     (direction == down_up && c > *(Keyword_manifest[t_start]))
+			     (direction == up_down && c < *(keyword_manifest[t_start].kw)) ||
+			     (direction == down_up && c > *(keyword_manifest[t_start].kw))
 			   )
 				goto s_not_found;
 
@@ -84,13 +87,13 @@ bool nfind_def (uint* i, char c) {
 					/// TODO: if the list of builtin objects gets bigger,
 					///       make this faster by comparing it against
 					///       character boundary
-					if (c == Keyword_manifest[t][offset]) {
+					if (c == keyword_manifest[t].kw[offset]) {
 						H_LOCK (rep_lock);
 						_t_end = _t = t;
 					}
 				}
 				else { /// on lock
-					if (c == Keyword_manifest[t][offset])
+					if (c == keyword_manifest[t].kw[offset])
 						s_advance (_t_end); /* shrink search time by shriking `t_end`:
 						                       when this expression is false, `t_end`
 						                       becomes a new upper bound */
@@ -118,8 +121,8 @@ bool nfind_def (uint* i, char c) {
 			if (NUMBER (c))
 					return literal;
 
-			for (t = 0; t < Token_manifest_len; t++)
-				if (c == Token_manifest[t])
+			for (t = 0; t < token_manifest_len; t++)
+				if (c == token_manifest[t].t)
 					return token;
 
 			goto s_not_found;
@@ -165,7 +168,7 @@ bool nfind_def (uint* i, char c) {
 
 }
 
-void parser_stream (char** data) {
+void parser_stream (char** data, Obj* root) {
 
 	char c;
 
@@ -173,12 +176,14 @@ void parser_stream (char** data) {
 	bool trailing = true;
 
 	uint lnsize = strlen (*data);
+	Obj* c_obj = root;
+	Obj* c_objpr = root->pr;
 
 	for (uint i = 0; (*data)[i] != '\0'; i++) {
 		c = (*data)[i];
 
-		if (trailing && (c == 0x20 || c == 0x0a || c == 0x09)) { /// trailing whitespace
-			offset++;
+		if (trailing && WHITESPACE (c)) {
+			g_offset++;
 			continue;
 		}
 		else if (trailing)
@@ -190,95 +195,99 @@ void parser_stream (char** data) {
 
 		exit_status = nfind_def (&i, c);
 
+		if (exit_status != repeats)
+			LOCK (trailing);
+		else {
+			g_offset++;
+			continue;
+		}
+
 		switch (exit_status) {
 
-			case repeats:
-				offset++;
-				break;
+		case not_found:
+		case_not_found: {
+			puts ("[ DEBUG#TAKEOUT: not_found ]\n");
+			/// TODO: HERE: make the `uobj` table
+			// getuname (/* TODO, */ &i, *data, lnsize, DELIMITER);
+			_continue;
+		} break;
 
-			case not_found:
-			case_not_found: {
-				printf ("[ DEBUG#TAKEOUT: not_found ]\n");
-				H_LOCK (trailing);
-				H_RESET_TEXIT;
-				/// TODO: HERE: make the `uobj` table
-				// getuname (/* TODO, */ &i, *data, lnsize, DELIMITER);
-				continue;
-			} break;
+		/**
+		 * it might be the case that a string is consired equal
+		 * to a keyword if the conditions are right. in that
+		 * case, we implement the same table as `getuname`
+		 */
+		case found:
+		case_found: {
 
-			/**
-			 * it might be the case that a string is consired equal
-			 * to a keyword if the conditions are right. in that
-			 * case, we implement the same table as `getuname`
-			 */
-			case found:
-			case_found: {
+			puts ("[ DEBUG#TAKEOUT: found ]\n");
 
-				printf ("[ DEBUG#TAKEOUT: found ]\n");
+			uint _i = g_offset = i;
+			getinptr (&i, *data, lnsize, DELIMITER);
 
-				offset = i;
+			if (g_offset == i) {
+				_continue;
+			}
 
-				uint kw_len = strlen (Keyword_manifest[t]);
-				char* name = malloc (kw_len);
+			char* name = calloc ((g_offset-_i), 1);
+			strncpy (name, *data+_i, g_offset-_i);
 
-				getname (&name, &i, *data, lnsize, DELIMITER);
+			_bool notKw = (_bool)
+				strcmp (name, keyword_manifest[t].kw);
 
-				_bool _isKw = (_bool) strcmp (name, Keyword_manifest[t]);
+			if (! notKw /* if keyword */)
+				; // kw_handle (&keyword_manifest[t]);
+			else {
+				/// TODO: handle name with the default name handler
+				// u_handle (name, ...);
+			}
 
-				H_RESET_TEXIT;
-				H_LOCK (trailing);
+			free (name);
 
-				if (! _isKw) {
-					/// TODO: handle keyword as an object reference
-				}
-				else {
-					/// TODO: handle name with the default name handler
-				}
+		} break;
 
-			} break;
+		case token: /// handle token
+			puts ("[ DEBUG#TAKEOUT: token ]\n");
+			g_offset++;
+			_continue;
+			break;
 
-			case token: /// handle token
-				printf ("[ DEBUG#TAKEOUT: token ]\n");
-				H_LOCK (trailing);
-				H_RESET_TEXIT;
-				offset++;
-				continue;
-				break;
+		case literal: /// handle literal
 
-			case literal: /// handle literal
-				printf ("[ DEBUG#TAKEOUT: literal ]\n");
+			puts ("[ DEBUG#TAKEOUT: literal ]\n");
 
-				H_LOCK (trailing);
-				H_RESET_TEXIT;
+			/// TODO: resolute literal data
+			uint i_start = i;
+			g_offset = litsize_offset (&i, *data);
 
-				/// TODO: resolute literal data
-				uint i_start = i;
-				offset = litsize_offset (&i, *data);
-
-				continue;
-				break;
+			_continue;
+			break;
 		}
 
 	}
 
-	RESET (offset);
+	RESET (g_offset);
 
 }
 
-/* This wraps around `parser_stream` to use `fgets`*/
+/* this wraps around `parser_stream` to use `fgets`
+ * and define module roots */
 void parse_src (FILE* file, char* data, const uint LINE_LIMIT) {
 
 	Set (txtruntime);
 
 	Obj root = {
-		.data = NULL,
-		.parent = NULL,
-		.children = NULL,
-		.childrenno = 0
+		.cdno = 0,
+		.ref = NULL,
+		.pr = NULL,
+		.cd = NULL
 	};
 
-	root.parent = &root;
+	/* the way we know if we hit root
+	 * is to see if the parent `pr`
+	 * of `obj` is itself*/
+	root.pr = &root;
 
 	while (fgets (data, LINE_LIMIT, file) != NULL)
-		parser_stream (&data);
+		parser_stream (&data, &root);
 }
