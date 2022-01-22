@@ -8,22 +8,25 @@
 
 #  include <sd/utils/types/shared.h>
 
-union reference {
-	void* data; /// pass by value
-	void* obj;  /// pass by pointer
-};
+// -- `Obj.ref` types -- //
+#  define DATA 0
+#  define OBJ 1
 
-typedef union reference ref;
+typedef byte ref_t;
+typedef uint oid;
 
 struct obj {
+	/* metadata */
 	uint cdno;
-	ref ref;
+	ref_t rty;
+	oid oid;
+
+	/* data */
+	void* ref;
 	struct obj* pr;
 	struct obj* cd;
 };
 
 typedef struct obj Obj;
-
-Obj* mkchild (Obj*, Obj*);
 
 #endif

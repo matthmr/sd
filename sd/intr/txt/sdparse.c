@@ -16,6 +16,7 @@
 #include <sd/lang/core/obj.h>
 #include <sd/lang/tokens.h>
 #include <sd/lang/lang.h>
+#include <sd/lang/hooks.h>
 
 #include <sd/intr/txt/utils/txtutils.h>
 #include <sd/intr/txt/sdparse.h>
@@ -24,10 +25,6 @@
 
 static uint t;
 uint g_offset;
-
-Kwty get_kwty (uint kw) {
-	return 0;
-}
 
 uint litsize_offset (uint* i, char* data) {
 	uint offset = *i;
@@ -40,6 +37,29 @@ uint litsize_offset (uint* i, char* data) {
 	}
 
 	return (*i = (offset - 1));
+}
+
+bool tfind_def (char c) {
+
+	uint size = token_manifest_len;
+	uint block;
+
+	/// odd-sized token array
+	if ((size % 2) == 1)
+		if (c == token_manifest[size/2].t)
+			return token;
+
+	t = 0;
+	while (t < block) {
+		if (c == token_manifest[t].t ||
+		    c == token_manifest[(size-1)-t].t) {
+			t = (c == token_manifest[(size-1)-t].t)?
+				(size-1)-t: t;
+			return token;
+		}
+		t++;
+	}
+
 }
 
 bool nfind_def (uint* i, char c) {
@@ -84,9 +104,7 @@ bool nfind_def (uint* i, char c) {
 			for (t = t_start; s_comp (t, t_end); s_advance (t)) {
 
 				if (!rep_lock) {
-					/// TODO: if the list of builtin objects gets bigger,
-					///       make this faster by comparing it against
-					///       character boundary
+					/// TODO: apply the same optimization as `tfind_def`
 					if (c == keyword_manifest[t].kw[offset]) {
 						H_LOCK (rep_lock);
 						_t_end = _t = t;
@@ -121,9 +139,10 @@ bool nfind_def (uint* i, char c) {
 			if (NUMBER (c))
 					return literal;
 
-			for (t = 0; t < token_manifest_len; t++)
-				if (c == token_manifest[t].t)
-					return token;
+			if (tfind_def (c) == token) {
+				H_RESET (direction);
+				return token;
+			}
 
 			goto s_not_found;
 
@@ -177,9 +196,35 @@ void parser_stream (char** data, Obj* root) {
 
 	uint lnsize = strlen (*data);
 	Obj* c_obj = root;
-	Obj* c_objpr = root->pr;
 
 	for (uint i = 0; (*data)[i] != '\0'; i++) {
+
+		/* locks the parser stream for:
+		 *   * comment line
+		 *   * comment block
+		 *   * literals (mainly strings)
+		 */
+		if (lock_stream) {
+
+			if (g_ctxt.cmtl || g_ctxt.cmtb) {
+				if (s_ignore (&i, lnsize, *data))
+					break;
+				else if (ct_close (&i, *data))
+					continue;
+				else break;
+			}
+
+			else switch (g_ctxt.str) {
+				case DQSTR:
+					if (strchr (*data+i, '"') != NULL);
+					break;
+				case SQSTR:
+					if (strchr (*data+i, '\'') != NULL);
+					break;
+			}
+
+		}
+
 		c = (*data)[i];
 
 		if (trailing && WHITESPACE (c)) {
@@ -206,55 +251,52 @@ void parser_stream (char** data, Obj* root) {
 
 		case not_found:
 		case_not_found: {
-			puts ("[ DEBUG#TAKEOUT: not_found ]\n");
-			/// TODO: HERE: make the `uobj` table
-			// getuname (/* TODO, */ &i, *data, lnsize, DELIMITER);
+			puts ("!! not_found");
+			H_RESET (t);
 			_continue;
 		} break;
 
-		/**
-		 * it might be the case that a string is consired equal
-		 * to a keyword if the conditions are right. in that
-		 * case, we implement the same table as `getuname`
-		 */
 		case found:
 		case_found: {
 
-			puts ("[ DEBUG#TAKEOUT: found ]\n");
+			puts (":: found");
 
+			/// TODO: missing first part of `name`
 			uint _i = g_offset = i;
-			getinptr (&i, *data, lnsize, DELIMITER);
+			getinptr (&i, *data, lnsize, DELIMITER); /* this is done because it might be
+			                                            the case that this word is equal
+			                                            to a keyword up to diffing */
 
 			if (g_offset == i) {
 				_continue;
 			}
 
-			char* name = calloc ((g_offset-_i), 1);
-			strncpy (name, *data+_i, g_offset-_i);
+			char* name = calloc ((g_offset-_i+1), 1);
+			strncpy (name, *data+_i-1, g_offset-_i+1);
+			uint notKw = (uint)
 
-			_bool notKw = (_bool)
 				strcmp (name, keyword_manifest[t].kw);
 
-			if (! notKw /* if keyword */)
-				; // kw_handle (&keyword_manifest[t]);
-			else {
-				/// TODO: handle name with the default name handler
-				// u_handle (name, ...);
-			}
+			if (! notKw)
+				; // akw_hook (keyword_manifest[t]);
+			else
+				; // au_hook (name);
 
 			free (name);
+			H_RESET (t);
 
 		} break;
 
 		case token: /// handle token
-			puts ("[ DEBUG#TAKEOUT: token ]\n");
+			puts ("~~ token");
 			g_offset++;
+			at_hook (token_manifest[t]);
 			_continue;
 			break;
 
 		case literal: /// handle literal
 
-			puts ("[ DEBUG#TAKEOUT: literal ]\n");
+			puts (".. literal");
 
 			/// TODO: resolute literal data
 			uint i_start = i;
@@ -267,6 +309,8 @@ void parser_stream (char** data, Obj* root) {
 	}
 
 	RESET (g_offset);
+	/// TODO:
+	/// callback (c);
 
 }
 
@@ -274,9 +318,9 @@ void parser_stream (char** data, Obj* root) {
  * and define module roots */
 void parse_src (FILE* file, char* data, const uint LINE_LIMIT) {
 
-	Set (txtruntime);
+	e_set (txtruntime);
 
-	Obj root = {
+	Obj _root = {
 		.cdno = 0,
 		.ref = NULL,
 		.pr = NULL,
@@ -286,8 +330,10 @@ void parse_src (FILE* file, char* data, const uint LINE_LIMIT) {
 	/* the way we know if we hit root
 	 * is to see if the parent `pr`
 	 * of `obj` is itself*/
-	root.pr = &root;
+	_root.pr = &_root;
+	Obj* root = &_root;
 
 	while (fgets (data, LINE_LIMIT, file) != NULL)
-		parser_stream (&data, &root);
+		parser_stream (&data, root);
+
 }

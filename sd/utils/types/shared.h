@@ -24,5 +24,6 @@ typedef unsigned char byte;
 #  define LOCK_UNSIGNED_INT
 
 typedef unsigned int uint;
+typedef unsigned long int ulint;
 
 #endif

@@ -14,9 +14,7 @@ static const char* errfmt[] = {
 	[argtime] = "[ARGPARSE]:%s%s\n",
 	[txtruntime] = "[RUNTIME]:%s%s\n",
 	[byteruntime] = "[RUNTIME]:%s%s\n",
-	[cmptime] = "[COMPILE]:%s%s\n",
-	[asmtime] = "[ASSEMBLE]:%s%s\n",
-	[lntime] = "[LINK]:%s%s\n"
+	[cmptime] = "[COMPILE]:%s%s\n"
 };
 
 static const char* warmsg[] = {
@@ -29,7 +27,10 @@ static const char* errmsg[] = {
 	" E02: Missing file name "
 };
 
-inline void Set (Env env) {
+// TODO: define verbose errors for SD source code execution,
+//       the same won't be needed in bytecode execution
+
+inline void e_set (Env env) {
 	fmt = (char*) errfmt[env];
 }
 

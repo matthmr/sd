@@ -12,14 +12,12 @@ enum env {
 	argtime,
 	txtruntime,
 	byteruntime,
-	cmptime,
-	asmtime,
-	lntime
+	cmptime
 };
 
 typedef enum env Env;
 
 void Err (int, char*);
-void Set (Env);
+void e_set (Env);
 #endif
 

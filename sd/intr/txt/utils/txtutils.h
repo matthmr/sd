@@ -13,7 +13,6 @@
 
 extern uint g_offset;
 
-// TODO: void getuname (void);
 void getinptr (uint*, char*, uint, char);
 
 #endif

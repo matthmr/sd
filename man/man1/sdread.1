@@ -1,14 +1,14 @@
 .\" manpage for sdread
 
 .\" name catg date version title
-.TH sdread 1 "Jan 2022" "0.2.4" "sdread manpage"
+.TH sdread 1 "Jan 2022" "0.3.0" "sdread manpage"
 
 .SH NAME
 sdread \- SD language interpreter
 
 .SH SYNOPSIS
 .B sdread
-[-a,-s] <file> "<expr>"
+[-s] <file> "<expr>"
 
 .SH DESCRIPTION
 .
@@ -34,12 +34,6 @@ reading from package.sd files.
 stream <file> from
 .B STDIN
 (pipe).
-
-.TP
-.B \-a
-parses an
-.B assembly
-file. Assembly files are the human-readable semi-direct representation of SD bytecode.
 
 .TP
 .B \-s
@@ -86,7 +80,6 @@ Expressions cannot be set to resolute outside the root which is defined in the f
 
 .SH SEE ALSO
 .BR sdc(1),
-.BR sdexec(1),
 .BR sdlang(4)
 
 .SH DEVELOPERS

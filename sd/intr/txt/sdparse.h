@@ -28,6 +28,7 @@
 static bool direction;
 
 bool nfind_def (uint*, char);
+bool tfind_def (char);
 
 /// TODO: maybe some upper / lower bound check is needed?
 #  define s_comp(x,y) (direction == down_up)? x >= y: x <= y
@@ -35,7 +36,6 @@ bool nfind_def (uint*, char);
 #  define s_regress(x) (direction == down_up)? x++: x--
 
 void parser_stream (char**, Obj*);
-
 uint litsize_offset (uint*, char*);
 
 #endif

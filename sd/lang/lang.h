@@ -13,9 +13,9 @@
 #  include <sd/lang/langutils.h>
 
 enum kwty {
-	KWTY_BUILT_IN_TY,
+	KWTY_BUILTIN_TY,
 	KWTY_QUAL,
-	KWTY_BUILT_IN_OBJ,
+	KWTY_BUILTIN_OBJ,
 	KWTY_FLOW,
 	KWTY_ENV
 };
@@ -30,8 +30,9 @@ struct _kw {
 typedef struct _kw _Kw;
 
 enum tty {
-	TTY_REF,
-	TTY_DEF,
+	TTY_OBJ_REF_DEL,
+	TTY_OBJ_REF,
+	TTY_OBJ_DEF,
 	TTY_EXPR,
 	TTY_SYN
 };
@@ -44,7 +45,5 @@ struct _T {
 };
 
 typedef struct _T _T;
-
-void* resolute_obj (Obj);
 
 #endif

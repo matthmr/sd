@@ -95,11 +95,16 @@ sd/intr/txt/sdparse.o: sd/intr/txt/sdparse.c sd/intr/txt/sdparse.h\
 	sd/utils/types/shared.h\
 	sd/lang/langutils.h\
 	sd/intr/txt/utils/txtutils.o\
+	sd/lang/hooks.o\
 	sd/lang/langutils.o\
 	sd/utils/utils.o\
 	sd/utils/err/err.o
 	@echo [ .. ] Compiling 'sdparse.o'
 	${CC} ${INCLUDE} -c ${CCFLAG} sd/intr/txt/sdparse.c -o sd/intr/txt/sdparse.o
+
+sd/lang/hooks.o: sd/lang/hooks.c sd/lang/hooks.h
+	@echo [ .. ] Compiling 'hooks.o'
+	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/hooks.c -o sd/lang/hooks.o
 ### END COMPILING ###
 
 ### BEGIN COMPILING UTILS ###
@@ -132,8 +137,8 @@ lib/libsdparse.a: sd/utils/utils.o\
 	@echo [ .. ] Archiving to 'libsdparse.a'
 	${AR} ${ARFLAG} lib/libsdparse.a $?
 
-lib/libsdlang.a: sd/lang/langutils.o
-	@echo [ .. ] Archiving to 'libsdcore.a'
+lib/libsdlang.a: sd/lang/langutils.o sd/lang/hooks.o
+	@echo [ .. ] Archiving to 'libsdlang.a'
 	${AR} ${ARFLAG} lib/libsdlang.a $?
 
 lib/libsdlang.so:

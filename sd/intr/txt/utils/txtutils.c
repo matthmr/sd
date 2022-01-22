@@ -18,7 +18,7 @@ void getinptr (uint* i, char* line, uint lnsize, char del) {
 	while ((len+g_offset) < lnsize) {
 		c = line[len+g_offset];
 		if (c == del || WHITESPACE (c) ||
-		!  ( LETTER (c) || NUMBER (c) ))
+		!  ( VALID (c) || NUMBER (c) ))
 			break;
 		else
 			len++;

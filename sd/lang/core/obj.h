@@ -9,7 +9,7 @@
 
 #  include <sd/utils/types/shared.h>
 
-/* these are what get sorted at compile time
+/* these are what gets sorted at compile time
  * as seen in <sd/lang/tokens.h>
  */
 enum keyword {
@@ -17,7 +17,6 @@ enum keyword {
 	KW_ASYNC,
 	KW_BRANCH,
 	KW_CONST,
-	KW_CAST,
 	KW_EXPORT,
 	KW_EXPR,
 	KW_ENUM,
@@ -25,10 +24,12 @@ enum keyword {
 	KW_FLOAT,
 	KW_HERE,
 	KW_IMPORT,
+	KW_ITER,
 	KW_INT,
 	KW_JUMP,
 	KW_LIST,
-	KW_LITERAL,
+	KW_LET,
+	KW_MAP,
 	KW_NIL,
 	KW_NEW,
 	KW_OBJECT,
@@ -38,8 +39,8 @@ enum keyword {
 	KW_STATIC,
 	KW_SYNC,
 	KW_THIS,
+	KW_TYPE,
 	KW_UINT,
-	KW_VAR,
 	KW_WRAP
 };
 
@@ -51,17 +52,19 @@ enum token {
 	T_REF,
 	T_KW_REF,
 	T_EXPR_END,
-	T_OBJ_PROCDEF_BEGIN,
-	T_OBJ_PROCDEF_END,
-	T_OBJ_RES_BEGIN,
-	T_OBJ_RES_END,
-	T_OBJ_PROCRES_BEGIN,
-	T_OBJ_PROCRES_END,
+	T_ARG_DEF_SEP,
+	T_OBJ_REF_BEGIN,
+	T_OBJ_REF_END,
+	T_OBJ_DEF_BEGIN,
+	T_OBJ_DEF_END,
+	T_MOD_REF_BEGIN,
+	T_MOD_REF_END,
+	T_OBJ_PROC_APPLY_BEGIN,
+	T_OBJ_PROC_APPLY_END,
 	T_STRING,
+	T_SSTRING,
 	T_COMMENT,
-	T_SELF,
-	T_DOLLAR,
-	T_GEN_ESC
+	T_SELF
 };
 
 typedef enum token T;

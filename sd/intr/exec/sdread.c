@@ -38,7 +38,7 @@ int main (int argc, char** argv) {
 
 	enum ftype f_type = SOURCE;
 
-	Set (argtime);
+	e_set (argtime);
 
 	if (argc > 1) for (i = 1; i < argc; i++) {
 		if (! promise) {
@@ -55,11 +55,6 @@ int main (int argc, char** argv) {
 					return 0;
 					break;
 
-				case 'a': if (! file)
-					f_type = ASM;
-					LOCK (promise);
-					continue;
-					break;
 				case 's': if (! file)
 					f_type = BYTECODE;
 					LOCK (promise);
@@ -107,7 +102,6 @@ int main (int argc, char** argv) {
 	/// TODO: maybe accept multiple files as modules? this would become a loop
 	switch (f_type) {
 		case SOURCE: parse_src (file, data, LINE_LIMIT); break;
-		case ASM: break;
 		case BYTECODE: break;
 	}
 
