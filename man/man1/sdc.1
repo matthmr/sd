@@ -1,0 +1,92 @@
+\." manpage for sdc
+
+.\" name catg date version title
+.TH sdc 1 "Jan 2022" "0.3.0" "sdc manpage"
+
+.SH NAME
+sdc \- SD language compiler
+
+.SH SYNOPSIS
+.B sdc
+<file...> -o <file>
+
+.SH DESCRIPTION
+.
+.P
+.B sdc
+is the default plain-text to bytecode compiler for the SD language.
+It generates SD
+.B bytecode
+in the form of a
+.B .sdo
+(SD Object) file. Bytecode files are purely binary and not meant to be human-readable, however
+the documentation at https://matthmr.github.io/docs.sd provides an assembly-like
+view of .sdo.
+
+.P
+Bytecode files are ran seperately to but cuncurrent from the main memory stack,
+creating one of its own by
+.B atomic
+functions defined in source code and executeded via an interpreter, the default being
+.B sdread.
+Also, .sdo files can be either
+.I executable
+or
+.I linkable.
+Because SD is a scripting language, there is no need for an
+.B entry point
+and as such .sdo files can be used merely for compressed storage and/or functionality
+(such as a database, cache or module).
+
+.P
+If '-o' is not passed, the binary will be dumped to
+.B out.sdo.
+
+.SH OPTIONS
+
+.TP
+.B \-
+stream <file> from
+.B STDIN
+(pipe).
+
+.TP
+.B \-h
+displays a help message, then exits.
+
+.TP
+.B \-v
+displays the current version, then exits.
+
+.SH EXPRESSIONS
+.P
+Expressions are optional to pass in
+.B sdread.
+However if passed they have to comply with standard SD language syntax.
+
+.P
+They are evaluated and executed right after the file is fully loaded into memory.
+They inherit all variables and imports made by the file, and the expression is put into the end of the root of the file.
+For this reason, the writer of the main file can take the fact that the file is going to be read by sdread and
+.I async
+variables for insertion via sdread.
+
+Expressions may not exceed one argument long. It is recomended to either wrap the expression in quotes or
+.I xargs
+the output of a file into the expression.
+
+.SH NOTES
+.IP \[bu]
+By default, optionless <file> is of type "
+.B source
+", aka plain-text human-readable SD source code.
+
+.IP \[bu]
+Expressions cannot be set to resolute outside the root which is defined in the file.
+
+.SH SEE ALSO
+.BR sdread(1),
+.BR sdlang(4)
+
+.SH DEVELOPERS
+mH (https://github.com/matthmr)

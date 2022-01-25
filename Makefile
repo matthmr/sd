@@ -31,12 +31,14 @@ clean:
 	${FIND} -type f -name '*.[oa]' | ${XARGS} rm -rf man/**/*.gz
 
 install: language parser compiler man
+	@echo [ .. ] Symlinking to 'sdread'
+	ln -sfn sdread bin/sd
 	@echo [ .. ] Moving the sd language module to '${PREFIX}/bin'
 	mv bin/sdread bin/sd bin/sdc ${PREFIX}/bin || echo [ !! ] No permission to move binaries to ${PREFIX}/bin
 	@echo [ .. ] Moving the sd language library to '${PREFIX}/lib'
 	mv libsdlang.so ${PREFIX}/lib || echo [ !! ] No permission to move backend to ${PREFIX}/lib
 	@echo [ .. ] Moving man pages to '${PREFIX}/man'
-	mkdir -p ${PREFIX}/man/man1/ && mv man/* ${PREFIX}/man/man1 || echo [ !! ] No permission to move backend to ${PREFIX}/man
+	mkdir -p ${PREFIX}/man/man1/ && mv man/* ${PREFIX}/man/man1 || echo [ !! ] No permission to move documentation to ${PREFIX}/man
 ### END BASE ###
 
 ### BEGIN TARGETS ###
@@ -72,16 +74,23 @@ parser: sd/intr/exec/sdread.o\
 	${CC} ${CCFLAG} -o bin/sdread sd/intr/exec/sdread.o -Llib -lsdparse -lsdlang
 	@echo [ .. ] Finished compilation
 
-man: man/man1/sdread.1
+man: man/man1/sdread.1 man/man1/sdc.1
 	@echo [ .. ] Compressing 'sdread' man page
 	@${GZ} -c man/man1/sdread.1 > man/man1/sdread.1.gz
+	@echo [ .. ] Compressing 'sdc' man page
+	@${GZ} -c man/man1/sdc.1 > man/man1/sdc.1.gz
 
-compiler:
+compiler: sd/comp/sdc.o
+	@echo [ .. ] Linking to 'sdc'
+	${CC} ${CCFLAG} -o bin/sdc sd/comp/sdc.o
+	@echo [ .. ] Finished compilation
 
 language: lib/libsdlang.so
 ### END TARGETS ###
 
 ### BEGIN COMPILING ###
+sd/comp/sdc.o: sd/comp/sdc.c sd/comp/sdc.h
+
 sd/intr/exec/sdread.o: sd/intr/exec/sdread.c sd/intr/exec/sdread.h\
 	sd/utils/types/shared.h\
 	sd/utils/err/err.h\
@@ -90,14 +99,14 @@ sd/intr/exec/sdread.o: sd/intr/exec/sdread.c sd/intr/exec/sdread.h\
 	${CC} ${INCLUDE} -c ${CCFLAG} sd/intr/exec/sdread.c -o sd/intr/exec/sdread.o
 
 sd/intr/txt/sdparse.o: sd/intr/txt/sdparse.c sd/intr/txt/sdparse.h\
-	sd/lang/tokens.h\
-	sd/lang/core/obj.h\
 	sd/utils/types/shared.h\
-	sd/lang/langutils.h\
 	sd/intr/txt/utils/txtutils.o\
-	sd/lang/hooks.o\
 	sd/lang/langutils.o\
+	sd/lang/hooks.o\
 	sd/utils/utils.o\
+	sd/lang/langutils.h\
+	sd/lang/core/obj.h\
+	sd/lang/tokens.o\
 	sd/utils/err/err.o
 	@echo [ .. ] Compiling 'sdparse.o'
 	${CC} ${INCLUDE} -c ${CCFLAG} sd/intr/txt/sdparse.c -o sd/intr/txt/sdparse.o
@@ -108,6 +117,10 @@ sd/lang/hooks.o: sd/lang/hooks.c sd/lang/hooks.h
 ### END COMPILING ###
 
 ### BEGIN COMPILING UTILS ###
+sd/lang/tokens.o: sd/lang/tokens.c sd/lang/tokens.h
+	@echo [ .. ] Compiling 'tokens.o'
+	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/tokens.c -o sd/lang/tokens.o
+
 sd/lang/langutils.o: sd/lang/langutils.c sd/lang/langutils.h\
 	sd/utils/types/shared.h
 	@echo [ .. ] Compiling 'langutils.o'
@@ -137,7 +150,9 @@ lib/libsdparse.a: sd/utils/utils.o\
 	@echo [ .. ] Archiving to 'libsdparse.a'
 	${AR} ${ARFLAG} lib/libsdparse.a $?
 
-lib/libsdlang.a: sd/lang/langutils.o sd/lang/hooks.o
+lib/libsdlang.a: sd/lang/langutils.o\
+	sd/lang/hooks.o\
+	sd/lang/tokens.o
 	@echo [ .. ] Archiving to 'libsdlang.a'
 	${AR} ${ARFLAG} lib/libsdlang.a $?
 

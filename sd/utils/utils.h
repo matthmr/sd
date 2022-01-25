@@ -26,5 +26,6 @@ void War (char*, const char*, char*);
 #  define RESET(X) if (X)  (X)=0
 #  define H_LOCK(X) (X)=1
 #  define H_RESET(X) (X)=0
+#  define E_LOCK(X,Y) if (!X) (X)=(Y)
 
 #endif
