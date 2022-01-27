@@ -23,12 +23,11 @@
  * index at <sd/lang/core/obj.h>.
  */
 
-
 #include <sd/utils/types/shared.h>
 #include <sd/lang/core/obj.h>
 #include <sd/lang/lang.h>
 
-const _Kw keyword_manifest[] = {
+const _Kw const keyword_manifest[] = {
 
 	/* built-in data types */
 	[KW_INT] = { .kw = "int", .ty = KWTY_BUILTIN_TY },
@@ -69,7 +68,7 @@ const _Kw keyword_manifest[] = {
 
 };
 
-const _T token_manifest[] = {
+const _T const token_manifest[] = {
 
 	/* reference delimiters */
 	[T_OBJ_REF_BEGIN] = { .t = '[', .ty = TTY_OBJ_REF_DEL},
@@ -83,6 +82,7 @@ const _T token_manifest[] = {
 	[T_CHILD] = { .t = '/', .ty = TTY_OBJ_REF},
 	[T_KW_REF] = { .t = '#', .ty = TTY_OBJ_REF},
 	[T_REF] = { .t = '@', .ty = TTY_OBJ_REF},
+	[T_CAST] = { .t = '.', .ty = TTY_OBJ_REF},
 
 	/* object definition */
 	[T_OBJ_DEF_BEGIN] = { .t = '{', .ty = TTY_OBJ_DEF},

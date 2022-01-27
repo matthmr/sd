@@ -14,6 +14,7 @@ GZ?=gzip
 FIND?=find
 XARGS?=xargs
 CTAGS?=ctags
+STRIP?=strip
 
 ### INSTALLATION ###
 PREFIX?=/usr/local
@@ -31,6 +32,11 @@ clean:
 	${FIND} -type f -name '*.[oa]' | ${XARGS} rm -rf man/**/*.gz
 
 install: language parser compiler man
+	@echo [ .. ] Stripping symbols off of 'sdread' and 'sdc'
+	pushd bin
+	${STRIP} sdread
+	${STRIP} sdc
+	popd
 	@echo [ .. ] Symlinking to 'sdread'
 	ln -sfn sdread bin/sd
 	@echo [ .. ] Moving the sd language module to '${PREFIX}/bin'
@@ -64,6 +70,7 @@ help:
 	@echo   - XARGS: xargs-like command \(${XARGS}\)
 	@echo   - CTAGS: ctags-like command \(${CTAGS}\)
 	@echo   - PREFIX: prefix for installation \(${PREFIX}\)
+	@echo   - SRIP: strip-like command \(${STRIP}\)
 
 ## TODO: make `-lsdlang` shared instead of static
 

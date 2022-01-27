@@ -44,25 +44,29 @@ enum keyword {
 
 typedef enum keyword Kw;
 
+/* the elements indexed by this enum
+ * are ascii only, so this is sorted
+ * merely by numeric value */
 enum token {
-	T_ASSIGN,
-	T_CHILD,
-	T_REF,
+	T_STRING,
 	T_KW_REF,
-	T_EXPR_END,
-	T_ARG_DEF_SEP,
-	T_OBJ_REF_BEGIN,
-	T_OBJ_REF_END,
-	T_OBJ_DEF_BEGIN,
-	T_OBJ_DEF_END,
-	T_MOD_REF_BEGIN,
-	T_MOD_REF_END,
+	T_SSTRING,
 	T_OBJ_PROC_APPLY_BEGIN,
 	T_OBJ_PROC_APPLY_END,
-	T_STRING,
-	T_SSTRING,
+	T_ARG_DEF_SEP,
 	T_COMMENT,
-	T_SELF
+	T_CAST,
+	T_CHILD,
+	T_ASSIGN,
+	T_EXPR_END,
+	T_MOD_REF_BEGIN,
+	T_MOD_REF_END,
+	T_REF,
+	T_OBJ_REF_BEGIN,
+	T_OBJ_REF_END,
+	T_SELF,
+	T_OBJ_DEF_BEGIN,
+	T_OBJ_DEF_END,
 };
 
 typedef enum token T;

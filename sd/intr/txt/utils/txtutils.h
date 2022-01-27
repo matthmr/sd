@@ -19,13 +19,19 @@
 #  define literal 3
 #  define repeats 4
 
+// -- `nbound_def` manifest type -- //
+#  define KEYWORD_MANIFEST 0
+#  define TOKEN_MANIFEST 1
+
+// -- `nbound_def` exit status -- //
+#  define npass 0
+#  define nfound 1
+
 extern uint t;
 
-extern const _Kw keyword_manifest[];
-extern const _T token_manifest[];
-
-void offset_i (uint*, uint*, char*, uint, char);
-bool nfind_def (char);
+void offset_i (uint*, uint*, char*, const uint, char);
+bool nbound_def (char, uint, uint*, uint*, bool);
 bool tfind_def (char);
+bool nfind_def (char);
 
 #endif

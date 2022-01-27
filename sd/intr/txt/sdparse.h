@@ -14,9 +14,7 @@
 #  include <sd/lang/langutils.h>
 #  include <sd/lang/lang.h>
 
-extern const _Kw keyword_manifest[];
-extern const _T token_manifest[];
-
+void next (char**, uint*, uint*, uint, const uint);
 void parser_stream (char**, Obj*);
 uint litsize_offset (uint*, char*);
 

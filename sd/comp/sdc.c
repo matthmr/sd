@@ -13,10 +13,21 @@
 #include <sd/intr/limits.h>
 #include <sd/comp/sdc.h>
 
-void bc_stream (FILE* file, const uint LINE_LIMIT) {
+void bcparser_stream (word* w) {
 
 }
 
 int main (int argc, char** argv) {
+
+	e_set (cmptime);
+
+	FILE* file;
+
+	// ...
+
+	while (fgets (data, word, file) != NULL)
+		;
+
 	return 0;
+
 }

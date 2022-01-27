@@ -20,7 +20,7 @@
 #include <sd/intr/txt/utils/txtutils.h>
 #include <sd/intr/txt/sdparse.h>
 
-#define _continue H_RESET (exit_status); continue
+#define _continue H_RESET (e_status); continue
 
 static uint g_offset;
 uint t;
@@ -38,16 +38,105 @@ uint litsize_offset (uint* i, char* data) {
 	return (*i = (offset - 1));
 }
 
+inline void next (char** data,
+                  uint* i,
+                  uint* wi,
+                  uint e,
+                  const uint lnsize) {
+
+	switch (e) {
+
+	case not_found:
+		H_RESET (t);
+		puts ("!! not_found");
+
+		offset_i (i, &g_offset, *data, lnsize, DELIMITER);
+
+		if (g_offset == *i)
+			return;
+
+		*wi = g_offset;
+
+		/*
+		char* name = calloc ((g_offset-*wi+1), 1);
+		strncpy (name, *data+*wi, g_offset-*wi);
+		au_hook (name)
+		*/
+
+		return;
+		break;
+
+	case found:
+
+		if (tfind_def (*(*data+*i)) == ttoken) { /* it might be the case that
+		                                       a token cuts a keyword short */
+			/*
+			char* name = calloc ((g_offset-*wi+1), 1);
+			strncpy (name, *data+*wi, g_offset-*wi);
+			au_hook (name)
+			free (name);
+			*/
+			goto utdiff_token;
+		}
+
+		puts (":: found");
+		g_offset = *i;
+
+		/* this is done because it might be
+		   the case that this word is equal
+		   to a keyword up to diffing */
+		offset_i (i, &g_offset, *data, lnsize, DELIMITER);
+
+		if (g_offset == *i)
+			return;
+
+		char* name = calloc ((g_offset-*wi+1), 1);
+		strncpy (name, *data+*wi, g_offset-*wi);
+		uint notKw = (uint) strcmp (name, keyword_manifest[t].kw);
+
+		*wi = g_offset;
+
+		if (! notKw)
+			; // akw_hook (keyword_manifest[t]);
+		else
+			; // au_hook (name);
+
+		free (name);
+		H_RESET (t);
+		break;
+
+	case ttoken: /// handle token
+	utdiff_token: {
+		puts ("~~ token");
+		g_offset++;
+		at_hook (token_manifest[t]);
+		H_RESET (t);
+		return;
+	} break;
+
+	case literal: /// handle literal
+		puts (".. literal");
+
+		g_offset = litsize_offset (i, *data);
+		*wi = g_offset;
+
+		return;
+		break;
+	}
+
+	return;
+}
+
 void parser_stream (char** data, Obj* root) {
 
 	char c;
 
-	bool exit_status;
+	bool e_status;
 	bool trailing = true;
 
-	uint wi = 0;
-	uint lnsize = strlen (*data);
+	const uint lnsize = strlen (*data);
 	Obj* c_obj = root;
+	uint wi = 0;
 
 	for (uint i = 0; (*data)[i] != '\0'; i++) {
 
@@ -68,10 +157,10 @@ void parser_stream (char** data, Obj* root) {
 
 			else switch (g_ctxt.str) {
 				case DQSTR:
-					if (strchr (*data+i, '"') != NULL);
+					// ...
 					break;
 				case SQSTR:
-					if (strchr (*data+i, '\'') != NULL);
+					// ...
 					break;
 			}
 
@@ -81,84 +170,33 @@ void parser_stream (char** data, Obj* root) {
 
 		if (trailing && WHITESPACE (c)) {
 			g_offset++;
+			wi++;
 			continue;
 		}
 		else if (trailing)
 			H_RESET (trailing);
 
-		if (exit_status == repeats && c == '\n' ||
-		   !exit_status && c == '\n') /// equivalent to `not_found`
-			goto case_not_found;
+		if (e_status == repeats && c == '\n' ||
+		   !e_status && c == '\n') /// equivalent to `not_found`
+			goto parser_not_found;
 
-		exit_status = nfind_def (c);
+		e_status = nfind_def (c);
 
-		if (exit_status != repeats)
+		if (e_status != repeats)
 			LOCK (trailing);
 		else {
 			g_offset++;
+			wi++;
 			continue;
 		}
 
-		switch (exit_status) {
+		next (data, &i, &wi, e_status, lnsize);
+		_continue;
 
-		case not_found:
-		case_not_found: {
+		parser_not_found: {
 			puts ("!! not_found");
-			_continue;
-		} break;
-
-		case found:
-		case_found: {
-
-			puts (":: found");
-
-			g_offset = i;
-
-			/* this is done because it might be
-			   the case that this word is equal
-			   to a keyword up to diffing */
-			offset_i (&i, &g_offset, *data, lnsize, DELIMITER);
-
-			if (g_offset == i) {
-				_continue;
-			}
-
-			char* name = calloc ((g_offset-wi), 1);
-			strncpy (name, *data+wi, g_offset-wi);
-			uint notKw = (uint)
-				strcmp (name, keyword_manifest[t].kw);
-
-			/// TODO: properly handle this
-			wi = g_offset;
-
-			if (! notKw)
-				; // akw_hook (keyword_manifest[t]);
-			else
-				; // au_hook (name);
-
-			free (name);
-			H_RESET (t);
-
-		} break;
-
-		case ttoken: /// handle token
-			puts ("~~ token");
-			g_offset++;
-			at_hook (token_manifest[t]);
 			H_RESET (t);
 			_continue;
-			break;
-
-		case literal: /// handle literal
-
-			puts (".. literal");
-
-			/// TODO: resolute literal data
-			uint i_start = i;
-			g_offset = litsize_offset (&i, *data);
-
-			_continue;
-			break;
 		}
 
 	}
