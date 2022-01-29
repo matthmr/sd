@@ -12,17 +12,14 @@
 #include <sd/utils/err/err.h>
 #include <sd/utils/utils.h>
 
-#include <sd/lang/langutils.h>
-#include <sd/lang/tokens.h>
-#include <sd/lang/hooks.h>
+#include <sd/lang/utils/langutils.h>
+#include <sd/lang/hooks/txthooks.h>
+#include <sd/lang/tokens/txt.h>
 #include <sd/lang/lang.h>
 
 #include <sd/intr/txt/utils/txtutils.h>
 #include <sd/intr/txt/sdparse.h>
 
-#define _continue H_RESET (e_status); continue
-
-static uint g_offset;
 uint t;
 
 uint litsize_offset (uint* i, char* data) {
@@ -35,81 +32,88 @@ uint litsize_offset (uint* i, char* data) {
 		c = data[offset];
 	}
 
+	/* this is called as soon as `c`
+	 * is a literal, meaning `i`
+	 * is at least itself */
 	return (*i = (offset - 1));
 }
 
-inline void next (char** data,
-                  uint* i,
-                  uint* wi,
-                  uint e,
-                  const uint lnsize) {
+void next (char* data,
+           uint* i,
+           uint* wstart_i,
+           bool* e,
+           const uint lnsize) {
 
-	switch (e) {
+	char* word;
+	uint _i;
+
+	switch (*e) {
 
 	case not_found:
 		H_RESET (t);
 		puts ("!! not_found");
 
-		offset_i (i, &g_offset, *data, lnsize, DELIMITER);
+		_i = *i;
+		offset_i (i, data, lnsize);
 
-		if (g_offset == *i)
-			return;
+		word = calloc ((*i - *wstart_i)+2, sizeof (char));
+		strncpy (word, (data + *wstart_i), (*i - *wstart_i)+1);
 
-		*wi = g_offset;
+		*wstart_i = *i+1;
 
-		/*
-		char* name = calloc ((g_offset-*wi+1), 1);
-		strncpy (name, *data+*wi, g_offset-*wi);
-		au_hook (name)
-		*/
+		// au_hook (word)
+		free (word);
 
 		return;
 		break;
 
 	case found:
 
-		if (tfind_def (*(*data+*i)) == ttoken) { /* it might be the case that
-		                                       a token cuts a keyword short */
-			/*
-			char* name = calloc ((g_offset-*wi+1), 1);
-			strncpy (name, *data+*wi, g_offset-*wi);
-			au_hook (name)
-			free (name);
-			*/
+		if (tfind_def (*(data+*i)) == ttoken) { /* it might be the case that
+		                                           a token cuts a repetition
+		                                           keyword short */
+			word = calloc ((*i - *wstart_i)+2, sizeof (char));
+			strncpy (word, (data + *wstart_i), (*i - *wstart_i)+1);
+			*wstart_i = *i+1;
+
+			// au_hook (word)
+			free (word);
 			goto utdiff_token;
 		}
 
 		puts (":: found");
-		g_offset = *i;
+
+		_i = *i;
+		offset_i (i, data, lnsize);
+
+		word = calloc ((*i - *wstart_i)+2, sizeof (char));
+		strncpy (word, (data + *wstart_i), (*i - *wstart_i)+1);
+
+		*wstart_i = *i+1;
 
 		/* this is done because it might be
-		   the case that this word is equal
-		   to a keyword up to diffing */
-		offset_i (i, &g_offset, *data, lnsize, DELIMITER);
-
-		if (g_offset == *i)
-			return;
-
-		char* name = calloc ((g_offset-*wi+1), 1);
-		strncpy (name, *data+*wi, g_offset-*wi);
-		uint notKw = (uint) strcmp (name, keyword_manifest[t].kw);
-
-		*wi = g_offset;
+			 the case that this word is equal
+			 to a keyword only up to diffing */
+		uint notKw = (uint) strcmp (word, keyword_manifest[t].kw);
 
 		if (! notKw)
-			; // akw_hook (keyword_manifest[t]);
+			;
+			// akw_hook (keyword_manifest[t]);
 		else
-			; // au_hook (name);
+			;
+			// au_hook (name);
 
-		free (name);
+		free (word);
 		H_RESET (t);
 		break;
 
 	case ttoken: /// handle token
 	utdiff_token: {
 		puts ("~~ token");
-		g_offset++;
+		++*wstart_i;
+
 		at_hook (token_manifest[t]);
+
 		H_RESET (t);
 		return;
 	} break;
@@ -117,93 +121,79 @@ inline void next (char** data,
 	case literal: /// handle literal
 		puts (".. literal");
 
-		g_offset = litsize_offset (i, *data);
-		*wi = g_offset;
+		*i = litsize_offset (i, data);
+		*wstart_i = *i+1;
 
 		return;
 		break;
 	}
 
+	H_RESET (*e);
 	return;
 }
 
-void parser_stream (char** data, Obj* root) {
+void parser_stream (char* data, Obj* root) {
 
+	uint wstart_i = 0;
+	uint i = 0;
 	char c;
 
-	bool e_status;
+	bool e_status = (bool) 0;
 	bool trailing = true;
 
-	const uint lnsize = strlen (*data);
+	const uint lnsize = strlen (data);
 	Obj* c_obj = root;
-	uint wi = 0;
 
-	for (uint i = 0; (*data)[i] != '\0'; i++) {
+	for (i = 0; data[i] != '\0'; i++) {
 
-		/* locks the parser stream for:
-		 *   * comment line
-		 *   * comment block
-		 *   * literals (mainly strings)
-		 */
 		if (lock_stream) {
-
-			if (g_ctxt.cmtl || g_ctxt.cmtb) {
-				if (s_ignore (&i, lnsize, *data))
-					break;
-				else if (ct_close (&i, *data))
+			if (g_ctxt.cmt) {
+				rstream (H_RESET (g_ctxt.cmt));
+				break;
+			}
+			else if (g_ctxt.str) {
+				char* cstr;
+				if ((cstr = strchr (data+i, '"')) != NULL) {
+					i = (uint) (cstr - data);
+					// g_ctxt.found->str (root);
+					rstream (H_RESET (g_ctxt.str));
 					continue;
-				else break;
+				} else break;
 			}
-
-			else switch (g_ctxt.str) {
-				case DQSTR:
-					// ...
-					break;
-				case SQSTR:
-					// ...
-					break;
-			}
-
 		}
 
-		c = (*data)[i];
+		c = data[i];
 
 		if (trailing && WHITESPACE (c)) {
-			g_offset++;
-			wi++;
+			wstart_i++;
 			continue;
 		}
 		else if (trailing)
 			H_RESET (trailing);
 
 		if (e_status == repeats && c == '\n' ||
-		   !e_status && c == '\n') /// equivalent to `not_found`
+		   !e_status && c == '\n') /// unfinished word = `not_found`
 			goto parser_not_found;
 
 		e_status = nfind_def (c);
 
 		if (e_status != repeats)
-			LOCK (trailing);
-		else {
-			g_offset++;
-			wi++;
+			H_LOCK (trailing);
+		else
 			continue;
-		}
 
-		next (data, &i, &wi, e_status, lnsize);
-		_continue;
+		next (data, &i, &wstart_i, &e_status, lnsize);
 
-		parser_not_found: {
+		if (0) parser_not_found: {
 			puts ("!! not_found");
+			// au_hook (name);
 			H_RESET (t);
-			_continue;
 		}
 
 	}
 
-	RESET (g_offset);
-	/// TODO:
-	/// callback (c);
+	/// TODO: THIS IS VERY IMPORTANT
+	/// callback (void);
 
 }
 
@@ -213,13 +203,6 @@ void parse_src (FILE* file, char* data, const uint LINE_LIMIT) {
 
 	e_set (txtruntime);
 
-	Obj mod_root = {
-		.cdno = 0,
-		.ref = NULL,
-		.pr = NULL,
-		.cd = NULL
-	};
-
 	Obj* root = mod_root.pr = &mod_root;
 
 	/* the way we know if we hit root
@@ -228,6 +211,6 @@ void parse_src (FILE* file, char* data, const uint LINE_LIMIT) {
 	root->pr = &mod_root;
 
 	while (fgets (data, LINE_LIMIT, file) != NULL)
-		parser_stream (&data, root);
+		parser_stream (data, root);
 
 }

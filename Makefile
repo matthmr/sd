@@ -98,6 +98,12 @@ language: lib/libsdlang.so
 ### BEGIN COMPILING ###
 sd/comp/sdc.o: sd/comp/sdc.c sd/comp/sdc.h
 
+sd/intr/bytecode/sdbcparse.o: sd/intr/bytecode/sdbcparse.c sd/intr/bytecode/sdbcparse.h\
+	sd/utils/types/shared.h\
+	sd/lang/tokens/bytecode.h
+	@echo [ .. ] Compiling 'sdbcparse.o'
+	${CC} ${INCLUDE} -c ${CCFLAG} sd/intr/bytecode/sdbcparse.c -o sd/intr/bytecode/sdbcparse.o
+
 sd/intr/exec/sdread.o: sd/intr/exec/sdread.c sd/intr/exec/sdread.h\
 	sd/utils/types/shared.h\
 	sd/utils/err/err.h\
@@ -106,32 +112,31 @@ sd/intr/exec/sdread.o: sd/intr/exec/sdread.c sd/intr/exec/sdread.h\
 	${CC} ${INCLUDE} -c ${CCFLAG} sd/intr/exec/sdread.c -o sd/intr/exec/sdread.o
 
 sd/intr/txt/sdparse.o: sd/intr/txt/sdparse.c sd/intr/txt/sdparse.h\
-	sd/utils/types/shared.h\
-	sd/intr/txt/utils/txtutils.o\
-	sd/lang/langutils.o\
-	sd/lang/hooks.o\
-	sd/utils/utils.o\
-	sd/lang/langutils.h\
 	sd/lang/core/obj.h\
-	sd/lang/tokens.o\
+	sd/lang/utils/langutils.o\
+	sd/intr/txt/utils/txtutils.o\
+	sd/lang/hooks/txthooks.o\
+	sd/utils/types/shared.h\
+	sd/lang/tokens/txt.o\
+	sd/utils/utils.o\
 	sd/utils/err/err.o
 	@echo [ .. ] Compiling 'sdparse.o'
 	${CC} ${INCLUDE} -c ${CCFLAG} sd/intr/txt/sdparse.c -o sd/intr/txt/sdparse.o
 
-sd/lang/hooks.o: sd/lang/hooks.c sd/lang/hooks.h
-	@echo [ .. ] Compiling 'hooks.o'
-	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/hooks.c -o sd/lang/hooks.o
+sd/lang/hooks/txthooks.o: sd/lang/hooks/txthooks.c sd/lang/hooks/txthooks.h
+	@echo [ .. ] Compiling 'txthooks.o'
+	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/hooks/txthooks.c -o sd/lang/hooks/txthooks.o
 ### END COMPILING ###
 
 ### BEGIN COMPILING UTILS ###
-sd/lang/tokens.o: sd/lang/tokens.c sd/lang/tokens.h
-	@echo [ .. ] Compiling 'tokens.o'
-	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/tokens.c -o sd/lang/tokens.o
+sd/lang/tokens/txt.o: sd/lang/tokens/txt.c sd/lang/tokens/txt.h
+	@echo [ .. ] Compiling 'txt.o'
+	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/tokens/txt.c -o sd/lang/tokens/txt.o
 
-sd/lang/langutils.o: sd/lang/langutils.c sd/lang/langutils.h\
+sd/lang/utils/langutils.o: sd/lang/utils/langutils.c sd/lang/utils/langutils.h\
 	sd/utils/types/shared.h
 	@echo [ .. ] Compiling 'langutils.o'
-	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/langutils.c -o sd/lang/langutils.o
+	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/utils/langutils.c -o sd/lang/utils/langutils.o
 
 sd/intr/txt/utils/txtutils.o: sd/intr/txt/utils/txtutils.c sd/intr/txt/utils/txtutils.h\
 	sd/utils/utils.o\
@@ -153,13 +158,14 @@ sd/utils/err/err.o: sd/utils/err/err.c sd/utils/err/err.h
 lib/libsdparse.a: sd/utils/utils.o\
 	sd/utils/err/err.o\
 	sd/intr/txt/sdparse.o\
+	sd/intr/bytecode/sdbcparse.o\
 	sd/intr/txt/utils/txtutils.o
 	@echo [ .. ] Archiving to 'libsdparse.a'
 	${AR} ${ARFLAG} lib/libsdparse.a $?
 
-lib/libsdlang.a: sd/lang/langutils.o\
-	sd/lang/hooks.o\
-	sd/lang/tokens.o
+lib/libsdlang.a: sd/lang/utils/langutils.o\
+	sd/lang/hooks/txthooks.o\
+	sd/lang/tokens/txt.o
 	@echo [ .. ] Archiving to 'libsdlang.a'
 	${AR} ${ARFLAG} lib/libsdlang.a $?
 

@@ -10,14 +10,12 @@
 #  include <sd/utils/types/shared.h>
 #  include <sd/lang/lang.h>
 
-#  define DELIMITER ':' /// assignment token
-
 // -- `nfind_def` exit status -- //
-#  define not_found 0
-#  define found 1
-#  define ttoken 2
-#  define literal 3
-#  define repeats 4
+#  define not_found 1
+#  define found 2
+#  define ttoken 3
+#  define literal 4
+#  define repeats 5
 
 // -- `nbound_def` manifest type -- //
 #  define KEYWORD_MANIFEST 0
@@ -29,7 +27,7 @@
 
 extern uint t;
 
-void offset_i (uint*, uint*, char*, const uint, char);
+void offset_i (uint*, char*, const uint);
 bool nbound_def (char, uint, uint*, uint*, bool);
 bool tfind_def (char);
 bool nfind_def (char);

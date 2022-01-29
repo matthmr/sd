@@ -13,10 +13,6 @@
 #include <sd/intr/limits.h>
 #include <sd/comp/sdc.h>
 
-void bcparser_stream (word* w) {
-
-}
-
 int main (int argc, char** argv) {
 
 	e_set (cmptime);

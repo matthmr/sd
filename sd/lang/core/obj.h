@@ -10,7 +10,7 @@
 #  include <sd/utils/types/shared.h>
 
 /* these are what gets sorted at compile time
- * as seen in <sd/lang/tokens.h>
+ * as seen in <sd/lang/tokens/txt.h>
  */
 enum keyword {
 	KW_ASSIGN,
@@ -49,12 +49,10 @@ typedef enum keyword Kw;
  * merely by numeric value */
 enum token {
 	T_STRING,
-	T_KW_REF,
-	T_SSTRING,
+	T_COMMENT,
 	T_OBJ_PROC_APPLY_BEGIN,
 	T_OBJ_PROC_APPLY_END,
 	T_ARG_DEF_SEP,
-	T_COMMENT,
 	T_CAST,
 	T_CHILD,
 	T_ASSIGN,

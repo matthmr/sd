@@ -9,37 +9,42 @@
 
 #include <sd/intr/txt/utils/txtutils.h>
 #include <sd/utils/types/shared.h>
+#include <sd/lang/tokens/txt.h>
 #include <sd/lang/core/obj.h>
 #include <sd/utils/utils.h>
-#include <sd/lang/tokens.h>
 
 #define st_comp(x) dir? (x)<=t_end: (x)>=t_start
 #define st_advance(x) dir? (x++): (x--)
 #define st_get dir? t_start: t_end
 
-/* offsets `i` to the nearest delimeter */
+/* `offset_i` starts on whatever
+ * triggers it (alpha-numeric
+ * or otherwise) and stops
+ * right before a delimeter
+ * or whitespace */
 void offset_i (uint* i,
-               uint* g_offset,
                char* line,
-               const uint lnsize,
-               char del) {
-	char c;
-	uint len = 0;
+               const uint lnsize) {
 
-	while ((len+*g_offset) < lnsize) {
-		c = line[len+*g_offset];
-		if (c == del || WHITESPACE (c) ||
-		!  ( VALID (c) || NUMBER (c) ))
+	uint _i = *i;
+	uint __i = _i;
+	char c = line[_i];
+
+	while (_i < lnsize) {
+
+		if (WHITESPACE (c) || ! VALID (c))
 			break;
 		else
-			len++;
+			_i++;
+
+		c = line[_i];
+
 	}
 
-	if (!len) /// fall-through
+	if ((*i = _i) == __i) /// fall-through
 		return;
 	
-	*g_offset += len; /// point to `i` of an adjancent name...
-	*i = (*g_offset-1); /// ... counting for incremental loop
+	--*i; /// ... counting for incremental loop
 }
 
 bool nbound_def (char c,
@@ -74,7 +79,6 @@ bool nbound_def (char c,
 		else if (c < _c) {
 			size = block;
 			*t_end = (block + l_offset);
-
 			continue;
 		}
 

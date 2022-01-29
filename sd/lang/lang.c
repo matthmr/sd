@@ -7,5 +7,5 @@
  * (binary or plain-text)
  */
 
-#include <sd/lang/langutils.h>
+#include <sd/lang/utils/langutils.h>
 #include <sd/lang/lang.h>

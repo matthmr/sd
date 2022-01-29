@@ -7,7 +7,7 @@
 #ifndef LOCK_TREE
 #  define LOCK_TREE
 
-#  include <sd/lang/langutils.h>
+#  include <sd/lang/utils/langutils.h>
 
 #  define CHROOT(X,Y) ;
 

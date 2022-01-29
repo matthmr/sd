@@ -10,7 +10,7 @@
 #ifndef LOCK_LANG
 #  define LOCK_LANG
 
-#  include <sd/lang/langutils.h>
+#  include <sd/lang/utils/langutils.h>
 
 enum kwty {
 	KWTY_BUILTIN_TY,

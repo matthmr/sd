@@ -12,8 +12,8 @@
 #  define DATA 0
 #  define OBJ 1
 
-typedef byte ref_t;
-typedef uint oid;
+typedef char ref_t;
+typedef unsigned long int oid;
 
 struct obj {
 	/* metadata */

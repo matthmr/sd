@@ -64,7 +64,7 @@ const _Kw const keyword_manifest[] = {
 	/* environment control */
 	[KW_ASSIGN] = { .kw = "assign", .ty = KWTY_ENV },
 	[KW_IMPORT] = { .kw = "import", .ty = KWTY_ENV },
-	[KW_WRAP] = { .kw = "wrap", .ty = KWTY_ENV }
+	[KW_WRAP] = { .kw = "wrap", .ty = KWTY_ENV },
 
 };
 
@@ -80,7 +80,6 @@ const _T const token_manifest[] = {
 
 	/* object reference */
 	[T_CHILD] = { .t = '/', .ty = TTY_OBJ_REF},
-	[T_KW_REF] = { .t = '#', .ty = TTY_OBJ_REF},
 	[T_REF] = { .t = '@', .ty = TTY_OBJ_REF},
 	[T_CAST] = { .t = '.', .ty = TTY_OBJ_REF},
 
@@ -92,12 +91,11 @@ const _T const token_manifest[] = {
 
 	/* expression control */
 	[T_EXPR_END] = { .t = ';', .ty = TTY_EXPR},
+	[T_SELF] = { .t = '^', .ty = TTY_EXPR},
 
 	/* misc syntax */
 	[T_STRING] = { .t = '"', .ty = TTY_SYN},
-	[T_SSTRING] = { .t = '\'', .ty = TTY_SYN},
-	[T_COMMENT] = { .t = '-', .ty = TTY_SYN},
-	[T_SELF] = { .t = '^', .ty = TTY_SYN},
+	[T_COMMENT] = { .t = '#', .ty = TTY_SYN},
 
 };
 

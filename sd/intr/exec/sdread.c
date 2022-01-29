@@ -11,17 +11,23 @@
  * used by scriptsd.
  */
 
-#define VERSION "v0.3.0"
+#define VERSION "v0.3.1"
 #include <stdio.h>
 
 #define LOCK_PARSE
 #undef LOCK_STACK
+
 #include <sd/intr/txt/sdparse.h>
+
 #undef LOCK_ERR
+
 #include <sd/utils/err/err.h>
 #include <sd/utils/utils.h>
 
 #define LOCK_TYPES
+
+#include <sd/intr/bytecode/sdbcparse.h>
+#include <sd/lang/tokens/bytecode.h>
 #include <sd/utils/types/shared.h>
 #include <sd/intr/exec/sdread.h>
 #include <sd/intr/limits.h>
@@ -97,12 +103,16 @@ int main (int argc, char** argv) {
 	expr: ;
 	}
 
-	char data[LINE_LIMIT];
+	byte data[LINE_LIMIT];
 
 	/// TODO: maybe accept multiple files as modules? this would become a loop
 	switch (f_type) {
-		case SOURCE: parse_src (file, data, LINE_LIMIT); break;
-		case BYTECODE: break;
+		case SOURCE:
+			parse_src (file, data, LINE_LIMIT);
+			break;
+		case BYTECODE:
+			parse_bc (file, data, BCLINE_LIMIT);
+			break;
 	}
 
 	/* close `file` on exit */
