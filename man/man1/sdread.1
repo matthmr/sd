@@ -74,14 +74,21 @@ Expressions may not exceed one argument long. It is recomended to either wrap th
 .I xargs
 the output of a file into the expression.
 
+.SH SHELL AND PIPING
+.P
+If
+.B sdread
+is called without any file parameters or pipes, a
+.B shell
+will be opened which resolute objects in real time.
+However if piping to sdread passing file parameters for bytecode, it will operate the same way
+as piping using "-"
+
 .SH NOTES
 .IP \[bu]
 By default, optionless <file> is of type "
 .B source
 ", aka plain-text human-readable SD source code.
-
-.IP \[bu]
-as of January 2022, sdread can only read one type at a time.
 
 .IP \[bu]
 Expressions cannot be set to resolute outside the root which is defined in the file.

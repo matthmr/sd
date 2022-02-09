@@ -7,22 +7,64 @@
  * in other units.
  */
 
+#define VERSION "v0.1.0"
 #include <stdio.h>
 
+#include <sd/utils/types/shared.h>
+#include <sd/utils/err/err.h>
 #include <sd/utils/types/shared.h>
 #include <sd/intr/limits.h>
 #include <sd/comp/sdc.h>
 
 int main (int argc, char** argv) {
 
-	e_set (cmptime);
+	uint i = 0;
+
+	bool pipe = false;
+	bool promise = false;
 
 	FILE* file;
 
-	// ...
+	e_set (argtime);
 
-	while (fgets (data, word, file) != NULL)
-		;
+	if (argc > 1)
+	for (i = 1; i < argc; i++) {
+		if (argv[i][0] == '-') {
+			switch (argv[i][1]) {
+
+			// -- info -- //
+			case 'v':
+				printf ("sdc " VERSION "\n");
+				return 0;
+				break;
+			case 'h':
+				fprintf (stdout, HELP);
+				return 0;
+				break;
+
+			case '\0':
+				LOCK (pipe);
+				file = stdin;
+				break;
+
+			default:
+				fprintf (stderr, "[ !! ] Bad usage. See sdread -h\n");
+				return 1;
+				break;
+			}
+		}
+	}
+
+	else /// promise file type
+		goto open;
+	}
+
+	if (0) open: { 
+	if (! (file = fopen (argv[i], "r")))
+		Err (0x01, argv[i]);
+	}
+
+	compile: compile_src (file, data, LINE_LIMIT);
 
 	return 0;
 

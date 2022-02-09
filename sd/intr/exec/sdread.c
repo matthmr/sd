@@ -11,26 +11,16 @@
  * used by scriptsd.
  */
 
-#define VERSION "v0.3.1"
 #include <stdio.h>
 
-#define LOCK_PARSE
-#undef LOCK_STACK
-
 #include <sd/intr/txt/sdparse.h>
-
-#undef LOCK_ERR
+#include <sd/intr/bytecode/sdbcparse.h>
+#include <sd/intr/exec/sdread.h>
+#include <sd/intr/limits.h>
 
 #include <sd/utils/err/err.h>
 #include <sd/utils/utils.h>
-
-#define LOCK_TYPES
-
-#include <sd/intr/bytecode/sdbcparse.h>
-#include <sd/lang/tokens/bytecode.h>
 #include <sd/utils/types/shared.h>
-#include <sd/intr/exec/sdread.h>
-#include <sd/intr/limits.h>
 
 /// TODO: unhandled `<expr>`: parse it and execute within main file context
 int main (int argc, char** argv) {
@@ -51,7 +41,6 @@ int main (int argc, char** argv) {
 			if (argv[i][0] == '-') {
 				switch (argv[i][1]) {
 
-				// -- info -- //
 				case 'v':
 					printf ("sdread " VERSION "\n");
 					return 0;
@@ -87,7 +76,9 @@ int main (int argc, char** argv) {
 		else /// promise file type
 			goto open;
 	}
+
 	else { /// interpret as `sdread -`
+		// TODO: dected pipe
 		LOCK (pipe);
 		file = stdin;
 	}

@@ -32,7 +32,7 @@ void offset_i (uint* i,
 
 	while (_i < lnsize) {
 
-		if (WHITESPACE (c) || ! VALID (c))
+		if (WHITESPACE (c) || ! (VALID (c) || NUMBER (c)))
 			break;
 		else
 			_i++;
@@ -123,6 +123,8 @@ bool tfind_def (char c) {
 			t = st;
 			return ttoken;
 		}
+
+	return not_found;
 
 }
 

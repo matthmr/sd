@@ -12,12 +12,15 @@
 #include <sd/utils/err/err.h>
 #include <sd/utils/utils.h>
 
-#include <sd/lang/utils/langutils.h>
-#include <sd/lang/hooks/txthooks.h>
+#include <sd/lang/hooks/txt/txthooks.h>
+#include <sd/lang/tokens/user/umaps.h>
 #include <sd/lang/tokens/txt.h>
+#include <sd/lang/tree/ot.h>
 #include <sd/lang/lang.h>
 
 #include <sd/intr/txt/utils/txtutils.h>
+#include <sd/intr/txt/tree/ptree.h>
+#include <sd/intr/utils/literal.h>
 #include <sd/intr/txt/sdparse.h>
 
 uint t;
@@ -45,15 +48,12 @@ void next (char* data,
            const uint lnsize) {
 
 	char* word;
-	uint _i;
 
 	switch (*e) {
 
 	case not_found:
 		H_RESET (t);
-		puts ("!! not_found");
 
-		_i = *i;
 		offset_i (i, data, lnsize);
 
 		word = calloc ((*i - *wstart_i)+2, sizeof (char));
@@ -61,7 +61,7 @@ void next (char* data,
 
 		*wstart_i = *i+1;
 
-		// au_hook (word)
+		au_hook (word);
 		free (word);
 
 		return;
@@ -69,21 +69,17 @@ void next (char* data,
 
 	case found:
 
-		if (tfind_def (*(data+*i)) == ttoken) { /* it might be the case that
-		                                           a token cuts a repetition
-		                                           keyword short */
+		/* it might be the case that a token cuts a repetition keyword short */
+		if (tfind_def (*(data+*i)) == ttoken) {
 			word = calloc ((*i - *wstart_i)+2, sizeof (char));
 			strncpy (word, (data + *wstart_i), (*i - *wstart_i)+1);
 			*wstart_i = *i+1;
 
-			// au_hook (word)
+			au_hook (word);
 			free (word);
 			goto utdiff_token;
 		}
 
-		puts (":: found");
-
-		_i = *i;
 		offset_i (i, data, lnsize);
 
 		word = calloc ((*i - *wstart_i)+2, sizeof (char));
@@ -91,17 +87,10 @@ void next (char* data,
 
 		*wstart_i = *i+1;
 
-		/* this is done because it might be
-			 the case that this word is equal
-			 to a keyword only up to diffing */
-		uint notKw = (uint) strcmp (word, keyword_manifest[t].kw);
-
-		if (! notKw)
-			;
-			// akw_hook (keyword_manifest[t]);
+		if (! (uint) strcmp (word, keyword_manifest[t].kw))
+			akw_hook (keyword_manifest[t]);
 		else
-			;
-			// au_hook (name);
+			au_hook (word);
 
 		free (word);
 		H_RESET (t);
@@ -109,7 +98,6 @@ void next (char* data,
 
 	case ttoken: /// handle token
 	utdiff_token: {
-		puts ("~~ token");
 		++*wstart_i;
 
 		at_hook (token_manifest[t]);
@@ -119,7 +107,6 @@ void next (char* data,
 	} break;
 
 	case literal: /// handle literal
-		puts (".. literal");
 
 		*i = litsize_offset (i, data);
 		*wstart_i = *i+1;
@@ -136,31 +123,50 @@ void parser_stream (char* data, Obj* root) {
 
 	uint wstart_i = 0;
 	uint i = 0;
+
 	char c;
+	char* literal_string;
+
+	Obj c_obj;
+
+	// Expr e;
+	// expr_reset (&e);
 
 	bool e_status = (bool) 0;
 	bool trailing = true;
 
 	const uint lnsize = strlen (data);
-	Obj* c_obj = root;
 
 	for (i = 0; data[i] != '\0'; i++) {
 
-		if (lock_stream) {
-			if (g_ctxt.cmt) {
-				rstream (H_RESET (g_ctxt.cmt));
+		if (lock_stream)
+
+			if (gs_ctxt.cmt) { // after `"` is tokenized
+				rstream (H_RESET (gs_ctxt.cmt));
 				break;
 			}
-			else if (g_ctxt.str) {
-				char* cstr;
-				if ((cstr = strchr (data+i, '"')) != NULL) {
-					i = (uint) (cstr - data);
-					// g_ctxt.found->str (root);
-					rstream (H_RESET (g_ctxt.str));
+
+			else if (gs_ctxt.str) {
+
+				char* closing_quote;
+
+				if ((closing_quote = strchr (data+i, '"')) != NULL) {
+					rstream (H_RESET (gs_ctxt.str));
+
+					i = (uint) (closing_quote - data);
+					cat (closing_quote, literal_string);
+
+					// assign_bytes (literal_string, &c_obj);
+
+					free (literal_string);
+
 					continue;
-				} else break;
+				}
+				else {
+					cat (literal_string, data+i);
+					break;
+				}
 			}
-		}
 
 		c = data[i];
 
@@ -172,7 +178,7 @@ void parser_stream (char* data, Obj* root) {
 			H_RESET (trailing);
 
 		if (e_status == repeats && c == '\n' ||
-		   !e_status && c == '\n') /// unfinished word = `not_found`
+		   !e_status && c == '\n') /// unfinished word == `not_found`
 			goto parser_not_found;
 
 		e_status = nfind_def (c);
@@ -185,15 +191,21 @@ void parser_stream (char* data, Obj* root) {
 		next (data, &i, &wstart_i, &e_status, lnsize);
 
 		if (0) parser_not_found: {
-			puts ("!! not_found");
-			// au_hook (name);
+
+			char* word;
+			offset_i (&i, data, lnsize);
+
+			word = calloc ((i - wstart_i)+2, sizeof (char));
+			strncpy (word, (data + wstart_i), (i - wstart_i)+1);
+
+			au_hook (word);
 			H_RESET (t);
 		}
 
 	}
 
 	/// TODO: THIS IS VERY IMPORTANT
-	/// callback (void);
+	/// newline (g_ctxt, gr_ctxt);
 
 }
 
@@ -203,14 +215,13 @@ void parse_src (FILE* file, char* data, const uint LINE_LIMIT) {
 
 	e_set (txtruntime);
 
-	Obj* root = mod_root.pr = &mod_root;
+	Obj l_root;
 
-	/* the way we know if we hit root
-	 * is to see if the parent `pr`
-	 * of the object `obj` is itself*/
-	root->pr = &mod_root;
+	l_root.pr = NULL;
+
+	mkchild (&g_root, l_root);
 
 	while (fgets (data, LINE_LIMIT, file) != NULL)
-		parser_stream (data, root);
+		parser_stream (data, &l_root);
 
 }

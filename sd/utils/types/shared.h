@@ -28,3 +28,13 @@ typedef unsigned short int usint;
 typedef unsigned long int ulint;
 
 #endif
+
+#ifndef LOCK_MEM
+#  define LOCK_MEM
+
+#  define b  1
+#  define kb 1000
+#  define mb 1000000
+#  define gb 1000000000
+
+#endif

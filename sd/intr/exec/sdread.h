@@ -5,6 +5,8 @@
  * frontend
  */
 
+#define VERSION "v0.3.1"
+
 #ifndef LOCK_READ
 #  define LOCK_READ
 
@@ -15,8 +17,10 @@
                "\tsdread -s <file> \"<expr>\" => <file> is SD bytecode code (compiled)\n\n"\
                "Info:\tsdread -h\t\t  => Displays this message and exits\n"\
                "\tsdread -v\t\t  => Displays the version and exits\n\n"\
-               "Note:\tif <file> is `-`, then <file> is STDIN\n"\
-               "     \t\"<expr>\" is optional but must be used in quotes\n\n"
+               "Note:\t\"<expr>\" is optional but must be used in quotes\n\n"\
+
+#  define PROMPT "> "
+#  define NL_PROMPT "~ "
 
 enum ftype {
 	SOURCE,
