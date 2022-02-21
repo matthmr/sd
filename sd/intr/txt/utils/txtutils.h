@@ -14,7 +14,7 @@
 #  define not_found 1
 #  define found 2
 #  define ttoken 3
-#  define literal 4
+#  define number 4
 #  define repeats 5
 
 // -- `nbound_def` manifest type -- //
@@ -27,8 +27,11 @@
 
 extern uint t;
 
-void offset_i (uint*, char*, const uint);
+void number_offset (uint*, char*);
+bool number_base (char, uint);
+
 bool nbound_def (char, uint, uint*, uint*, bool);
+void offset_i (uint*, char*, const uint);
 bool tfind_def (char);
 bool nfind_def (char);
 

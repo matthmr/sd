@@ -10,14 +10,11 @@
 #ifndef LOCK_PARSE
 #  define LOCK_PARSE
 
-#  include <sd/lang/core/obj.h>
-#  include <sd/lang/lang.h>
-
-#  define STRING "\""
+#  include <sd/lang/tree/ot.h>
 
 void next (char*, uint*, uint*, bool*, const uint);
 void parser_stream (char*, Obj*);
-uint litsize_offset (uint*, char*);
+void number_offset (uint*, char*);
 
 #endif
 

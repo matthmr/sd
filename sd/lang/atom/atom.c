@@ -33,33 +33,20 @@ void atom_math_plus (void) {
 }
 
 void atom_math_minus (void) {
-	void* top;
-
-	switch (sp.t) {
-	case BT_INT:
-		top = (int*) pop_t (sp.t);
-		break;
-	case BT_UINT:
-		top = (uint*) pop_t (sp.t);
-		break;
-	case BT_FLOAT:
-		top = (float*) pop_t (sp.t);
-		break;
-	}
-
-	float ret = pop_t (sp.t) - top;
-	push (ret);
 }
 
 void atom_math_div (void) {
-	float top = pop();
+	long long top = pop();
 	float ret = pop() / top;
 	push (ret);
 }
 
 void atom_math_times (void) {
-	int ret = pop() * pop();
-	push (ret);
+	u64 (*popr)(void) = g_expr.get_popr ();
+	void (*pushr)(u64) = g_expr.get_pushr ();
+
+	u64 ret = popr () * popr ();
+	g_expr.get_pushr () (ret);
 }
 
 void atom_math_mod (void) {
@@ -71,27 +58,27 @@ void atom_math_mod (void) {
 Atom atom;
 
 atom.math = {
-	[PLUS] = &atom_math_plus,
-	[DIV] = &atom_math_div,
-	[TIMES] = &atom_math_times,
-	[MINUS] = &atom_math_minus,
-	[MOD] = &atom_math_mod,
+	[M32_PLUS] = &atom_math_plus,
+	[M32_DIV] = &atom_math_div,
+	[M32_TIMES] = &atom_math_times,
+	[M32_MINUS] = &atom_math_minus,
+	[M32_MOD] = &atom_math_mod,
 };
 
 atom.bool = {
-	[LAND] = &atom_bool_land,
-	[LOR] = &atom_bool_lor,
-	[LNOT] = &atom_bool_lnot,
-	[LEQ] = &atom_bool_leq,
-	[LLT] = &atom_bool_llt,
-	[LGT] = &atom_bool_lgt,
+	[L_AND] = &atom_bool_land,
+	[L_OR] = &atom_bool_lor,
+	[L_NOT] = &atom_bool_lnot,
+	[L_EQ] = &atom_bool_leq,
+	[L_LT] = &atom_bool_llt,
+	[L_GT] = &atom_bool_lgt,
 };
 
 atom.bit = {
-	[BWAND] = &atom_bit_bwand,
-	[BWOR] = &atom_bit_bwor,
-	[BWNOT] = &atom_bit_bwnot,
-	[BWXOR] = &atom_bit_bwxor,
-	[BWRSHIFT] = &atom_bit_bwrshift,
-	[BWLSHIFT] = &atom_bit_bwlshift,
+	[BW_AND] = &atom_bit_bwand,
+	[BW_OR] = &atom_bit_bwor,
+	[BW_NOT] = &atom_bit_bwnot,
+	[BW_XOR] = &atom_bit_bwxor,
+	[BW_RSHIFT] = &atom_bit_bwrshift,
+	[BW_LSHIFT] = &atom_bit_bwlshift,
 };

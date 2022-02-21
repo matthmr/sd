@@ -8,20 +8,19 @@
 #include <string.h>
 
 #include <sd/intr/txt/utils/txtutils.h>
+
 #include <sd/utils/types/shared.h>
+#include <sd/utils/err/verr.h>
+#include <sd/utils/utils.h>
+
+#include <sd/lang/hooks/txt/txthooks.h>
 #include <sd/lang/tokens/txt.h>
 #include <sd/lang/core/obj.h>
-#include <sd/utils/utils.h>
 
 #define st_comp(x) dir? (x)<=t_end: (x)>=t_start
 #define st_advance(x) dir? (x++): (x--)
 #define st_get dir? t_start: t_end
 
-/* `offset_i` starts on whatever
- * triggers it (alpha-numeric
- * or otherwise) and stops
- * right before a delimeter
- * or whitespace */
 void offset_i (uint* i,
                char* line,
                const uint lnsize) {
@@ -45,6 +44,89 @@ void offset_i (uint* i,
 		return;
 	
 	--*i; /// ... counting for incremental loop
+}
+
+inline bool number_base (char c, uint base) {
+
+	switch (base) {
+	case 10:
+		return NUMBER (c);
+		break;
+	case 16:
+		return NUMBER_HEX (c);
+		break;
+	case 8:
+		return NUMBER_OCT (c);
+		break;
+	case 2:
+		return NUMBER_BIN (c);
+		break;
+	}
+
+}
+
+void number_offset (uint* i, char* data) {
+	uint offset = *i;
+
+	bool dot = 0;
+	bool first = 1;
+	bool zero_prefix = 0;
+
+	char c = data[offset];
+
+	uint base = 10;
+
+	while (number_base (c, base) || (c == '.' && !dot)) {
+
+		if (first) {
+
+			if (c == '0')
+				H_LOCK (zero_prefix);
+
+			H_RESET (first);
+
+			if (!zero_prefix)
+				goto _next;
+			else {
+				offset++;
+				c = data[offset];
+			}
+
+			if (c == 0x00); // trailing 0
+				vErr (0x05, "");
+
+			if (NUMBER_OCT (c)) {
+				base = 8;
+				goto _next;
+			}
+
+			switch (c) {
+			case 'x': base = 16; break;
+			case 'b': base = 2; break;
+			default: vErr (0x04, ""); break;
+			}
+
+			goto _next;
+		}
+
+		if (c == '.' && !dot && base == 10) {
+			H_LOCK (dot);
+		}
+		else if (c == '.')
+			vErr (0x04, "");
+
+		_next: {
+			offset++;
+			c = data[offset];
+		}
+
+	}
+
+	if ((c == '.' && dot) || (c == '.' && base != 10)) /// fall-through
+		vErr (0x04, "");
+
+	gs_ctxt.base = (u8) base;
+	*i = (offset - 1);
 }
 
 bool nbound_def (char c,
@@ -238,7 +320,7 @@ bool nfind_def (char c) {
 
 			if (NUMBER (c)) {
 				H_RESET (_call);
-				return literal;
+				return number;
 			}
 
 			if (tfind_def (c) == ttoken) {

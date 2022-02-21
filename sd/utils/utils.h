@@ -16,6 +16,9 @@ void War (char*, const char*, char*);
 #  define LOCK_MACROS
 
 #  define NUMBER(X) (X) >= '0' && (X) <= '9'
+#  define NUMBER_HEX(X) ((X) >= '0' && (X) <= '9') || ((X) >= 'a' && (X) <= 'f')
+#  define NUMBER_BIN(X) (X) == '0' || (X) == '1'
+#  define NUMBER_OCT(X) (X) >= '0' && (X) <= '7'
 #  define LOWER_ALPHA(X) (X) >= 'a' && (X) <= 'z'
 #  define UPPER_ALPHA(X) (X) >= 'A' && (X) <= 'Z'
 #  define VALID(X) (LOWER_ALPHA(X) || UPPER_ALPHA(X) || (X) == '_')

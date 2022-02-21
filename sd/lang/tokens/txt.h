@@ -10,8 +10,9 @@
 #    include <sd/utils/types/shared.h>
 #    include <sd/lang/lang.h>
 
-extern const txt_Kw const keyword_manifest[];
-extern const txt_T const token_manifest[];
+extern const _Kw const keyword_manifest[];
+extern const _T const token_manifest[];
+
 extern const uint keyword_manifest_len;
 extern const uint token_manifest_len;
 

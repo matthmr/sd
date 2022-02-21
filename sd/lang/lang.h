@@ -10,10 +10,6 @@
 #ifndef LOCK_LANG
 #  define LOCK_LANG
 
-#  ifndef NULL
-#    define NULL (void*) 0x0
-#  endif
-
 typedef unsigned short id;
 
 enum kwty {
@@ -22,6 +18,7 @@ enum kwty {
 	KWTY_OBJ_DEF,
 	KWTY_QUAL,
 	KWTY_FLOW,
+	KWTY_LOOP,
 	KWTY_ENV,
 	KWTY_ACC,
 };
@@ -42,7 +39,9 @@ enum pt {
 	T_CHAR = 1,
 	T_INT,
 	T_FLOAT,
+	T_ENUM,
 	T_ARRAY,
+	T_MAP,
 };
 
 enum ptq {
@@ -53,36 +52,21 @@ enum ptq {
 typedef enum kwty Kwty;
 typedef enum tty Tty;
 
-struct data {
-	enum pt ty;
-	enum ptq qual;
-	void* data;
-};
-
-struct obj {
-	struct data data;
-	struct obj* pr;
-	struct obj* cd;
-};
-
-typedef struct obj Obj;
-
-extern Obj g_root;
 #endif
 
 #ifndef LOCK_LANG_TXT
 #  define LOCK_LANG_TXT
 
 typedef struct _kw {
-	Kwty ty;
-	id id;
 	char* kw;
-} txt_Kw;
+	id id;
+	Kwty ty;
+} _Kw;
 
 
 typedef struct _t {
-	Tty ty;
 	char t;
-} txt_T;
+	Tty ty;
+} _T;
 
 #endif

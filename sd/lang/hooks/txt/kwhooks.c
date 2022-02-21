@@ -9,45 +9,58 @@
 
 #include <sd/lang/tokens/utils/txtmaps.h>
 #include <sd/lang/hooks/txt/txthooks.h>
+#include <sd/lang/vm/tab/tab.h>
+#include <sd/lang/expr/expr.h>
+#include <sd/lang/tree/ot.h>
 #include <sd/lang/lang.h>
 
 #include <sd/utils/types/shared.h>
+#include <sd/utils/err/verr.h>
 #include <sd/utils/err/err.h>
 #include <sd/utils/utils.h>
 
-static void kwty_builtin_obj (txt_Kw);
-static void kwty_builtin_ty (txt_Kw);
-static void kwty_obj_def (txt_Kw);
-static void kwty_qual (txt_Kw);
-static void kwty_flow (txt_Kw);
-static void kwty_env (txt_Kw);
-static void kwty_acc (txt_Kw);
+static void kwty_builtin_obj (_Kw);
+static void kwty_builtin_ty (_Kw);
+static void kwty_obj_def (_Kw);
+static void kwty_qual (_Kw);
+static void kwty_flow (_Kw);
+static void kwty_env (_Kw);
+static void kwty_acc (_Kw);
+static void kwty_loop (_Kw);
 
-inline void kwty_obj_def (txt_Kw kw) {
+void kwty_obj_def (_Kw kw) {
 
-	switch (kw.id) {
+	switch (kw.ty) {
 	case _LET:
-		push_obj (OBJ);
-		expect (ASSIGN);
+		if (! tab.head)
+			expr_expect (SYNC_OBJ);
+		else
+			vErr (0x03, NULL);
 		break;
 	case _PROC:
-		push_obj (PROC);
-		expect (ASSIGN);
-		break;
-	case _TYPE:
-		push_obj (TYPE);
-		expect (ASSIGN);
+		if (! tab.head)
+			expr_expect (SYNC_PROC);
+		else
+			vErr (0x03, NULL);
 		break;
 	}
 
 }
 
-void kwty_builtin_obj (txt_Kw kw) {}
-void kwty_builtin_ty (txt_Kw kw) {}
-void kwty_qual (txt_Kw kw) {}
-void kwty_flow (txt_Kw kw) {}
-void kwty_env (txt_Kw kw) {}
-void kwty_acc (txt_Kw kw) {}
+void kwty_builtin_obj (_Kw kw) {
+	if (kw.id == _THIS);
+		//
+	else {
+		//
+	}
+}
+
+void kwty_builtin_ty (_Kw kw) {}
+void kwty_qual (_Kw kw) {}
+void kwty_flow (_Kw kw) {}
+void kwty_env (_Kw kw) {}
+void kwty_acc (_Kw kw) {}
+void kwty_loop (_Kw kw) {}
 
 _akw_handler akw_handler[] = {
 	[KWTY_BUILTIN_OBJ] = &kwty_builtin_obj,
@@ -55,6 +68,7 @@ _akw_handler akw_handler[] = {
 	[KWTY_OBJ_DEF] = &kwty_obj_def,
 	[KWTY_QUAL] = &kwty_qual,
 	[KWTY_FLOW] = &kwty_flow,
+	[KWTY_LOOP] = &kwty_loop,
 	[KWTY_ENV] = &kwty_env,
 	[KWTY_ACC] = &kwty_acc,
 };

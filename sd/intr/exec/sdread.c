@@ -3,27 +3,25 @@
  * regarding the sd language. It makes it possible
  * to parse and interpret plain-text source code
  * and execute it on the fly.
- *
- * sd can be compiled by sdcinto a .sdo file
- * which can be directly executed by sdexec.
- *
- * This is the main source for the functionality
- * used by scriptsd.
  */
 
 #include <stdio.h>
 
-#include <sd/intr/txt/sdparse.h>
+#include <sd/lang/vm/vm.h>
+
 #include <sd/intr/bytecode/sdbcparse.h>
+#include <sd/intr/txt/sdparse.h>
 #include <sd/intr/exec/sdread.h>
 #include <sd/intr/limits.h>
 
+#include <sd/utils/types/shared.h>
 #include <sd/utils/err/err.h>
 #include <sd/utils/utils.h>
-#include <sd/utils/types/shared.h>
 
 /// TODO: unhandled `<expr>`: parse it and execute within main file context
 int main (int argc, char** argv) {
+
+	vm_init ();
 
 	uint i = 0;
 
@@ -34,7 +32,7 @@ int main (int argc, char** argv) {
 
 	enum ftype f_type = SOURCE;
 
-	e_set (argtime);
+	e_set (TIME_ARG);
 
 	if (argc > 1) for (i = 1; i < argc; i++) {
 		if (! promise) {
@@ -42,7 +40,7 @@ int main (int argc, char** argv) {
 				switch (argv[i][1]) {
 
 				case 'v':
-					printf ("sdread " VERSION "\n");
+					fprintf (stdout, "sdread " VERSION "\n");
 					return 0;
 					break;
 				case 'h':
@@ -78,7 +76,7 @@ int main (int argc, char** argv) {
 	}
 
 	else { /// interpret as `sdread -`
-		// TODO: dected pipe
+		// TODO: detect pipe
 		LOCK (pipe);
 		file = stdin;
 	}
@@ -109,6 +107,8 @@ int main (int argc, char** argv) {
 	/* close `file` on exit */
 	if (!pipe)
 		fclose (file);
+
+	vm_kill ();
 
 	return 0;
 

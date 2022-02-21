@@ -8,16 +8,16 @@
 #ifndef LOCK_ERR
 #  define LOCK_ERR
 
-enum env {
-	argtime,
-	txtruntime,
-	byteruntime,
-	cmptime
-};
+typedef enum time {
+	TIME_ARG,
+	TIME_TXT,
+	TIME_BYTE,
+	TIME_COMP,
+} Time;
 
-typedef enum env Env;
+extern const char* errmsg[];
+extern char* fmt;
 
 void Err (int, char*);
-void e_set (Env);
+void e_set (Time);
 #endif
-

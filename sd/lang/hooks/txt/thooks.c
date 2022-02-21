@@ -6,77 +6,131 @@
  * ping around the parse tree
  */
 
-#  include <sd/lang/hooks/txt/txthooks.h>
-#  include <sd/lang/atom/atom.h>
-#  include <sd/lang/vm/vm.h>
-#  include <sd/lang/lang.h>
+#include <sd/lang/hooks/txt/txthooks.h>
+#include <sd/lang/atom/atom.h>
+#include <sd/lang/vm/vm.h>
+#include <sd/lang/lang.h>
 
-#  include <sd/utils/err/err.h>
-#  include <sd/utils/utils.h>
+#include <sd/utils/types/cast.h>
+#include <sd/utils/err/err.h>
+#include <sd/utils/utils.h>
 
-static void tty_obj_ref_del (txt_T);
-static void tty_bitwise_op (txt_T);
-static void tty_bool_cmp (txt_T);
-static void tty_obj_ref (txt_T);
-static void tty_obj_def (txt_T);
-static void tty_math_op (txt_T);
-static void tty_bool_op (txt_T);
-static void tty_expr (txt_T);
-static void tty_syn (txt_T);
+static void tty_obj_ref_del (_T);
+static void tty_bitwise_op (_T);
+static void tty_bool_cmp (_T);
+static void tty_obj_ref (_T);
+static void tty_obj_def (_T);
+static void tty_math_op (_T);
+static void tty_bool_op (_T);
+static void tty_expr (_T);
+static void tty_syn (_T);
 
-void tty_syn (txt_T t) {
+void tty_syn (_T t) {
 
 	switch (t.t) {
+
 	case '#':
 		lstream (H_LOCK (gs_ctxt.cmt));
 		break;
+
 	case '"':
 		lstream (H_LOCK (gs_ctxt.str));
+
 	case '^':
 		break;
 	}
 
 }
 
-void tty_math_op (txt_T t) {
+void tty_math_op (_T t) {
 	switch (t.t) {
 	case '+':
-		atom.math[PLUS] (stack);
 		break;
+
 	case '*':
-		atom.math[TIMES] (stack);
 		break;
+
 	case '-':
-		atom.math[MINUS] (stack);
 		break;
+
 	case '%':
-		atom.math[MOD] (stack);
 		break;
 	}
 }
 
-void tty_bitwise_op (txt_T t) {
+void tty_bitwise_op (_T t) {
 
 	switch (t.t) {
 	case '~':
-		atom.bit[BWNOT] (stack);
 		break;
+
 	case '&':
-		atom.bit[BWAND] (stack);
 		break;
+
 	case '|':
-		atom.bit[BWOR] (stack);
 		break;
 	}
 
 }
 
-void tty_obj_ref_del (txt_T t) {}
-void tty_bool_cmp (txt_T t) {}
-void tty_obj_ref (txt_T t) {}
-void tty_obj_def (txt_T t) {}
-void tty_bool_op (txt_T t) {}
-void tty_expr (txt_T t) {}
+void tty_obj_ref_del (_T t) {
+
+	switch (t.t) {
+
+	case '>':
+		break;
+
+	case '<':
+		break;
+
+	}
+
+}
+
+void tty_bool_cmp (_T t) {}
+
+void tty_obj_ref (_T t) {
+
+	switch (t.t) {
+	case '/':
+		break;
+	case '@':
+		break;
+	case '.':
+		break;
+	}
+
+}
+
+void tty_obj_def (_T t) {
+
+	switch (t.t) {
+	case ':':
+		break;
+	case '{':
+		break;
+	case '}':
+		break;
+	}
+
+}
+
+void tty_bool_op (_T t) {}
+
+void tty_expr (_T t) {
+
+	switch (t.t) {
+
+	case ';':
+		expr_exec ();
+		break;
+
+	case '^':
+		break;
+
+	}
+
+}
 
 _at_handler at_handler[] = {
 	[TTY_OBJ_REF_DEL] = &tty_obj_ref_del,
@@ -89,4 +143,3 @@ _at_handler at_handler[] = {
 	[TTY_EXPR] = &tty_expr,
 	[TTY_SYN] = &tty_syn,
 };
-

@@ -3,6 +3,14 @@
  * for user defined words
  */
 
-void au_hook (char* uword) {
+#include <sd/utils/types/shared.h>
 
+void umap (char* uword) { }
+
+void au_hook (char* uword, u64 size) {
+	/* if (deref)
+		uget (uword);
+	else if (ref)
+		umap (uword);
+	*/
 }

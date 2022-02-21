@@ -7,39 +7,19 @@
 
 #  include <sd/utils/types/shared.h>
 
-enum math_op {
-	PLUS,
-	DIV,
-	TIMES,
-	MINUS,
-	MOD,
-};
-
-enum bool_op {
-	LAND,
-	LOR,
-	LNOT,
-	LEQ,
-	LLT,
-	LGT,
-};
-
-enum bit_op {
-	BWAND,
-	BWOR,
-	BWNOT,
-	BWXOR,
-	BWRSHIFT,
-	BWLSHIFT,
-};
-
 typedef union op {
-	enum math_op m_op;
-	enum bool_op B_op;
-	enum bit_op b_op;
+	uint math_op;
+	uint bool_op;
+	uint bit_op;
+	uint unary_op;
 } Op;
 
-typedef void (*_atom_math,*_atom_bit,*_atom_bool) (void);
+#  ifndef LOCK_ATOM_FN
+#    define LOCK_ATOM_FN
+
+typedef void (*_atom_math[5]) (void);
+typedef void (*_atom_bit[6]) (void);
+typedef void (*_atom_bool[6]) (void);
 
 typedef struct atom {
 	_atom_math math;
@@ -48,5 +28,7 @@ typedef struct atom {
 } Atom;
 
 extern Atom atom;
+
+#  endif
 
 #endif

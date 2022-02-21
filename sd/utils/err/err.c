@@ -8,32 +8,34 @@
 #include <sd/utils/err/err.h>
 #include <sd/utils/utils.h>
 
-static char* fmt;
+char* fmt;
 
 static const char* errfmt[] = {
-	[argtime] = "[ARGPARSE]:%s%s\n",
-	[txtruntime] = "[RUNTIME]:%s%s\n",
-	[byteruntime] = "[RUNTIME]:%s%s\n",
-	[cmptime] = "[COMPILE]:%s%s\n"
+	[TIME_ARG] = "arg:%s%s\n",
+	[TIME_TXT] = "main:%s%s\n",
+	[TIME_BYTE] = "main:%s%s\n",
+	[TIME_COMP] = "compile:%s%s\n"
 };
 
-static const char* warmsg[] = {
-	0x00 /* TODO: centralize warning messages */
-};
-
-static const char* errmsg[] = {
+const char* errmsg[] = {
 	0x00,
-	" E01: No such file ",
-	" E02: Missing file name "
+
+	// arg
+	" E01: no such file ", // sd <file>
+	" E02: missing file name " // sd -s
+
+	// main - txtruntime
+	" E03: cannot cast procedure" // proc a: let b: 1;
+
+	// shared
+	" E04: bad integer construction" // 0x0.a, 1..1
+
 };
 
-// TODO: define verbose errors for SD source code execution,
-//       the same won't be needed in bytecode execution
-
-inline void e_set (Env env) {
-	fmt = (char*) errfmt[env];
+inline void e_set (Time t) {
+	fmt = (char*) errfmt[t];
 }
 
-void Err (int code, char* info) {
+inline void Err (int code, char* info) {
 	Die (fmt, errmsg[code], info, code);
 }
