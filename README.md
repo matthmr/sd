@@ -27,6 +27,7 @@ The `Makefile` also has a couple environment variables to pass through:
 
 - `CC`: the C compiler (GCC)
 - `CCFLAG`: additional flags to pass to the compiler ()
+- `BITS`: the machine memory address bit length (64)
 - `INCLUDE`: additional include path to pass to the compiler (-I${PWD})
 - `AR`: the `.a` archiver (ar)
 - `ARFLAG`: the archiver flags (rc)
