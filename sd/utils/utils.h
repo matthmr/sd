@@ -30,5 +30,6 @@ void War (char*, const char*, char*);
 #  define H_LOCK(X) (X)=1
 #  define H_RESET(X) (X)=0
 #  define E_LOCK(X,Y) if (!X) (X)=(Y)
+#  define MAX_OF(X) (((unsigned)(1<<(X-1))-1)<<1)+1
 
 #endif

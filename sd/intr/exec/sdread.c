@@ -86,21 +86,21 @@ int main (int argc, char** argv) {
 
 	if (0) {
 	open: {
-		if (! (file = fopen (argv[i], "r")))
+		if (! (file = fopen (argv[i], "rb")))
 			Err (0x01, argv[i]);
 	}
 	expr: ;
 	}
 
-	byte data[LINE_LIMIT];
+	byte data[STDBUFFER];
 
 	/// TODO: maybe accept multiple files as modules? this would become a loop
 	switch (f_type) {
 		case SOURCE:
-			parse_src (file, data, LINE_LIMIT);
+			parse_src (file, data, STDBUFFER);
 			break;
 		case BYTECODE:
-			parse_bc (file, data, BCLINE_LIMIT);
+			parse_bc (file, data, STDBUFFER);
 			break;
 	}
 

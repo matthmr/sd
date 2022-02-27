@@ -10,9 +10,9 @@
 
 #  define MEM 10*kb
 
-#  define MEM_TAB 6*kb
-#  define MEM_HEAP 1*kb
-#  define MEM_STACK 3*kb
+#  define MEM_TAB 2*kb
+#  define MEM_STACK 2*kb
+#  define MEM_HEAP 6*kb
 
 #  define M_MEM 1*mb
 #  define H_MEM 10*mb
@@ -59,8 +59,9 @@ extern u64 mem_goffset_top;
 void vm_init (void);
 void (*vm_kill) (void);
 
-void ip_next (void);
+void jump_ip (void);
 
+// -- STACK -- //
 void* pop (void);
 void push (byte);
 
@@ -70,10 +71,18 @@ void push_t (uint, void*);
 void* pop_frame (uint);
 void push_frame (uint, void*);
 
+// -- HEAP -- //
 void heap (uint);
 
-void push_tab (byte*);
+// -- TABLE -- //
+void push_tab (byte);
 
-void mov_rege (addr, u64);
-void mov_regl (addr, u64);
+// -- REGISTERS -- //
+void mov_rege (u64);
+void mov_regl (u64);
 #endif
+
+#ifndef ADDR_BITS
+#  define ADDR_BITS 64 /* fallback to 64 bits */
+#endif
+

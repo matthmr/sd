@@ -8,15 +8,16 @@
 #ifndef LOCK_BITMAP
 #  define LOCK_BITMAP
 
-typedef char bit;
+typedef unsigned char bit;
 
-struct sd_byte_normal {
+struct SDO_normal_mask {
 	bit big: 1;
 	bit ty: 2;
-	bit ogid: 5;
+	bit mod: 1;
+	bit ogid: 4;
 };
 
-struct sd_byte_type {
+struct SDO_type_mask {
 	bit sign: 1;
 	bit bits_addr: 1;
 	bit bits_float: 1;
@@ -27,10 +28,7 @@ struct sd_byte_type {
 	bit bits_8: 1;
 };
 
-typedef struct sd_byte_normal Normal;
-typedef struct sd_byte_type Type;
+#  define NORMAL (struct SDO_normal_mask)
+#  define TYPE (struct SDO_type_mask)
 
-#  define NORMAL (Normal)
-#  define TYPE (Type)
-
-#ifndef LOCK_BITMAP
+#  endif

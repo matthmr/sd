@@ -1,5 +1,5 @@
 /**
- * This files contains the
+ * This file contains the
  * implementation of utils
  * for parsing plain-text
  * SD source code
@@ -31,6 +31,7 @@ void offset_i (uint* i,
 
 	while (_i < lnsize) {
 
+		/// offsets by the first index of the next non-valid uword character
 		if (WHITESPACE (c) || ! (VALID (c) || NUMBER (c)))
 			break;
 		else

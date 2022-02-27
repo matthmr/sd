@@ -29,6 +29,9 @@
 #  define CAST_i64p (long*)
 #  define CAST_u64p (unsigned long*)
 
+#  define CAST_d64 *(double*)
+#  define CAST_d64p (double*)
+
 #  define CAST_addr (void*)
 
 #endif

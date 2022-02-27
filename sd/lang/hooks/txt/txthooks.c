@@ -14,6 +14,7 @@
 struct stream_ctxt gs_ctxt = {
 	.cmt = 0,
 	.str = 0,
+
 	.literal = 0,
 	.expect_double = 0,
 	.__PAD = 0,

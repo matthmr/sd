@@ -6,11 +6,14 @@
 #ifndef LOCK_INTR_LIMITS
 #  define LOCK_INTR_LIMITS
 
-#  define NEWLINE_BUFFER_LIMIT (1 << 16) - 1
-#  define GBUFFER_M1 (1 << 16)
+#  define LOCK_UTILS
+#  include <sd/utils/types/shared.h>
+#  include <sd/utils/utils.h>
+#  undef LOCK_UTILS
 
-static const unsigned short int LINE_LIMIT = (1 << 16) - 1;
-static const unsigned short int BCLINE_LIMIT = (1 << 16) - 1;
-static const unsigned short int CHILDREN_LIMIT = (1 << 16) - 1;
+#  define BUFFER 1024*b
+
+static const u32 STDBUFFER = BUFFER;
+static const u32 STDOBJ = MAX_OF (32*b);
 
 #endif

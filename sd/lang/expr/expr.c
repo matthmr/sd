@@ -1,7 +1,7 @@
 /**
- * This files contains utils
- * for making the parse tree
- * for plain-text files
+ * This file contains utils
+ * for making a generic
+ * parse tree on demand
  */
 
 #include <sd/lang/core/bitmap/masks.h>

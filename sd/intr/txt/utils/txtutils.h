@@ -1,5 +1,5 @@
 /**
- * This files contains utils
+ * This file contains utils
  * for parsing plain-text
  * SD source code
  */

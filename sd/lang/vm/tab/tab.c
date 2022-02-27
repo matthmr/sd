@@ -10,25 +10,25 @@
 #include <sd/lang/vm/tab/tab.h>
 #include <sd/lang/vm/vm.h>
 
-Normal normal_buffer[10];
+Normal normal_buffer[5]; // 4 + 4*7 = 32 bits
 
-static Normal (*let) (void);
-static Normal (*proc) (void);
-static void (*buffer) (byte);
-
-static u64 OGID;
+static u64 goid;
 static uint nbindex;
 
-Normal* let (NormalRef r) { }
+Normal* let (void) { }
 
-void buffer (byte b) {
-	normal_buffer[nbindex] | b;
-	i++;
+void buffer (byte mask) {
+	normal_buffer[nbindex] |= mask;
+	nbindex++;
 }
+
+/*inline void chroot (addr addr) {
+	g_self = addr;
+}*/
 
 Tab tab = {
 	.let = &let,
-	.proc = &proc,
+	.proc = NULL,
 	.heap_data = NULL,
 	.head = NULL,
 	.chroot = NULL,

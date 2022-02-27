@@ -27,13 +27,12 @@
 #include <sd/intr/limits.h>
 
 uint t;
-uint ln;
 
-uint gbuffer_size = GBUFFER_M1;
-
-char nlft[NEWLINE_BUFFER_LIMIT]; // source buffer
-char gbuffer[GBUFFER_M1]; // literal buffer
+char gbuffer[BUFFER]; // literal/uword buffer
 char word[10]; // keyword assertion buffer
+
+static uint gbuffer_size = BUFFER;
+static char* ins_p = gbuffer;
 
 void next (char* data,
            uint* i,
@@ -61,7 +60,7 @@ void next (char* data,
 
 	case found:
 
-		/* it might be the case that a token cuts a repetition keyword short */
+		/// it might be the case that a token cuts a repetition keyword short
 		if (tfind_def (*(data+*i)) == ttoken) {
 
 			wsize = (*i - *wstart_i)+1;
@@ -76,26 +75,24 @@ void next (char* data,
 		offset_i (i, data, lnsize);
 		wsize = (*i - *wstart_i)+1;
 
-		if (wsize > 20) {
+		if (wsize > 10) { /// mismatch(1)
 			strncpy (gbuffer, (data + *wstart_i), wsize);
-			au_hook (gbuffer, wsize);
+			goto _au_hook;
 
 			H_RESET (t);
 			*wstart_i = *i+1;
 			break;
 		}
-		else {
+		else { // mismatch(2)
 			strncpy (word, (data + *wstart_i), wsize);
+
+			if (! (uint) strcmp (word, keyword_manifest[t].kw))
+				akw_hook (keyword_manifest[t]);
+			else _au_hook:
+				au_hook (word, wsize);
 		}
 
 		*wstart_i = *i+1;
-
-		if (! (uint) strcmp (word, keyword_manifest[t].kw))
-			akw_hook (keyword_manifest[t]);
-		else {
-			au_hook (word, wsize);
-		}
-
 		H_RESET (t);
 		break;
 
@@ -126,24 +123,19 @@ void next (char* data,
 	return;
 }
 
-void parser_stream (char* data, Obj* root) {
+void parser_stream (char* data, Obj* m_root, uint e_eof) {
 
 	uint wstart_i = 0;
 	uint i = 0;
 
 	char c;
 
-	char* lstring;
-
-	Obj c_obj;
-
-	bool e_status = (bool) 0;
+	bool e_status = false;
 	bool leading = true;
 
-	const uint lnsize = strlen (data);
-	ln++;
+	const uint lnsize = (const uint) e_eof;
 
-	for (i = 0; data[i] != '\0'; i++) {
+	for (i = 0; i < gbuffer_size; i++) {
 
 		if (lock_stream)
 
@@ -160,16 +152,14 @@ void parser_stream (char* data, Obj* root) {
 					rstream (H_RESET (gs_ctxt.str));
 
 					i = (uint) (closing_quote - data);
-					// strcat (lstring, data+i);
+					// gbuffer_cat (ins_p, data+i);
 
-					astring_hook (lstring);
-
-					free (lstring);
+					astring_hook (gbuffer /*,size */);
 
 					continue;
 				}
 				else {
-					// strcat (lstring, data+i);
+					// gbuffer_cat (ins_p, data+i);
 					break;
 				}
 			}
@@ -177,6 +167,8 @@ void parser_stream (char* data, Obj* root) {
 		c = data[i];
 
 		if (leading && WHITESPACE (c)) {
+			if (c == '\n')
+				ln++;
 			wstart_i++;
 			continue;
 		}
@@ -212,17 +204,23 @@ void parser_stream (char* data, Obj* root) {
 
 }
 
-/* this wraps around `parser_stream` to use `fgets`
- * and define module roots */
-void parse_src (FILE* file, char* data, const uint LINE_LIMIT) {
+/* this wraps around `parser_stream` to buffer
+ * to `data` and define module roots
+ */
+void parse_src (FILE* file, char* data, const uint buffer_size) {
 
+	uint e_eof;
 	e_set (TIME_TXT);
 
 	Obj l_root;
 	mkchild (&g_root, &l_root);
-	// expr_init ();
+	// g_self = CAST_addr l_root;
 
-	while (fgets (data, LINE_LIMIT, file) != NULL)
-		parser_stream (data, &l_root);
+	ln = 1;
+	while ((e_eof = fread (data, 1, buffer_size, file)) == buffer_size) {
+		parser_stream (data, &l_root, e_eof);
+	}
+
+	parser_stream (data, &l_root, e_eof);
 
 }

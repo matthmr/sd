@@ -48,6 +48,8 @@ struct stream_ctxt {
 };
 
 extern struct stream_ctxt gs_ctxt;
+extern struct data_type gd_ctxt;
+
 extern bool lock_stream;
 
 static struct mem_ctxt new_mem_ctxt (void);

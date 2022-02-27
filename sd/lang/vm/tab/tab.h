@@ -9,7 +9,7 @@
 
 #include <sd/utils/types/shared.h>
 
-typedef char Normal;
+typedef unsigned char Normal;
 
 struct tab {
 	Normal* (*let) (void);
@@ -18,7 +18,7 @@ struct tab {
 	addr (*heap_data) (void);
 	addr head;
 
-	void (*chroot) (u64);
+	void (*chroot) (addr);
 	void (*buffer) (byte);
 };
 

@@ -13,7 +13,7 @@
 #  include <sd/lang/tree/ot.h>
 
 void next (char*, uint*, uint*, bool*, const uint);
-void parser_stream (char*, Obj*);
+void parser_stream (char*, Obj*, uint);
 void number_offset (uint*, char*);
 
 #endif
@@ -23,5 +23,12 @@ void number_offset (uint*, char*);
 
 /* This is the main wrappable function */
 void parse_src (FILE*, char*, uint);
+
+#endif
+
+#ifndef LOCK_VERBOSITY
+#  define LOCK_VERBOSITY
+
+extern uint ln;
 
 #endif

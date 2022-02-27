@@ -3,6 +3,7 @@
 ### COMPILER ###
 CC?=gcc
 INCLUDE?=-I${PWD}
+BITS?=64
 CCFLAG?=
 
 ### ARCHIVER ###
@@ -60,6 +61,7 @@ help:
 	@echo \[\[ available variables \]\]
 	@echo   - CC: C compiler \(${CC}\)
 	@echo   - INCLUDE: include path \(${INCLUDE}\)
+	@echo   - BITS: machine memmory address bit length \(e.g 32, 64\) \(${BITS}\)
 	@echo   - CCFLAG: CC flags \(${CCFLAG}\)
 	@echo   - AR: archiver \(${AR}\)
 	@echo   - ARFLAG: archiver flags \(${ARFLAG}\)
@@ -152,7 +154,7 @@ sd/lang/hooks/txt/literal.o: sd/lang/hooks/txt/literal.c sd/lang/hooks/txt/liter
 	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/hooks/txt/literal.c -o sd/lang/hooks/txt/literal.o
 sd/lang/vm/vm.o: sd/lang/vm/vm.c sd/lang/vm/vm.h
 	@echo [ .. ] Compiling 'vm.o'
-	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/vm/vm.c -o sd/lang/vm/vm.o
+	${CC} ${INCLUDE} -c ${CCFLAG} -DADDR_BITS=${BITS} sd/lang/vm/vm.c -o sd/lang/vm/vm.o
 sd/lang/atom/atom.o: sd/lang/atom/atom.c sd/lang/atom/atom.h
 	@echo [ .. ] Compiling 'atom.o'
 	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/atom/atom.c -o sd/lang/atom/atom.o

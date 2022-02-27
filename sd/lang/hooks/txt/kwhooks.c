@@ -48,9 +48,9 @@ void kwty_obj_def (_Kw kw) {
 }
 
 void kwty_builtin_obj (_Kw kw) {
-	if (kw.id == _THIS);
+	if (kw.id == _THIS); // this
 		//
-	else {
+	else { // nil
 		//
 	}
 }

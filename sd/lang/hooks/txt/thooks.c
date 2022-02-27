@@ -6,8 +6,10 @@
  * ping around the parse tree
  */
 
+
 #include <sd/lang/hooks/txt/txthooks.h>
 #include <sd/lang/atom/atom.h>
+#include <sd/lang/expr/expr.h>
 #include <sd/lang/vm/vm.h>
 #include <sd/lang/lang.h>
 
@@ -87,7 +89,7 @@ void tty_obj_ref_del (_T t) {
 
 }
 
-void tty_bool_cmp (_T t) {}
+void tty_bool_cmp (_T t) {} // has doubles
 
 void tty_obj_ref (_T t) {
 
@@ -115,7 +117,7 @@ void tty_obj_def (_T t) {
 
 }
 
-void tty_bool_op (_T t) {}
+void tty_bool_op (_T t) {} // doubles
 
 void tty_expr (_T t) {
 
