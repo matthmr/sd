@@ -5,7 +5,7 @@
  * frontend
  */
 
-#define VERSION "v0.3.1"
+#define VERSION "v0.3.2"
 
 #ifndef LOCK_READ
 #  define LOCK_READ

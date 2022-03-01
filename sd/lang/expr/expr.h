@@ -70,7 +70,6 @@ enum bits {
 
 	#if ADDR_BITS == 32
 		bits_addr = 36, // void*
-		bits_ptr = 37, // *
 	#elif ADDR_BITS == 64
 		bits_addr = 66, // void*
 	#endif

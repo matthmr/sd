@@ -9,7 +9,7 @@
 #include <sd/utils/err/verr.h>
 #include <sd/utils/err/err.h>
 
-inline void vErr (int code, char* info) {
+void vErr (int code, char* info) {
 	fprintf (stderr, fmt, errmsg[code], info);
 	exit (code);
 }

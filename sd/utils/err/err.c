@@ -21,10 +21,10 @@ const char* errmsg[] = {
 	0x00,
 
 	" E0x01: no such file ", // sd <file>
-	" E0x02: missing file name " // sd -s
-	" E0x03: cannot cast procedure" // proc a: let b: 1;
-	" E0x04: bad integer construction" // 0x0.a, 1..1
-	" E0x05: out-of-bound number" // 99....9
+	" E0x02: missing file name ", // sd -s
+	" E0x03: cannot cast procedure", // proc a: let b: 1;
+	" E0x04: bad integer construction", // 0x0.a, 1..1
+	" E0x05: out-of-bound number", // 99....9
 
 };
 

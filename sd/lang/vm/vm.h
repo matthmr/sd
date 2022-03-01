@@ -57,7 +57,6 @@ extern u64 mem_goffset;
 extern u64 mem_goffset_top;
 
 void vm_init (void);
-void (*vm_kill) (void);
 
 void jump_ip (void);
 

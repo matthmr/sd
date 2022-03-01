@@ -1,30 +1,24 @@
 # Made by mH (https://github.com/matthmr)
-
 ### COMPILER ###
 CC?=gcc
 INCLUDE?=-I${PWD}
 BITS?=64
 CCFLAG?=
-
 ### ARCHIVER ###
 AR?=ar
 ARFLAG?=rc
-
 ### COMMANDS ###
 GZ?=gzip
 FIND?=find
 XARGS?=xargs
 CTAGS?=ctags
 STRIP?=strip
-
 ### INSTALLATION ###
 PREFIX?=/usr/local
-
 ### INFO ###
 SDLANG_MAJOR=0
 SDLANG_MINOR=3
-SDLANG_PATCH=1
-
+SDLANG_PATCH=2
 ### BEGIN BASE ###
 default: install
 clean:
@@ -45,7 +39,6 @@ install: language parser compiler man
 	@echo [ .. ] Moving man pages to '${PREFIX}/man'
 	mkdir -p ${PREFIX}/man/man1/ && mv man/* ${PREFIX}/man/man1 || echo [ !! ] No permission to move documentation to ${PREFIX}/man
 ### END BASE ###
-
 ### BEGIN TARGETS ###
 help:
 	@echo \[\[ available targets \]\]
@@ -71,13 +64,13 @@ help:
 	@echo   - CTAGS: ctags-like command \(${CTAGS}\)
 	@echo   - PREFIX: prefix for installation \(${PREFIX}\)
 	@echo   - SRIP: strip-like command \(${STRIP}\)
-
 parser: sd/intr/exec/sdread.o\
 	lib/libsdparse.a\
+	lib/libsdutils.a\
 	lib/libsdlang.a\
 	lib/libsdvm.a
 	@echo [ .. ] Linking to 'sdread'
-	${CC} ${CCFLAG} -o bin/sdread sd/intr/exec/sdread.o -Llib -lsdparse -lsdlang -lsdvm
+	${CC} ${CCFLAG} -o bin/sdread sd/intr/exec/sdread.o -Llib -lsdparse -lsdlang -lsdutils -lsdvm
 	@echo [ .. ] Finished compilation
 man: man/man1/sdread.1 man/man1/sdc.1
 	@echo [ .. ] Compressing 'sdread' man page
@@ -86,6 +79,7 @@ man: man/man1/sdread.1 man/man1/sdc.1
 	@${GZ} -c man/man1/sdc.1 > man/man1/sdc.1.gz
 compiler: sd/comp/sdc.o\
 	lib/libsdparse.a\
+	lib/libsdutils.a\
 	lib/libsdlang.a\
 	lib/libsdvm.a
 	@echo [ .. ] Linking to 'sdc'
@@ -93,7 +87,6 @@ compiler: sd/comp/sdc.o\
 	@echo [ .. ] Finished compilation
 language: lib/libsdlang.so
 ### END TARGETS ###
-
 ### BEGIN COMPILING ###
 sd/comp/sdc.o: sd/comp/sdc.c sd/comp/sdc.h
 	@echo [ .. ] Compiling 'sdc.o'
@@ -112,10 +105,11 @@ sd/lang/tree/ot.o: sd/lang/tree/ot.c sd/lang/tree/ot.h
 	@echo [ .. ] Compiling 'ot.o'
 	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/tree/ot.c -o sd/lang/tree/ot.o
 sd/intr/txt/sdparse.o: sd/intr/txt/sdparse.c sd/intr/txt/sdparse.h\
+	sd/utils/types/shared.h\
 	sd/lang/core/obj.h\
-	sd/utils/types/shared.h
+	sd/intr/limits.h
 	@echo [ .. ] Compiling 'sdparse.o'
-	${CC} ${INCLUDE} -c ${CCFLAG} sd/intr/txt/sdparse.c -o sd/intr/txt/sdparse.o
+	${CC} ${INCLUDE} -c ${CCFLAG} -DADDR_BITS=${BITS} sd/intr/txt/sdparse.c -o sd/intr/txt/sdparse.o
 sd/lang/hooks/txt/thooks.o: sd/lang/hooks/txt/thooks.c sd/lang/hooks/txt/txthooks.h
 	@echo [ .. ] Compiling 'thooks.o'
 	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/hooks/txt/thooks.c -o sd/lang/hooks/txt/thooks.o
@@ -128,8 +122,22 @@ sd/lang/hooks/txt/txthooks.o: sd/lang/hooks/txt/txthooks.h sd/lang/hooks/txt/txt
 sd/lang/vm/tab/tab.o: sd/lang/vm/tab/tab.h sd/lang/vm/tab/tab.c
 	@echo [ .. ] Compiling 'tab.o'
 	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/vm/tab/tab.c -o sd/lang/vm/tab/tab.o
+sd/lang/expr/expr.o: sd/lang/expr/expr.c sd/lang/expr/expr.h
+	@echo [ .. ] Compiling 'expr.o'
+	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/expr/expr.c -o sd/lang/expr/expr.o
+sd/intr/txt/ptree/ptree.o: sd/intr/txt/ptree/ptree.c sd/intr/txt/ptree/ptree.h
+	@echo [ .. ] Compiling 'ptree.o'
+	${CC} ${INCLUDE} -c ${CCFLAG} sd/intr/txt/ptree/ptree.c -o sd/intr/txt/ptree/ptree.o
+sd/lang/hooks/txt/literal.o: sd/lang/hooks/txt/literal.c sd/lang/hooks/txt/literal.h
+	@echo [ .. ] Compiling 'literal.o'
+	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/hooks/txt/literal.c -o sd/lang/hooks/txt/literal.o
+sd/lang/vm/vm.o: sd/lang/vm/vm.c sd/lang/vm/vm.h
+	@echo [ .. ] Compiling 'vm.o'
+	${CC} ${INCLUDE} -c ${CCFLAG} -DADDR_BITS=${BITS} sd/lang/vm/vm.c -o sd/lang/vm/vm.o
+sd/lang/atom/atom.o: sd/lang/atom/atom.c sd/lang/atom/atom.h
+	@echo [ .. ] Compiling 'atom.o'
+	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/atom/atom.c -o sd/lang/atom/atom.o
 ### END COMPILING ###
-
 ### BEGIN COMPILING UTILS ###
 sd/lang/tokens/txt.o: sd/lang/tokens/txt.c sd/lang/tokens/txt.h
 	@echo [ .. ] Compiling 'txt.o'
@@ -146,33 +154,28 @@ sd/utils/utils.o: sd/utils/utils.c sd/utils/utils.h\
 sd/utils/err/err.o: sd/utils/err/err.c sd/utils/err/err.h
 	@echo [ .. ] Compiling 'err.o'
 	${CC} ${INCLUDE} -c ${CCFLAG} sd/utils/err/err.c -o sd/utils/err/err.o
-sd/utils/err/verr.o: sd/utils/err/verr.c sd/utils/err/verr.h sd/utils/err/err.h
+sd/utils/err/verr.o: sd/utils/err/verr.c sd/utils/err/verr.h
 	@echo [ .. ] Compiling 'verr.o'
 	${CC} ${INCLUDE} -c ${CCFLAG} sd/utils/err/verr.c -o sd/utils/err/verr.o
-sd/lang/hooks/txt/literal.o: sd/lang/hooks/txt/literal.c sd/lang/hooks/txt/literal.h
-	@echo [ .. ] Compiling 'literal.o'
-	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/hooks/txt/literal.c -o sd/lang/hooks/txt/literal.o
-sd/lang/vm/vm.o: sd/lang/vm/vm.c sd/lang/vm/vm.h
-	@echo [ .. ] Compiling 'vm.o'
-	${CC} ${INCLUDE} -c ${CCFLAG} -DADDR_BITS=${BITS} sd/lang/vm/vm.c -o sd/lang/vm/vm.o
-sd/lang/atom/atom.o: sd/lang/atom/atom.c sd/lang/atom/atom.h
-	@echo [ .. ] Compiling 'atom.o'
-	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/atom/atom.c -o sd/lang/atom/atom.o
 ### END COMPILING UTILS ###
-
 ### BEGIN ARCHIVING ###
-lib/libsdparse.a: sd/utils/utils.o\
-	sd/utils/err/err.o\
-	sd/intr/txt/sdparse.o\
+lib/libsdutils.a: sd/utils/utils.o\
+	sd/intr/txt/utils/txtutils.o\
+	sd/utils/err/verr.o\
+	sd/utils/err/err.o
+	@echo [ .. ] Archiving to 'libsdutils.a'
+	${AR} ${ARFLAG} lib/libsdutils.a $?
+lib/libsdparse.a: sd/lang/hooks/txt/txthooks.o\
 	sd/intr/bytecode/sdbcparse.o\
-	sd/intr/txt/utils/txtutils.o
+	sd/lang/hooks/txt/kwhooks.o\
+	sd/lang/hooks/txt/thooks.o\
+	sd/intr/txt/ptree/ptree.o\
+	sd/intr/txt/sdparse.o
 	@echo [ .. ] Archiving to 'libsdparse.a'
 	${AR} ${ARFLAG} lib/libsdparse.a $?
-lib/libsdlang.a: sd/lang/hooks/txt/thooks.o\
-	sd/lang/hooks/txt/kwhooks.o\
-	sd/lang/hooks/txt/txthooks.o\
-	sd/lang/hooks/txt/literal.o\
+lib/libsdlang.a: sd/lang/hooks/txt/literal.o\
 	sd/lang/tokens/txt.o\
+	sd/lang/expr/expr.o\
 	sd/lang/tree/ot.o
 	@echo [ .. ] Archiving to 'libsdlang.a'
 	${AR} ${ARFLAG} lib/libsdlang.a $?
@@ -186,11 +189,9 @@ lib/libsd.so:
 	@echo [ .. ] minor version: ${SDLANG_MINOR}
 	@echo [ .. ] patch: ${SDLANG_PATCH}
 ### END ARCHIVING ###
-
 ### BEGIN OPTIONAL ###
 tags:
 	@echo [ .. ] Updating tags file
 	${CTAGS} -R .
 ### END OPTIONAL ###
-
 .PHONY: tags parser man compiler language

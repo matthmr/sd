@@ -19,6 +19,10 @@ u64 reg[REGL_N + REGE_N + REGC_N];
 
 u64 regl[REGL_N];
 u64 rege[REGE_N];
+u64 regc;
+
+byte* s_bot;
+byte* s_top;
 
 u64 curr_mem_ceiling;
 u64 curr_stack_ceiling;
@@ -31,9 +35,6 @@ byte* heapp;
 byte* sp;
 byte* ip;
 
-byte* s_bot;
-byte* s_top;
-
 void jump_ip (void) {
 	ip--;
 	if (ip == sp)
@@ -43,9 +44,9 @@ void jump_ip (void) {
 void vm_init (void) {
 
 	// -- set memory boundaries -- //
-	curr_avail_mem = MEM;
-	stack_ceiling = MEM_STACK;
-	heap_ceiling = MEM - (MEM_TAB+MEM_STACK);
+	curr_mem_ceiling = MEM;
+	curr_stack_ceiling = MEM_STACK;
+	curr_heap_ceiling = MEM - (MEM_TAB+MEM_STACK);
 
 	// -- arrange pointers -- //
 	s_bot = mem;
@@ -64,11 +65,10 @@ void vm_init (void) {
 
 	// -- set global root -- //
 	push_tab (tab.let());
-	tab.chroot (CAST_addr ip);
+	// c:w
+	// tab.chroot (CAST_addr ip);
 
 }
-
-void (*vm_kill) (void) = &vm_init;
 
 inline void* pop (void) {
 	sp--;

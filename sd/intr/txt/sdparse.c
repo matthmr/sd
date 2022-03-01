@@ -26,6 +26,7 @@
 #include <sd/intr/txt/sdparse.h>
 #include <sd/intr/limits.h>
 
+uint ln = 1;
 uint t;
 
 char gbuffer[BUFFER]; // literal/uword buffer
@@ -34,6 +35,7 @@ char word[10]; // keyword assertion buffer
 static uint gbuffer_size = BUFFER;
 static char* ins_p = gbuffer;
 
+/// TODO: `au_hook`
 void next (char* data,
            uint* i,
            uint* wstart_i,
@@ -53,7 +55,7 @@ void next (char* data,
 
 		*wstart_i = *i+1;
 
-		au_hook (gbuffer, wsize);
+		//au_hook (gbuffer, wsize);
 
 		return;
 		break;
@@ -67,7 +69,7 @@ void next (char* data,
 			strncpy (gbuffer, (data + *wstart_i), wsize);
 			*wstart_i = *i+1;
 
-			au_hook (gbuffer, wsize);
+			//au_hook (gbuffer, wsize);
 
 			goto utdiff_token;
 		}
@@ -89,7 +91,7 @@ void next (char* data,
 			if (! (uint) strcmp (word, keyword_manifest[t].kw))
 				akw_hook (keyword_manifest[t]);
 			else _au_hook:
-				au_hook (word, wsize);
+				;//au_hook (word, wsize);
 		}
 
 		*wstart_i = *i+1;
@@ -135,7 +137,7 @@ void parser_stream (char* data, Obj* m_root, uint e_eof) {
 
 	const uint lnsize = (const uint) e_eof;
 
-	for (i = 0; i < gbuffer_size; i++) {
+	for (i = 0; i < lnsize; i++) {
 
 		if (lock_stream)
 
@@ -194,13 +196,11 @@ void parser_stream (char* data, Obj* m_root, uint e_eof) {
 			uint wsize = (i - wstart_i)+1;
 			strncpy (gbuffer, (data + wstart_i), wsize);
 
-			au_hook (gbuffer, wsize);
+			//au_hook (gbuffer, wsize);
 			H_RESET (t);
 		}
 
 	}
-
-	// expr_exec ();
 
 }
 
@@ -217,10 +217,10 @@ void parse_src (FILE* file, char* data, const uint buffer_size) {
 	// g_self = CAST_addr l_root;
 
 	ln = 1;
-	while ((e_eof = fread (data, 1, buffer_size, file)) == buffer_size) {
-		parser_stream (data, &l_root, e_eof);
-	}
 
-	parser_stream (data, &l_root, e_eof);
+	do {
+		e_eof = fread (data, 1, buffer_size, file);
+		parser_stream (data, &l_root, e_eof);
+	} while (e_eof == buffer_size);
 
 }

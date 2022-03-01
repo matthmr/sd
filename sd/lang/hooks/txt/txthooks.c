@@ -11,6 +11,8 @@
 
 #include <sd/utils/types/shared.h>
 
+bool lock_stream = false;
+
 struct stream_ctxt gs_ctxt = {
 	.cmt = 0,
 	.str = 0,

@@ -21,8 +21,6 @@
 /// TODO: unhandled `<expr>`: parse it and execute within main file context
 int main (int argc, char** argv) {
 
-	vm_init ();
-
 	uint i = 0;
 
 	bool pipe = false;
@@ -82,7 +80,7 @@ int main (int argc, char** argv) {
 	}
 
 	if (promise)
-		Err (0x02, " ");
+		Err (0x02, "");
 
 	if (0) {
 	open: {
@@ -93,6 +91,7 @@ int main (int argc, char** argv) {
 	}
 
 	byte data[STDBUFFER];
+	vm_init ();
 
 	/// TODO: maybe accept multiple files as modules? this would become a loop
 	switch (f_type) {
@@ -107,8 +106,6 @@ int main (int argc, char** argv) {
 	/* close `file` on exit */
 	if (!pipe)
 		fclose (file);
-
-	vm_kill ();
 
 	return 0;
 

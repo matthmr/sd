@@ -7,10 +7,4 @@
 
 void umap (char* uword) { }
 
-void au_hook (char* uword, u64 size) {
-	/* if (deref)
-		uget (uword);
-	else if (ref)
-		umap (uword);
-	*/
-}
+void au_hook (char* uword, u64 size) { }

@@ -5,6 +5,7 @@
  */
 
 #include <sd/lang/core/bitmap/masks.h>
+#include <sd/lang/vm/tab/tab.h>
 #include <sd/lang/expr/expr.h>
 #include <sd/lang/vm/vm.h>
 
@@ -12,13 +13,8 @@
 
 Expr g_expr;
 
-static void expr_expect (enum sync);
-static void expr_exec (void);
-
-inline void expr_expect (enum sync) {
-	tab.buffer (sync_masks[SYNC_LET]);
+inline void expr_expect (enum sync obj_type) {
+	tab.buffer (sync_masks[obj_type]);
 }
 
-void expr_exec (void) {
-
-}
+void expr_exec (void) { }
