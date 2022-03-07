@@ -28,17 +28,22 @@ typedef unsigned char ins;
 #ifndef LOCK_UNSIGNED_INT
 #  define LOCK_UNSIGNED_INT
 
+#  define LOCK_INTR_LIMITS
+#  include <sd/intr/limits.h>
+#  undef LOCK_INTR_LIMITS
+
 typedef void* addr;
-
 typedef unsigned int uint;
-typedef unsigned short int usint;
-typedef unsigned long int ulint;
 
-// on 64-bit systems
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
+#if ADDR_BITS == 64
 typedef unsigned long u64;
+typedef unsigned long d_addr;
+#else
+typedef unsigned int d_addr;
+#endif
 
 #endif
 

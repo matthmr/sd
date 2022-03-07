@@ -7,7 +7,7 @@ This contains the sources for the:
 - plain-text & bytecode interpreter
 - compiler
 
-Besides the sources for the main `libsd.so` library for the entire language to function.
+Besides the sources for the main `libsdlang.so` library for the entire language to function.
 
 # Building
 

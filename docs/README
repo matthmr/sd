@@ -1,14 +1,20 @@
+                        |README|
+
 ================================================================
-This file contains source code documentation in plain text form.
+This series of files contain source code documentation
+in plain text form.
 
 This is NOT intended to be read by learners of the language
-but by developers or anyone who wants to fork or use the
-SD API in C.
+but by developers or anyone who wants to fork the SD language
+or use the SD API in C.
 
 For anyone learning the language for writing programs or scripts,
 read the official language documentation:
-	https://matthmr.github.io/docs.sd.
 
+               https://matthmr.github.io/docs.sd
+
+Whenever refering to a specific file, use the directory this
+README file is in as root (e.g /README refers to this file).
 ================================================================
 
 Index
@@ -17,10 +23,69 @@ Index
 1. destack-*
 	The program through the <main> stack; targets are `sdread` and `sdc`.
 
-2. functions/next
-	The `next` function of `sdparse.o`, responsible for advancing the
-	bytestream pointer.
+2. functions/
+	Each individual function chain (of function group) explained.
 
-3. data/txt
-	The `txt.c` file, responsible for storing all keywords and tokens
-	of the SD language.
+3. variables/
+	Variables and variable dependencies explained.
+
+(the next section explains the markup of these files, it can be skipped)
+
+Markup
+------
+
+This series of files do not use any special markup language, instead
+it uses SECTIONS, UPPERCASE EMPHASIS, HEADERS, BULLET & NUMBERED LISTS,
+SUB-SECTIONS, & CODE, all in plain text form.
+
+* Sections are parts of the file separated by headers
+
+  like this
+  ---------
+
+  == special sections ==
+  * Index
+    This section explains the role of files within its directory
+  * Sections
+    This section explains the role of sections within its file
+
+* Sub-sections are parts of the file wrapped with two equal signs
+
+  == like this ==
+
+* Uppercase emphasis is emphasis using uppercase words
+
+  LIKE THIS
+
+* Headers are sections of text bounded by equal sign horizontal lines
+
+                         =================
+                             like this
+                         =================
+
+  Headers summarize what the content of the file is about
+
+* Bullet lists are unorded lists
+
+  * like this
+
+  indenting TWO SPACES relative to its parent
+
+  * like this
+    * and this
+
+  numbered lists are numeric orderded lists
+
+  1. like this
+
+* Code is any piece of text relatively indented with more than two spaces
+
+                                like this
+
+  often ending up in the middle of the document. The specific level of identation
+  is irrelevant as long as it is bigger than two relative to its parent's
+  level of indentation
+
+  It is the case that INLINED pieces of code may be wrapped with backticks `like this`
+
+The title of the document may be wrapped in pipes |like this|

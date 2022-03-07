@@ -1,10 +1,8 @@
 /**
- * This file contains all the internal logic
- * and syntax for the sd language. It is
- * format-agnostic, which means that this
- * source is included into different parsers
- * for their respective formats
- * (binary or plain-text)
+ * This file contains all syntax for the SD
+ * language. It is format-agnostic, meaning
+ * this source is included into different
+ * parsers for their respective formats
  */
 
 #ifndef LOCK_LANG

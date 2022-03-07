@@ -11,12 +11,15 @@
 
 #include <sd/intr/bytecode/sdbcparse.h>
 #include <sd/intr/txt/sdparse.h>
+#undef LOCK_DATA
 #include <sd/intr/exec/sdread.h>
 #include <sd/intr/limits.h>
 
 #include <sd/utils/types/shared.h>
 #include <sd/utils/err/err.h>
 #include <sd/utils/utils.h>
+
+byte data[BUFFER];
 
 /// TODO: unhandled `<expr>`: parse it and execute within main file context
 int main (int argc, char** argv) {
@@ -90,7 +93,6 @@ int main (int argc, char** argv) {
 	expr: ;
 	}
 
-	byte data[STDBUFFER];
 	vm_init ();
 
 	/// TODO: maybe accept multiple files as modules? this would become a loop

@@ -21,28 +21,30 @@
 #include <sd/lang/vm/vm.h>
 #include <sd/lang/lang.h>
 
+#define LOCK_READ
 #include <sd/intr/txt/utils/txtutils.h>
 #include <sd/intr/txt/ptree/ptree.h>
 #include <sd/intr/txt/sdparse.h>
+#include <sd/intr/exec/sdread.h>
 #include <sd/intr/limits.h>
 
 uint ln = 1;
+uint wstart_i = 0;
+uint wsize = 0;
 uint t;
 
-char gbuffer[BUFFER]; // literal/uword buffer
-char word[10]; // keyword assertion buffer
+char gbuffer[STDBUFFER];
+char uword[STDUWORD];
+char word[STDWORD];
 
 static uint gbuffer_size = BUFFER;
 static char* ins_p = gbuffer;
 
-/// TODO: `au_hook`
 void next (char* data,
            uint* i,
            uint* wstart_i,
            bool* e,
            const uint lnsize) {
-
-	uint wsize;
 
 	switch (*e) {
 
@@ -51,11 +53,16 @@ void next (char* data,
 
 		offset_i (i, data, lnsize);
 		wsize = (*i - *wstart_i)+1;
-		strncpy (gbuffer, (data + *wstart_i), wsize);
+
+		if (wsize > STDUWORD) {
+			NO_INFO_ERR (0x06, vErr_verbose (data, ln, wstart_i, wsize));
+		}
+
+		strncpy (uword, (data + *wstart_i), wsize);
 
 		*wstart_i = *i+1;
 
-		//au_hook (gbuffer, wsize);
+		//au_hook (uword, wsize);
 
 		return;
 		break;
@@ -77,20 +84,25 @@ void next (char* data,
 		offset_i (i, data, lnsize);
 		wsize = (*i - *wstart_i)+1;
 
-		if (wsize > 10) { /// mismatch(1)
-			strncpy (gbuffer, (data + *wstart_i), wsize);
+		if (wsize > STDWORD) { /// mismatch(1)
+
+			if (wsize > STDWORD) {
+
+			}
+
+			strncpy (uword, (data + *wstart_i), wsize);
 			goto _au_hook;
 
 			H_RESET (t);
 			*wstart_i = *i+1;
 			break;
 		}
-		else { // mismatch(2)
+		else {
 			strncpy (word, (data + *wstart_i), wsize);
 
 			if (! (uint) strcmp (word, keyword_manifest[t].kw))
 				akw_hook (keyword_manifest[t]);
-			else _au_hook:
+			else _au_hook: // mismatch(2)
 				;//au_hook (word, wsize);
 		}
 
@@ -127,7 +139,6 @@ void next (char* data,
 
 void parser_stream (char* data, Obj* m_root, uint e_eof) {
 
-	uint wstart_i = 0;
 	uint i = 0;
 
 	char c;
@@ -193,8 +204,8 @@ void parser_stream (char* data, Obj* m_root, uint e_eof) {
 		if (0) parser_not_found: {
 
 			offset_i (&i, data, lnsize);
-			uint wsize = (i - wstart_i)+1;
-			strncpy (gbuffer, (data + wstart_i), wsize);
+			wsize = (i - wstart_i)+1;
+			strncpy (uword, (data + wstart_i), wsize);
 
 			//au_hook (gbuffer, wsize);
 			H_RESET (t);
@@ -207,7 +218,7 @@ void parser_stream (char* data, Obj* m_root, uint e_eof) {
 /* this wraps around `parser_stream` to buffer
  * to `data` and define module roots
  */
-void parse_src (FILE* file, char* data, const uint buffer_size) {
+void parse_src (FILE* file, char* _data, const uint buffer_size) {
 
 	uint e_eof;
 	e_set (TIME_TXT);
@@ -219,8 +230,8 @@ void parse_src (FILE* file, char* data, const uint buffer_size) {
 	ln = 1;
 
 	do {
-		e_eof = fread (data, 1, buffer_size, file);
-		parser_stream (data, &l_root, e_eof);
+		e_eof = fread (_data, 1, buffer_size, file);
+		parser_stream (_data, &l_root, e_eof);
 	} while (e_eof == buffer_size);
 
 }

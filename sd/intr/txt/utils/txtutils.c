@@ -94,7 +94,7 @@ void number_offset (uint* i, char* data) {
 			}
 
 			if (c == 0x00); // trailing 0
-				vErr (0x05, "");
+				NO_INFO_ERR (0x05, "");
 
 			if (NUMBER_OCT (c)) {
 				base = 8;
@@ -104,7 +104,7 @@ void number_offset (uint* i, char* data) {
 			switch (c) {
 			case 'x': base = 16; break;
 			case 'b': base = 2; break;
-			default: vErr (0x04, ""); break;
+			default: NO_INFO_ERR (0x04, ""); break;
 			}
 
 			goto _next;
@@ -114,7 +114,7 @@ void number_offset (uint* i, char* data) {
 			H_LOCK (dot);
 		}
 		else if (c == '.')
-			vErr (0x04, "");
+			NO_INFO_ERR (0x04, "");
 
 		_next: {
 			offset++;
@@ -124,7 +124,7 @@ void number_offset (uint* i, char* data) {
 	}
 
 	if ((c == '.' && dot) || (c == '.' && base != 10)) /// fall-through
-		vErr (0x04, "");
+		NO_INFO_ERR (0x04, "");
 
 	gs_ctxt.base = (u8) base;
 	*i = (offset - 1);

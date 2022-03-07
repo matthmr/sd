@@ -14,7 +14,6 @@
 
 void next (char*, uint*, uint*, bool*, const uint);
 void parser_stream (char*, Obj*, uint);
-void number_offset (uint*, char*);
 
 #endif
 
@@ -30,5 +29,7 @@ void parse_src (FILE*, char*, uint);
 #  define LOCK_VERBOSITY
 
 extern uint ln;
+extern uint wstart_i;
+extern uint wsize;
 
 #endif

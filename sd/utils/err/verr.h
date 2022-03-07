@@ -6,10 +6,17 @@
 #ifndef LOCK_VERR
 #  define LOCK_VERR
 
-typedef unsigned int uint;
+#  include <sd/utils/err/err.h>
 
-extern uint ln;
+#  define ERR(x) vErr (x, NO_INFO, NO_LINEINFO)
+#  define NO_INFO_ERR(x,y) vErr (x, NO_INFO, y)
+#  define NO_LINEINFO_ERR(x,y) vErr (x, y, NO_LINEINFO)
 
-void vErr (int, char*);
+#  include <sd/utils/types/shared.h>
+
+void vErr (int, char*, char*);
+
+char* vErr_get_type (int);
+char* vErr_verbose (char*, uint, uint, uint);
 
 #endif
