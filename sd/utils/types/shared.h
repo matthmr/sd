@@ -61,6 +61,8 @@ typedef unsigned int d_addr;
 #  define LOCK_MAGICN
 
 #  define ASCII_NUM_OFFSET 0x30
+#  define ASCII_LHEX_OFFSET 0x57
+#  define ASCII_UHEX_OFFSET ASCII_LHEX_OFFSET - ASCII_CASE_OFFSET
 #  define ASCII_CASE_OFFSET 0x20
 
 #endif

@@ -13,6 +13,7 @@
  * as seen in <sd/lang/tokens/txt.h>
  */
 enum keyword {
+	KW_ARRAY,
 	KW_ASYNC,
 	KW_BRANCH,
 	KW_CONST,
@@ -25,7 +26,6 @@ enum keyword {
 	KW_ITER,
 	KW_INT,
 	KW_JUMP,
-	KW_LIST,
 	KW_LOCAL,
 	KW_LONG,
 	KW_LET,

@@ -13,7 +13,7 @@
 #  define RL 1
 
 struct precedence {
-	bool pre;
+	uint pre;
 	bool ass;
 };
 

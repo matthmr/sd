@@ -31,12 +31,13 @@
 
 const _Kw const keyword_manifest[] = {
 
+	// -- ASSIGNMENT -- //
 	/* built-in data types */
 	[KW_INT] = { .kw = "int", .id = _INT, .ty = KWTY_BUILTIN_TY },
 	[KW_CHAR] = { .kw = "char", .id = _CHAR, .ty = KWTY_BUILTIN_TY },
 	[KW_FLOAT] = { .kw = "float", .id = _FLOAT, .ty = KWTY_BUILTIN_TY },
 	[KW_ENUM] = { .kw = "enum", .id = _ENUM, .ty = KWTY_BUILTIN_TY },
-	[KW_LIST] = { .kw = "list", .id = _LIST, .ty = KWTY_BUILTIN_TY },
+	[KW_ARRAY] = { .kw = "array", .id = _ARRAY, .ty = KWTY_BUILTIN_TY },
 	[KW_MAP] = { .kw = "map", .id = _MAP, .ty = KWTY_BUILTIN_TY },
 	[KW_LONG] = { .kw = "long", .id = _LONG, .ty = KWTY_BUILTIN_TY },
 	[KW_SHORT] = { .kw = "short", .id = _SHORT, .ty = KWTY_BUILTIN_TY },
@@ -49,15 +50,21 @@ const _Kw const keyword_manifest[] = {
 	[KW_NEW] = { .kw = "new", .id = _NEW, .ty = KWTY_QUAL },
 	[KW_LOCAL] = { .kw = "local", .id = _LOCAL, .ty = KWTY_QUAL },
 
-	/* built-in objects */
-	[KW_NIL] = { .kw = "nil", .id = _NIL, .ty = KWTY_BUILTIN_OBJ },
-	[KW_THIS] = { .kw = "this", .id = _THIS, .ty = KWTY_BUILTIN_OBJ },
-
 	/* object definition */
 	[KW_LET] = { .kw = "let", .id = _LET, .ty = KWTY_OBJ_DEF },
 	[KW_PROC] = { .kw = "proc", .id = _PROC, .ty = KWTY_OBJ_DEF },
 	[KW_RM] = { .kw = "rm", .id = _RM, .ty = KWTY_OBJ_DEF },
 
+	/* environment control */
+	[KW_IMPORT] = { .kw = "import", .id = _IMPORT, .ty = KWTY_ENV },
+	[KW_WRAP] = { .kw = "wrap", .id = _WRAP, .ty = KWTY_ENV },
+
+	// -- INTRINSIC -- //
+	/* built-in objects */
+	[KW_NIL] = { .kw = "nil", .id = _NIL, .ty = KWTY_BUILTIN_OBJ },
+	[KW_THIS] = { .kw = "this", .id = _THIS, .ty = KWTY_BUILTIN_OBJ },
+
+	// -- FLOW -- //
 	/* flow control */
 	[KW_EXPR] = { .kw = "expr", .id = _EXPR, .ty = KWTY_FLOW },
 	[KW_BRANCH] = { .kw = "branch", .id = _BRANCH, .ty = KWTY_FLOW },
@@ -67,10 +74,7 @@ const _Kw const keyword_manifest[] = {
 	[KW_JUMP] = { .kw = "jump", .id = _JUMP, .ty = KWTY_FLOW },
 	[KW_RET] = { .kw = "ret", .id = _RET, .ty = KWTY_FLOW },
 
-	/* environment control */
-	[KW_IMPORT] = { .kw = "import", .id = _IMPORT, .ty = KWTY_ENV },
-	[KW_WRAP] = { .kw = "wrap", .id = _WRAP, .ty = KWTY_ENV },
-
+	// -- MISC -- //
 	/* accumulatives */
 	[KW_MUL] = { .kw = "mul", .id = _MUL, .ty = KWTY_ACC },
 
@@ -84,16 +88,16 @@ const _T const token_manifest[] = {
 	/* reference delimiters */
 	[T_OBJ_REF_BEGIN] = { .t = '[', .ty = TTY_OBJ_REF_DEL},
 	[T_OBJ_REF_END] = { .t = ']', .ty = TTY_OBJ_REF_DEL},
-	[T_MOD_REF_BEGIN] = { .t = '<', .ty = TTY_OBJ_REF_DEL}, /* doubles bool comparison and right shift */
-	[T_MOD_REF_END] = { .t = '>', .ty = TTY_OBJ_REF_DEL},  /* doubles bool comparison and right shift */
+	[T_MOD_REF_BEGIN] = { .t = '<', .ty = TTY_OBJ_REF_DEL}, /* compounds bool comparison and right shift */
+	[T_MOD_REF_END] = { .t = '>', .ty = TTY_OBJ_REF_DEL},  /* compounds bool comparison and right shift */
 	[T_OBJ_PROC_APPLY_BEGIN] = { .t = '(', .ty = TTY_OBJ_REF_DEL},
 	[T_OBJ_PROC_APPLY_END] = { .t = ')', .ty = TTY_OBJ_REF_DEL},
 	[T_ARG_DEF_SEP] = { .t = ',', .ty = TTY_OBJ_REF_DEL},
 
 	/* object reference */
-	[T_CHILD] = { .t = '/', .ty = TTY_OBJ_REF}, /* doubles division */
+	[T_CHILD] = { .t = '/', .ty = TTY_OBJ_REF}, /* compounds division */
 	[T_REF] = { .t = '@', .ty = TTY_OBJ_REF},
-	[T_CAST] = { .t = '.', .ty = TTY_OBJ_REF}, /* doubles parent */
+	[T_CAST] = { .t = '.', .ty = TTY_OBJ_REF}, /* compounds parent */
 
 	/* object definition */
 	[T_OBJ_DEF_BEGIN] = { .t = '{', .ty = TTY_OBJ_DEF},
@@ -102,7 +106,7 @@ const _T const token_manifest[] = {
 
 	/* expression control */
 	[T_EXPR_END] = { .t = ';', .ty = TTY_EXPR},
-	[T_SELF] = { .t = '^', .ty = TTY_EXPR}, /* doubles bitwise XOR */
+	[T_SELF] = { .t = '^', .ty = TTY_EXPR}, /* compounds bitwise XOR */
 
 	/* misc syntax */
 	[T_STRING] = { .t = '"', .ty = TTY_SYN},
@@ -128,5 +132,5 @@ const _T const token_manifest[] = {
 
 };
 
-const uint keyword_manifest_len = sizeof (keyword_manifest) / sizeof (*keyword_manifest);
-const uint token_manifest_len = sizeof (token_manifest) / sizeof (*token_manifest);
+const uint keyword_manifest_len = MEMSIZE (keyword_manifest);
+const uint token_manifest_len = MEMSIZE (token_manifest);

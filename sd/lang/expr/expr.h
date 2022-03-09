@@ -22,38 +22,41 @@
 //  -- unary math -- //
 #  define OP_UMINUS 0x05
 #  define OP_UPLUS 0x06
+#  define OP_INC 0x07
+#  define OP_DEC 0x08
 
 // -- bool -- //
-#  define OP_LAND 0x07
-#  define OP_LOR 0x08
-#  define OP_LNOT 0x09
-#  define OP_LGT 0x0a
-#  define OP_LLT 0x0b
-#  define OP_LEQ 0x0c
+#  define OP_LAND 0x09
+#  define OP_LOR 0x0a
+#  define OP_LNOT 0x0b
+#  define OP_LGT 0x0c
+#  define OP_LLT 0x0d
+#  define OP_LEQ 0x0e
+#  define OP_LNEQ 0x0f
+#  define OP_LLTEQ 0x10
+#  define OP_LGTEQ 0x11
 
 // -- bitwise -- //
-#  define OP_BWAND 0x0d
-#  define OP_BWOR 0x0e
-#  define OP_BWXOR 0x0f
-#  define OP_BWNOT 0x10
-#  define OP_BWRS 0x10
-#  define OP_BWLS 0x11
+#  define OP_BWAND 0x12
+#  define OP_BWOR 0x13
+#  define OP_BWXOR 0x14
+#  define OP_BWNOT 0x15
+#  define OP_BWRS 0x16
+#  define OP_BWLS 0x17
 
 // -- mem -- //
-#  define OP_CALL 0x12
-#  define OP_CAST 0x13
-#  define OP_CHILD 0x14
+#  define OP_MCALL 0x18
+#  define OP_MCAST 0x19
+#  define OP_MCHILD 0x1a
+#  define OP_MASS 0x1b
+#  define OP_MSUB 0x1c
+#  define OP_MSEP 0x1d
 
 // -- literal -- //
-#  define OP_LITERAL 0x15
-#  define OP_DRIVE 0x16 // aka `OP_SELF`: resolutes expressions
+#  define OP_DRIVE 0x1e // aka `OP_SELF`: resolutes expressions
+#  define OP_LITERAL 0x1f
 
 typedef byte op;
-
-enum sync {
-	SYNC_OBJ,
-	SYNC_PROC,
-};
 
 enum bits {
 	bits_8c = 8, // char
@@ -68,10 +71,10 @@ enum bits {
 	bits_64l = 64, // long
 	bits_64d = 65, // double
 
-	#if ADDR_BITS == 32
-		bits_addr = 36, // void*
-	#elif ADDR_BITS == 64
-		bits_addr = 66, // void*
+	#if ADDR_BITS == 64
+	bits_addr = 66, // void*
+	#else
+	bits_addr = 36, // void*
 	#endif
 
 };
@@ -85,26 +88,20 @@ enum qual {
 typedef enum bits bits;
 typedef enum qual qual;
 
-#  ifndef LOCK_EXPRFN
-#    define LOCK_EXPRFN
+#endif
+
+#ifndef LOCK_EXPRFN
+#  define LOCK_EXPRFN
 struct expr {
-	addr e1; // heap
-	addr e2; // heap
+	addr e1; /* heap/stack (l) or tab/register (e) */
+	addr e2; /* heap/stack (l) or tab/register (e) */
 	u32 op;
-	u8 ty;
+	// u8 ty;
 };
 
 typedef struct expr Expr;
 
 extern Expr g_expr;
 
-void expr_add64 (u64);
-void expr_add32 (u32);
-void expr_add16 (u16);
-void expr_add8 (u8);
-
-void expr_expect (enum sync);
 void expr_exec (void);
-#  endif
-
 #endif

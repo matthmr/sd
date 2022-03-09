@@ -54,7 +54,7 @@ inline bool number_base (char c, uint base) {
 		return NUMBER (c);
 		break;
 	case 16:
-		return NUMBER_HEX (c);
+		return NUMBER_UHEX (c) || NUMBER_LHEX (c);
 		break;
 	case 8:
 		return NUMBER_OCT (c);

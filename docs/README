@@ -13,21 +13,27 @@ read the official language documentation:
 
                https://matthmr.github.io/docs.sd
 
-Whenever refering to a specific file, use the directory this
-README file is in as root (e.g /README refers to this file).
+Whenever refering to a specific file, use this directory
+README file is in as root (e.g /docs/README refers to this file).
 ================================================================
 
 Index
 -----
 
 1. destack-*
-	The program through the <main> stack; targets are `sdread` and `sdc`.
+            The program through the <main> stack; targets are `sdread` and `sdc`.
 
 2. functions/
-	Each individual function chain (of function group) explained.
+            Each individual function chain (or function group) explained.
 
 3. variables/
-	Variables and variable dependencies explained.
+            Variables and variable dependencies explained.
+
+4. headers/
+            Each individual header and header[1] lock explained.
+
+5. files/
+            Echo invidual file explained.
 
 (the next section explains the markup of these files, it can be skipped)
 
@@ -36,7 +42,7 @@ Markup
 
 This series of files do not use any special markup language, instead
 it uses SECTIONS, UPPERCASE EMPHASIS, HEADERS, BULLET & NUMBERED LISTS,
-SUB-SECTIONS, & CODE, all in plain text form.
+SUB-SECTIONS, FOOTNOTES, & CODE, all in plain text form.
 
 * Sections are parts of the file separated by headers
 
@@ -77,6 +83,11 @@ SUB-SECTIONS, & CODE, all in plain text form.
   numbered lists are numeric orderded lists
 
   1. like this
+
+* Footnotes mark an object THAT IS ITSELF NOT CODE with having a footnote at the
+  bottom of the document
+                                like this[1]
+  [1] : like this
 
 * Code is any piece of text relatively indented with more than two spaces
 

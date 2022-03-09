@@ -1,0 +1,256 @@
+                        |sdread|
+================================================================
+sdread (source /sd/intr/txt/sdparse.c) is the main SD parser and
+interpreter. It operates in both plain-text and bytecode form
+
+Some of the functions and variables mentioned may be moved to
+/docs/functions/, when that happens, we'll title them with
+                           MOVED
+================================================================
+
+stack
+-----
+
+== main : /sd/intr/exec/sdread.c ==
+
+* includes:
+
+  == libc ==
+    * stdio.h
+
+  == sd ==
+    * sd/lang/vm/vm.h
+      provides `vm_init` : function (MOVED)
+      (see `== memory layout ==`) in `vm.h`'s source code
+
+    * sd/intr/bytecode/sdbcparse.h
+      provides `parse_bc` : function (MOVED)
+
+    * sd/intr/txt/sdparse.h
+      provides `parse_src` : function (MOVED)
+
+    * UNLOCK : `LOCK_DATA` : lock (MOVED)
+
+    * sd/intr/exec/sdread.h
+      self header; provides
+        1. `HELP` : macro; help message
+        2. `VERSION` : macro; version number
+        3. `PROMPT` : macro; interactive prompt
+        4. `NL_PROMPT` : macro; intrective prompt on newline
+        5. `ftype` : enum; type of the file being passed
+          `ftype` is `SOURCE` unless the `-s` flag is passed,
+           in which case it is `BYTECODE`.
+        6. `data` : array; standard buffer
+
+    * sd/intr/limits.h
+      provides `BUFFER` : macro (MOVED)
+
+    * sd/utils/types/shared.h
+      provides `uint` : typedef (MOVED)
+
+    * sd/utils/err/err.h
+      provides `e_set` : function & `Err` : function (MOVED)
+
+    * sd/utils/utils.h
+      provides `LOCK` : macro (MOVED)
+
+* logic:
+  An `if` statement asserts if the number of arguments is greater
+  than `1`
+
+   * true
+     read from `stdin`
+   * false
+     loop through args and arrange the type of files that are going
+     to be parsed (internal logic implied). Can error on:
+       1. "[ !! ] Bad usage. See sdread -h"
+       2. Ex01
+       3. Ex02
+
+   Then the SDVM is init'd, after the appropiate function is called
+   on `data` via `f_type`, which is gotten using `enum ftype`.
+   If a file was opened, close it on exit.
+
+                   switch (f_type) {
+                   case SOURCE:
+                     parse_src (file, data, STDBUFFER);
+                     break;
+                   case BYTECODE:
+                     parse_bc (file, data, STDBUFFER);
+                     break;
+                   }
+
+== main[1] : `f_type = SOURCE` : parse_src : /sd/intr/txt/sdparse.c ==
+
+`parse_src` if called as `parse_src (file, data, STDBUFFER)`
+
+== parse_src ==
+  * definition:
+             void parse_src (FILE*, char*, uint)
+
+  * args:
+    1. file
+    2. _data
+    3. buffer_size
+
+  * defines:
+    * uint e_eof
+    * Obj l_root
+    * ln = 1
+
+  * runs:
+    * e_set (TIME_TXT)
+    * mkchild (&g_root, &l_root)
+
+  * logic:
+             do {
+               e_eof = fread (_data, 1, buffer_size, file);
+               parser_stream (_data, &l_root, e_eof);
+             } while (e_eof == buffer_size);
+
+== parse_src/parser_stream ==
+  * definition:
+            void parser_stream (char*, Obj*, uint)
+
+  * args:
+    1. data
+    2. m_root
+    3. e_eof
+
+  * defines:
+    * uint i = 0
+    * char c
+    * bool e_status = false
+    * bool leading = true
+    * const uint lnsize = (const uint) e_eof
+
+  * logic:
+    Loops through `data` using a `for` loop, `i` as the index and `lnsize`
+    as the limit
+
+    This loop can be skipped if found a keyword, a uword[1], or a
+    comment.
+
+    `lock_stream`, exported from `/sd/lang/hooks/txt/txthooks.h`,
+    will lock the character stream to either:
+      * seek for a `"`: open string
+      * seek for a `\n`: open comment
+
+    Pass this lock, `c` gets set to `data[i]`.
+
+    It follows:
+
+              if (leading && WHITESPACE (c)) {
+                if (c == '\n')
+                  ln++;
+                wstart_i++;
+                continue;
+              }
+              else if (leading)
+               H_RESET (leading);
+
+              if (e_status == repeats && c == '\n' ||
+                 !e_status && c == '\n')
+                goto parser_not_found;
+
+    * `leading` is a boolean that flags if the character are leading
+      (leading whitespace does not matter in SD)
+    * `WHITESPACE` is a macro from `/sd/utils/utils.h` which returns
+      `1` if `c` is whitspace
+    * `ln` (short for line) is the current line number. It gets
+      incremented by `\n`
+    * `wstart_i` (mnemonic for Word START Index) is the index of
+      data where a word (keyword, uword, literal) starts
+    * `H_RESET` is a macro from `/sd/utils/utils.h`
+
+    * `e_status` is the Exit STATUS of `nfind_def` : function,
+      `repeats` is one of its status. `parser_not_found` is a
+      label which gets called on not found words (uwords). A
+      word is considered "found" if it is on
+      `/sd/lang/tokens/txt.c`
+
+    It follows:
+                       e_status = nfind_def (c);
+
+== parse_src/parser_stream/nfind_def : /sd/intr/txt/utils/txtutils.c ==
+
+  * definition:
+            bool nfind_def (char)
+
+  * args:
+    1. c
+
+  * defines:
+    * bool exit_status
+    * bool rep_lock
+    * static bool _call
+    * static uint t_start
+    * static uint t_end
+    * static uint offset
+    * uint _t = 0
+
+  * logic:
+    `_call` recalls if the function has been called before. The exit
+    status of `nfind_def` are:
+
+      (from /sd/intr/txt/utils/txtutils.h)
+      1. `not_found` : the word was not found
+      2. `found` : the word was found
+      3. `ttoken` : it is a token instead
+      4. `number` : it is a literal number instead
+      5. `repeats` : not enough information to pin-out word;
+                     needs another call
+
+    If exited with any status other than `repeats`, `_call` stays at
+    `0`. It is used only to resolute `repeats`
+
+    The logic of these files is a bit complex, so we won't be inlining
+    code. Suffice it to say, this function can be used to change the
+    value of `t`, a variable that indexes the `keyword_manifest` array
+    to determine which keyword was typed. `nfind_def` uses two
+    other functions
+
+    1. nbound_def
+    2. tfind_def
+
+    The first is used to limit the seeking range of `t`, bounded by
+    `t_start` and `t_end`. The second is used to find the token that
+    was typed. `tfind_def` also uses `nbound_def`
+
+== parse_src/parser_stream ==
+
+  Back on the `parser_stream` function, after `e_status` is set,
+  it is run
+                        if (e_status != repeats)
+                          H_LOCK (leading);
+                        else
+                          continue;
+  It follows:
+               next (data, &i, &wstart_i, &e_status, lnsize);
+
+  == parse_src/next ==
+
+  * definition:
+               void next (char*, uint*, uint*, bool*, const uint)
+
+  * args:
+    1. data
+    2. i
+    3. wstart_i
+    4. e
+    5. lnsize
+
+  * logic:
+    Its job is to apply logic to each of `nfind_def` exit status.
+    Each status has an associate HOOK[2]: a function that passes the
+    handling of the words to a parse tree, which then passes it to
+    a language mask over the SD virtual machine (SDVM)
+
+   == TODO ==
+
+------
+
+[1] : user word (variables)
+[2] : in SD, HOOKs can mean either
+  1. word handlers (parsing)
+  2. object handlers (language)

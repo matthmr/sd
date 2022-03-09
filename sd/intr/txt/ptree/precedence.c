@@ -51,9 +51,7 @@ const Pre const opptab[] = {
 
 	[OP_LOR] = {12, LR},
 
-	[OP_BWOR] = {13, LR},
+	[OP_MASS] = {13, RL}, // assign
 
-	[OP_MASS] = {14, RL},
-
-	[OP_MSEP] = {15, LR},
+	[OP_MSEP] = {14, LR},
 };

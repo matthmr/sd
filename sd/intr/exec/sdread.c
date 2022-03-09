@@ -97,12 +97,12 @@ int main (int argc, char** argv) {
 
 	/// TODO: maybe accept multiple files as modules? this would become a loop
 	switch (f_type) {
-		case SOURCE:
-			parse_src (file, data, STDBUFFER);
-			break;
-		case BYTECODE:
-			parse_bc (file, data, STDBUFFER);
-			break;
+	case SOURCE:
+		parse_src (file, data, STDBUFFER);
+		break;
+	case BYTECODE:
+		parse_bc (file, data, STDBUFFER);
+		break;
 	}
 
 	/* close `file` on exit */

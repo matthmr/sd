@@ -28,3 +28,13 @@ enum ftype {
 };
 
 #endif
+
+#ifndef LOCK_DATA
+#  define LOCK_DATA
+
+#  include <sd/intr/limits.h>
+
+extern unsigned char data[BUFFER];
+// extern char* eol;
+
+#endif

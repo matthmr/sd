@@ -6,6 +6,7 @@
 
 #include <string.h>
 
+#include <sd/lang/expr/drivers/drivers.h>
 #include <sd/lang/hooks/txt/txthooks.h>
 #include <sd/lang/hooks/txt/literal.h>
 #include <sd/lang/vm/vm.h>
@@ -15,15 +16,32 @@
 
 float get_fnum (char* s, uint dot_offset) {  }
 
-u64 get_num_base (char* s, uint rel, u8 base) {
+d_addr get_num_with_base (char* s, uint rel, u8 base) {
 
-	u64 exp = 1;
-	u64 ret = 0;
+	d_addr exp = 1;
+	d_addr ret = 0;
 
-	int lim = (base == 10)? 0: (base == 8)? 1: 2;
+	int lim = (base == 10)? 0: // ...
+	          (base == 8)? 1: // 0...
+	          2; // 0x...
 
-	for (int i = rel-1; i >= lim; i--)
-		ret += ((s[i]-ASCII_NUM_OFFSET)*(exp*=base));
+	if (base != 16)
+		for (int i = rel-1; i >= lim; i--) {
+			ret += (s[i]-ASCII_NUM_OFFSET)*exp;
+			exp *= base;
+		}
+	else
+		for (int i = rel-1; i >= lim; i--) {
+
+			if (NUMBER (s[i]))
+				ret += (s[i]-ASCII_NUM_OFFSET)*exp;
+			else if (NUMBER_LHEX (s[i]))
+				ret += (s[i]-ASCII_LHEX_OFFSET)*exp;
+			else
+				ret += (s[i]-ASCII_UHEX_OFFSET)*exp;
+
+			exp *= 16;
+		}
 
 	return ret;
 }
@@ -33,18 +51,19 @@ void aint_hook (char* s, uint rel) {
 	uint dot_offset;
 	char* dot;
 
-	u64 ret;
+	d_addr ret;
 	float retf;
 
 	if (dot = strchr (s, '.')) {
 		dot_offset = (uint) (dot - s);
 		retf = get_fnum (s, dot_offset);
-		// TODO: add floating point expr
+		gs_ctxt.base = 10;
+		ptree_add_literal (retf);
 	}
 	else {
-		ret = get_num_base (s, rel, gs_ctxt.base);
+		ret = get_num_with_base (s, rel, gs_ctxt.base);
 		gs_ctxt.base = 10;
-		// TODO: add the appropiate size expr
+		ptree_add_literal (ret);
 	}
 
 }

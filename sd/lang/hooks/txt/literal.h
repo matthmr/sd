@@ -17,7 +17,7 @@
 void astring_hook (char*);
 void aint_hook (char*, uint);
 
-u64 get_num_base (char*, uint, u8);
+d_addr get_num_with_base (char*, uint, u8);
 float get_fnum (char*, uint);
 #  endif
 
