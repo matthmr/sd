@@ -18,6 +18,7 @@ static const char* errfmt[] = {
 	[TIME_COMP] = "compile:%s%s\n"
 };
 
+// TODO: file:LN:COL: ERR: ...
 static const char* verrfmt[] = {
 	[TIME_ARG] = "arg:%s%s%s\n",
 	[TIME_TXT] = "main:%s%s%s\n",
@@ -36,6 +37,9 @@ const char* errmsg[] = {
 	" E0x06: out-of-bound uword (maximum of 64 case-insensitive alpha-numeric characters plus '$' and '_')", // a...a
 	" E0x07: undefined uword cannot cast type ", // int a: 1;
 	" E0x08: keyword cannot be uword", // let let
+	" E0x09: unhookable word", // a b
+	" E0x0a: missing ", // [1;
+	" E0x0b: literals are unhookable without `expr`s ", // 1 1
 
 };
 

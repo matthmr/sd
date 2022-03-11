@@ -56,7 +56,7 @@
 #  define OP_DRIVE 0x1e // aka `OP_SELF`: resolutes expressions
 #  define OP_LITERAL 0x1f
 
-typedef byte op;
+typedef byte Op;
 
 enum bits {
 	bits_8c = 8, // char
@@ -80,9 +80,12 @@ enum bits {
 };
 
 enum qual {
-	QUAL_CONST,
-	QUAL_UNSIGNED,
-	QUAL_STATIC,
+	qual_def,
+	qual_const,
+	qual_unsigned,
+	qual_static,
+	qual_long,
+	qual_short,
 };
 
 typedef enum bits bits;
@@ -98,10 +101,6 @@ struct expr {
 	u32 op;
 	// u8 ty;
 };
-
-typedef struct expr Expr;
-
-extern Expr g_expr;
 
 void expr_exec (void);
 #endif

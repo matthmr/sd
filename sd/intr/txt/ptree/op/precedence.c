@@ -3,7 +3,7 @@
  * for operator precedence
  */
 
-#include <sd/intr/txt/ptree/precedence.h>
+#include <sd/intr/txt/ptree/op/precedence.h>
 
 #include <sd/lang/expr/expr.h>
 

@@ -131,9 +131,9 @@ sd/intr/txt/ptree/ptree.o: sd/intr/txt/ptree/ptree.c sd/intr/txt/ptree/ptree.h
 sd/lang/hooks/txt/literal.o: sd/lang/hooks/txt/literal.c sd/lang/hooks/txt/literal.h
 	@echo [ .. ] Compiling 'literal.o'
 	${CC} ${INCLUDE} -c ${CCFLAG} -DADDR_BITS=${BITS} sd/lang/hooks/txt/literal.c -o sd/lang/hooks/txt/literal.o
-sd/intr/txt/ptree/precedence.o: sd/intr/txt/ptree/precedence.c sd/intr/txt/ptree/precedence.h
+sd/intr/txt/ptree/op/precedence.o: sd/intr/txt/ptree/op/precedence.c sd/intr/txt/ptree/op/precedence.h
 	@echo [ .. ] Compiling 'precedence.o'
-	${CC} ${INCLUDE} -c ${CCFLAG} -DADDR_BITS=${BITS} sd/intr/txt/ptree/precedence.c -o sd/intr/txt/ptree/precedence.o
+	${CC} ${INCLUDE} -c ${CCFLAG} -DADDR_BITS=${BITS} sd/intr/txt/ptree/op/precedence.c -o sd/intr/txt/ptree/op/precedence.o
 sd/lang/vm/vm.o: sd/lang/vm/vm.c sd/lang/vm/vm.h
 	@echo [ .. ] Compiling 'vm.o'
 	${CC} ${INCLUDE} -c ${CCFLAG} -DADDR_BITS=${BITS} sd/lang/vm/vm.c -o sd/lang/vm/vm.o
@@ -169,7 +169,7 @@ lib/libsdutils.a: sd/utils/utils.o\
 	@echo [ .. ] Archiving to 'libsdutils.a'
 	${AR} ${ARFLAG} lib/libsdutils.a $?
 lib/libsdparse.a: sd/lang/hooks/txt/txthooks.o\
-	sd/intr/txt/ptree/precedence.o\
+	sd/intr/txt/ptree/op/precedence.o\
 	sd/intr/bytecode/sdbcparse.o\
 	sd/lang/hooks/txt/kwhooks.o\
 	sd/lang/hooks/txt/thooks.o\

@@ -40,7 +40,8 @@ After compilation, the results will be stored at `/bin` (with the repository as 
 
 # Documentation
 
-Find the documentation at the [main website](https://matthmr.github.io/docs.sd).
+Find language documentation at the [main website](https://matthmr.github.io/docs.sd) and
+source code documentation at the [/docs folder](https://github.com/matthmr/sd/blob/master/docs).
 
 # License
 

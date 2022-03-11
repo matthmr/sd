@@ -11,8 +11,6 @@
 #  include <sd/lang/lang.h>
 
 struct data {
-	enum pt ty;
-	enum ptq qual;
 	void* data;
 	addr addr;
 };

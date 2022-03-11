@@ -14,10 +14,12 @@
 #include <sd/utils/err/err.h>
 
 extern uint ln;
+bool verr = 0;
 
 void vErr (int code, char* info, char* lineinfo) {
 	fprintf (stderr, vfmt, errmsg[code], info, lineinfo);
-	exit (code);
+	verr = 1;
+	// exit (code);
 }
 
 char* vErr_get_type (int id) {
@@ -26,11 +28,9 @@ char* vErr_get_type (int id) {
 	case _CHAR: return "`char`"; break;
 	case _FLOAT: return "`float`"; break;
 	case _ENUM: return "`enum`"; break;
-	case _LIST: return "`list`"; break;
+	case _ARRAY: return "`array`"; break;
 	case _MAP: return "`map`"; break;
 	case _LONG: return "`long`"; break;
 	case _SHORT: return "`short`"; break;
 	}
 }
-
-char* vErr_verbose (char* data, uint ln, uint wstart_i, uint wsize) {  }
