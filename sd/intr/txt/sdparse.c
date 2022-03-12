@@ -55,7 +55,7 @@ void next (char* data,
 		wsize = (*i - *wstart_i)+1;
 
 		if (wsize > STDUWORD) {
-			NO_INFO_ERR (0x06, vErr_verbose (data, ln, wstart_i, wsize));
+			NO_INFO_ERR (0x06, vErr_verbose (data, ln, *wstart_i, wsize));
 		}
 
 		strncpy (uword, (data + *wstart_i), wsize);
@@ -85,10 +85,6 @@ void next (char* data,
 		wsize = (*i - *wstart_i)+1;
 
 		if (wsize > STDWORD) { /// mismatch(1)
-
-			if (wsize > STDWORD) {
-
-			}
 
 			strncpy (uword, (data + *wstart_i), wsize);
 			goto _au_hook;
@@ -123,6 +119,10 @@ void next (char* data,
 	case number:
 		number_offset (i, data);
 		wsize = (*i - *wstart_i)+1;
+
+		if (wsize > STDWORD)
+			;
+
 		strncpy (word, (data + *wstart_i), wsize);
 
 		*wstart_i = *i+1;

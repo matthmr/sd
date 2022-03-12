@@ -7,7 +7,7 @@
 
 #include <sd/lang/expr/expr.h>
 
-const Pre const opptab[] = {
+const Prec const opptab[] = {
 	[OP_DRIVE] = {0, LR}, // '[', ']'
 
 	[OP_MCHILD] = {1, LR},

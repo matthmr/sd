@@ -8,12 +8,15 @@
 
 
 #include <sd/lang/hooks/txt/txthooks.h>
-#include <sd/lang/atom/atom.h>
 #include <sd/lang/expr/expr.h>
-#include <sd/lang/vm/vm.h>
 #include <sd/lang/lang.h>
 
-#include <sd/utils/types/cast.h>
+#define LOCK_PARSE
+#define LOCK_STACK
+#include <sd/intr/txt/ptree/ptree.h>
+#include <sd/intr/txt/sdparse.h>
+
+#include <sd/utils/err/verr.h>
 #include <sd/utils/err/err.h>
 #include <sd/utils/utils.h>
 
@@ -30,13 +33,13 @@ static void tty_syn (_T);
 void tty_syn (_T t) {
 
 	switch (t.t) {
-
 	case '#':
 		lstream (H_LOCK (gs_ctxt.cmt));
 		break;
 
 	case '"':
 		lstream (H_LOCK (gs_ctxt.str));
+		break;
 
 	case '^':
 		break;
@@ -44,15 +47,18 @@ void tty_syn (_T t) {
 
 }
 
+// TODO: define new `ptree_add_uop` for unary operators
 void tty_math_op (_T t) {
 	switch (t.t) {
 	case '+':
+		ptree_add_op (ptree.curr.op? OP_UPLUS: OP_PLUS);
 		break;
 
 	case '*':
 		break;
 
 	case '-':
+		ptree_add_op (ptree.curr.op? OP_UMINUS: OP_MINUS);
 		break;
 
 	case '%':
@@ -78,13 +84,31 @@ void tty_bitwise_op (_T t) {
 void tty_obj_ref_del (_T t) {
 
 	switch (t.t) {
-
 	case '>':
 		break;
 
 	case '<':
 		break;
 
+	case '(':
+		break;
+
+	case ')':
+		break;
+
+	case '[':
+		ptree_bracket_open ();
+		break;
+
+	case ']':
+		if (!ptree.curr.bracket) // extra bracket
+			;//ERR
+
+		ptree_bracket_close ();
+		break;
+
+	case ',':
+		break;
 	}
 
 }
@@ -122,14 +146,15 @@ void tty_bool_op (_T t) {} // doubles
 void tty_expr (_T t) {
 
 	switch (t.t) {
-
 	case ';':
-		expr_exec ();
+		if (ptree.curr.bracket) // missing closing bracket
+			vErr (0x0a, "]", "");
+		else
+			ptree_exec ();
 		break;
 
 	case '^':
 		break;
-
 	}
 
 }

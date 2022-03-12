@@ -11,7 +11,6 @@
 #  define CHILD1 1
 #  define CHILD2 2
 
-
 #  include <sd/lang/expr/drivers/drivers.h>
 #  include <sd/lang/expr/expr.h>
 
@@ -19,12 +18,16 @@
 
 #  include <sd/intr/limits.h>
 
-d_addr prec_mask = (d_addr) 0xf;
+extern d_addr prec_mask;
 
-struct offset {
-	int child1;
-	int child2;
+struct child_offset {
+	int _1;
+	int _2;
+};
+
+union offset {
 	int parent;
+	struct child_offset child;
 };
 
 union tag_item {
@@ -44,7 +47,7 @@ struct item {
 };
 
 typedef struct item Item;
-typedef struct offset Offset;
+typedef union offset Offset;
 
 struct heap {
 	Item item;
@@ -56,10 +59,11 @@ typedef struct heap Heap;
 struct curr {
 	bool children;
 	uint bracket;
+	uint index;
+	Op op;
 
-	Heap* branch;
+	Heap** branch;
 	Driver* driver;
-	Op* op;
 };
 
 struct branch {
@@ -75,7 +79,6 @@ struct parse_tree {
 	struct branch branch;
 };
 
-extern uint bracket;
 extern struct parse_tree ptree;
 extern Heap ptree_buffer[];
 
@@ -89,10 +92,11 @@ void ptree_add_op (uint);
 
 void ptree_exec (void);
 
-#  define ptree_prec_open  ptree.curr.bracket++
-#  define ptree_prec_close ptree.curr.bracket--
-
 void ptree_del_open (void);
 void ptree_del_close (void);
+
+/// resoluted by `ptree_add_op`; reset by `ptree_exec`
+void ptree_bracket_close (void);
+void ptree_bracket_open (void);
 
 #endif
