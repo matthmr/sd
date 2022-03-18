@@ -41,6 +41,7 @@ const _Kw const keyword_manifest[] = {
 	[KW_MAP] = { .kw = "map", .id = _MAP, .ty = KWTY_BUILTIN_TY },
 	[KW_LONG] = { .kw = "long", .id = _LONG, .ty = KWTY_BUILTIN_TY },
 	[KW_SHORT] = { .kw = "short", .id = _SHORT, .ty = KWTY_BUILTIN_TY },
+	[KW_BOOL] = { .kw = "bool", .id = _BOOL, .ty = KWTY_BUILTIN_TY },
 
 	/* qualifiers */
 	[KW_CONST] = { .kw = "const", .id = _CONST, .ty = KWTY_QUAL },
@@ -63,6 +64,8 @@ const _Kw const keyword_manifest[] = {
 	/* built-in objects */
 	[KW_NIL] = { .kw = "nil", .id = _NIL, .ty = KWTY_BUILTIN_OBJ },
 	[KW_THIS] = { .kw = "this", .id = _THIS, .ty = KWTY_BUILTIN_OBJ },
+	[KW_TRUE] = { .kw = "true", .id = _TRUE, .ty = KWTY_BUILTIN_OBJ },
+	[KW_FALSE] = { .kw = "false", .id = _FALSE, .ty = KWTY_BUILTIN_OBJ },
 
 	// -- FLOW -- //
 	/* flow control */
@@ -73,6 +76,7 @@ const _Kw const keyword_manifest[] = {
 	[KW_END] = { .kw = "end", .id = _END, .ty = KWTY_FLOW },
 	[KW_JUMP] = { .kw = "jump", .id = _JUMP, .ty = KWTY_FLOW },
 	[KW_RET] = { .kw = "ret", .id = _RET, .ty = KWTY_FLOW },
+	[KW_GOTO] = { .kw = "goto", .id = _GOTO, .ty = KWTY_FLOW },
 
 	// -- MISC -- //
 	/* accumulatives */

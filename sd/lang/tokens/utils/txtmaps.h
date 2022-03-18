@@ -36,5 +36,9 @@
 #  define _SHORT 0x001c
 #  define _RM 0x001d
 #  define _RET 0x001e
+#  define _TRUE 0x001f
+#  define _FALSE 0x0020
+#  define _BOOL 0x0022
+#  define _GOTO 0x0023
 
 #endif
