@@ -40,11 +40,11 @@ char word[STDWORD];
 static uint gbuffer_size = BUFFER;
 static char* ins_p = gbuffer;
 
-void next (char* data,
-           uint* i,
-           uint* wstart_i,
-           bool* e,
-           const uint lnsize) {
+ptree_cb next (char* data,
+               uint* i,
+               uint* wstart_i,
+               bool* e,
+               const uint lnsize) {
 
 	switch (*e) {
 
@@ -110,10 +110,10 @@ void next (char* data,
 	utdiff_token: {
 		++*wstart_i;
 
-		at_hook (token_manifest[t]);
-
+		uint tcp = t;
 		H_RESET (t);
-		return;
+		return at_hook (token_manifest[tcp]);
+
 	} break;
 
 	case number:
@@ -126,10 +126,10 @@ void next (char* data,
 		strncpy (word, (data + *wstart_i), wsize);
 
 		*wstart_i = *i+1;
-		aint_hook (word, wsize);
-
 		H_RESET (t);
-		return;
+
+		return aint_hook (word, wsize);
+
 		break;
 	}
 
@@ -201,6 +201,7 @@ void parser_stream (char* data, Obj* m_root, uint e_eof) {
 
 		next (data, &i, &wstart_i, &e_status, lnsize);
 
+		/// TODO: this doesn't fit in with my callback schema
 		if (0) parser_not_found: {
 
 			offset_i (&i, data, lnsize);
@@ -220,14 +221,20 @@ void parser_stream (char* data, Obj* m_root, uint e_eof) {
  */
 void parse_src (FILE* file, char* _data, const uint buffer_size) {
 
-	uint e_eof;
-	e_set (TIME_TXT);
+	/// ptree callback handle
+	if (ptree_stack (ptree_callback))
+		;//
+	else { /// if not on callback, act as if being called for the first time
 
-	Obj l_root;
-	mkchild (&g_root, &l_root);
-	// g_self = CAST_addr l_root;
+		uint e_eof;
+		e_set (TIME_TXT);
 
-	ln = 1;
+		Obj l_root;
+		mkchild (&g_root, &l_root);
+		// g_self = CAST_addr l_root;
+
+		ln = 1;
+	}
 
 	do {
 		e_eof = fread (_data, 1, buffer_size, file);

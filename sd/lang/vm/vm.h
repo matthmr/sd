@@ -1,87 +1,113 @@
 /**
- * This file contains type definitions
+ * This file contains
+ * type definitions
  * for the SD vm
  */
+
+#ifndef ADDR_BITS
+#  define ADDR_BITS 32 /* fallback to 32 bits */
+#endif
 
 #ifndef LOCK_VM
 #  define LOCK_VM
 
 #  include <sd/utils/types/shared.h>
 
-#  define MEM 10*kb
+#  ifdef LOCK_UTILS
+#    include <sd/utils/utils.h>
+#  else
+#    define LOCK_UTILS
+#    include <sd/utils/utils.h>
+#    undef LOCK_UTILS
+#  endif
 
-#  define MEM_TAB 2*kb
-#  define MEM_STACK 2*kb
-#  define MEM_HEAP 6*kb
+#  include <sd/intr/limits.h>
 
-#  define M_MEM 1*mb
-#  define H_MEM 10*mb
-#  define HH_MEM 100*mb
-#  define HHH_MEM 1*gb
+#  define tmphoststack d_addr* mstack
+
+// #  define popvmstack asm ( "sub $8, %%rsp" __nl )
+
+#  define mkvmstack \
+	tmphoststack; \
+	sp = mstack /* ; \
+	popvmstack */
+
+#  define MEM_INC 8*KiB
+
+#  define MEM_TAB 8*KiB
+#  define MEM_STACK 8*KiB
+
+#  define M_MEM 32*MEM
+#  define H_MEM 64*M_MEM
+#  define HH_MEM 128*H_MEM
+#  define HHH_MEM 256*HH_MEM
 
 #  define REGL_N 2
 #  define REGE_N 2
 #  define REGC_N 1
+#  define REGF_N 1
+#  define REG_N REGL_N + REGE_N + REGC_N + REGF_N
 
-/*
- *   == memory layout ==
- *
- * [[ HIGH MEMORY ]]  (mem_goffset_top)
- * == HEAP ==    vvv
- * == TAB ==     vvv
- * == STACK ==   ^^^
- * [[ LOW MEMORY ]]   (mem_goffset)
- *
- */
+extern byte* heap;
+extern byte* tab;
 
-extern byte mem[];
-extern u64 reg[REGL_N + REGE_N + REGC_N];
+extern uint heapsize;
+extern uint tabsize;
 
-extern u64 regl[REGL_N];
-extern u64 rege[REGE_N];
+extern d_addr* sp;
+extern d_addr* ip;
 
-extern u64 regc;
+extern d_addr* s_top;
 
-extern byte* heapp;
-extern byte* sp;
-extern byte* ip;
+extern d_addr reg[REG_N];
 
-extern byte* s_bot;
-extern byte* s_top;
+extern d_addr* regl;
+extern d_addr* rege;
+extern d_addr* regc;
+extern d_addr* regf;
 
-extern u64 curr_avail_mem;
-extern u64 stack_ceiling;
-extern u64 heap_ceiling;
-
-extern u64 mem_goffset;
-extern u64 mem_goffset_top;
-
+// -- memory layout -- //
+void heap_alloc (int);
+void tab_alloc (int);
 void vm_init (void);
 
-void jump_ip (void);
+// -- flow -- //
+void jump_ip (d_addr);
+void call_ip (d_addr);
+void ret (void);
 
 // -- STACK -- //
 void* pop (void);
 void push (byte);
 
+void* pop_reg (void);
+void push_reg (d_addr);
+
+// TODO: make a `push*` type for each and
+//       every possible stack push
 void* pop_t (uint);
 void push_t (uint, void*);
 
 void* pop_frame (uint);
 void push_frame (uint, void*);
 
-// -- HEAP -- //
-void heap (uint);
-
 // -- TABLE -- //
 void push_tab (byte);
 
 // -- REGISTERS -- //
-void mov_rege (u64);
-void mov_regl (u64);
-#endif
+void mov_rege (
+	#if ADDR_BITS == 64
+		unsigned long
+	#else
+		unsigned int
+	#endif
+);
 
-#ifndef ADDR_BITS
-#  define ADDR_BITS 64 /* fallback to 64 bits */
+void mov_regl (
+	#if ADDR_BITS == 64
+		unsigned long
+	#else
+		unsigned int
+	#endif
+);
 #endif
-

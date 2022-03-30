@@ -55,6 +55,7 @@
 // -- literal -- //
 #  define OP_DRIVE 0x1e // aka `OP_SELF`: resolutes expressions
 #  define OP_LITERAL 0x1f
+#  define OP_NULL 0x20 // aka op placeholder
 
 typedef byte Op;
 

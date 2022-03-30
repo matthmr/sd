@@ -7,6 +7,10 @@
 
 #include <sd/lang/expr/expr.h>
 
+// * Higher precedence means it's resoluted first
+// as in:
+//      [HIGH]     -->     *
+//   [LOW]  [LOW]  -->   +   +
 const Prec const opptab[] = {
 	[OP_DRIVE] = {0, LR}, // '[', ']'
 

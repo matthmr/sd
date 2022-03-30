@@ -27,6 +27,9 @@ enum ftype {
 	BYTECODE
 };
 
+extern enum ftype f_type;
+extern FILE* file;
+
 #endif
 
 #ifndef LOCK_DATA

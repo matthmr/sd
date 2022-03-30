@@ -1,12 +1,13 @@
 /**
  * This file is a WRAPPER arround functionality
- * regarding the sd language. It makes it possible
+ * regarding the SD language. It makes it possible
  * to parse and interpret plain-text source code
- * and execute it on the fly.
+ * and execute it on the fly
  */
 
 #include <stdio.h>
 
+#include <sd/lang/callback/vmcb.h>
 #include <sd/lang/vm/vm.h>
 
 #include <sd/intr/bytecode/sdbcparse.h>
@@ -24,17 +25,18 @@ byte data[BUFFER];
 /// TODO: unhandled `<expr>`: parse it and execute within main file context
 int main (int argc, char** argv) {
 
-	uint i = 0;
+	mkvmstack;
 
 	bool pipe = false;
 	bool promise = false;
 
-	FILE* file = NULL;
+	file = NULL;
 
-	enum ftype f_type = SOURCE;
+	f_type = SOURCE;
 
 	e_set (TIME_ARG);
 
+	uint i = 0;
 	if (argc > 1) for (i = 1; i < argc; i++) {
 		if (! promise) {
 			if (argv[i][0] == '-') {
@@ -97,12 +99,22 @@ int main (int argc, char** argv) {
 
 	/// TODO: maybe accept multiple files as modules? this would become a loop
 	switch (f_type) {
+
 	case SOURCE:
-		parse_src (file, data, STDBUFFER);
+
+		/// main callback loop (vm)
+		while (src_callback != SRC_END)
+			if (src_stack (src_callback))
+				stack_callback (src_callback);
+			parse_src (file, data, STDBUFFER);
+
 		break;
+
+	/// TODO: bytecode callback loop
 	case BYTECODE:
 		parse_bc (file, data, STDBUFFER);
 		break;
+
 	}
 
 	/* close `file` on exit */

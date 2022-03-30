@@ -10,12 +10,21 @@
 #ifndef LOCK_INTR_LIMITS
 #  define LOCK_INTR_LIMITS
 
-#  define LOCK_UTILS
 #  include <sd/utils/types/shared.h>
-#  include <sd/utils/utils.h>
-#  undef LOCK_UTILS
 
-#  define BUFFER 1024*b
+#  ifdef LOCK_UTILS
+#    include <sd/utils/utils.h>
+#  else
+#    define LOCK_UTILS
+#    include <sd/utils/utils.h>
+#    undef LOCK_UTILS
+#  endif
+
+#  define KiB POW2 (10)*b
+#  define MiB POW2 (10)*KiB
+#  define GiB POW2 (10)*MiB
+
+#  define BUFFER 8*KiB
 #  define STDBUFFER BUFFER
 #  define STDWORD 8
 #  define STDUWORD 64

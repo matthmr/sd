@@ -1,0 +1,54 @@
+                       |memory|
+
+Memory management in SD is directly tied to memory management in C.
+Because the logic for parsing SD source code is small, the main SD
+stack is the same as the `main` stack for a C program.
+
+Stack
+-----
+
+The stack starts growing at `main`. What we do is get the value of the
+stack pointer as its in the base, store it in `host_sp` and set callbacks for
+
+1. pushing
+2. popping
+3. resuming parse
+
+This can be done because the amount of stack memory that the parsing itself
+uses is small.
+
+The callback may look something like:
+
+1. start `sdread file.sd`
+~~ main
+
+2. in the middle of parsing...
+~~ main
+~~ parse_src
+~~ parser_stream
+~~ obj_def_hook
+~~ ...
+
+3. find a callback -> send the function back to `main` -> resolve callback
+~~ main
+~~ <value>
+
+4. repeat, but this time we have `<value>` in the same stack as the `sdread`
+~~ main
+~~ <value>
+~~ parse_src
+~~ parser_stream
+~~ obj_def_hook
+~~ ...
+
+The callback is resolved with inlined assembly.
+
+== Rationale ==
+
+This could be done with a separate thread or an uninitialized part of .bss.
+It was decided not to do either because
+
+1. overall memory usage: one thread is enough (more can be added via the standard library)
+2. overall memory unpredictability: it might be the case that .bss is either too big or too small
+
+== TODO ==

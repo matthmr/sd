@@ -15,13 +15,13 @@ void War (char*, const char*, char*);
 #ifndef  LOCK_MACROS
 #  define LOCK_MACROS
 
-#  define NUMBER(X) (X) >= '0' && (X) <= '9'
+#  define NUMBER(X) ((X) >= '0' && (X) <= '9')
 #  define NUMBER_UHEX(X) ((X) >= '0' && (X) <= '9') || ((X) >= 'A' && (X) <= 'F')
 #  define NUMBER_LHEX(X) ((X) >= '0' && (X) <= '9') || ((X) >= 'a' && (X) <= 'f')
-#  define NUMBER_BIN(X) (X) == '0' || (X) == '1'
-#  define NUMBER_OCT(X) (X) >= '0' && (X) <= '7'
-#  define LOWER_ALPHA(X) (X) >= 'a' && (X) <= 'z'
-#  define UPPER_ALPHA(X) (X) >= 'A' && (X) <= 'Z'
+#  define NUMBER_BIN(X) ((X) == '0' || (X) == '1')
+#  define NUMBER_OCT(X) ((X) >= '0' && (X) <= '7')
+#  define LOWER_ALPHA(X) ((X) >= 'a' && (X) <= 'z')
+#  define UPPER_ALPHA(X) ((X) >= 'A' && (X) <= 'Z')
 #  define VALID(X) (LOWER_ALPHA(X) || UPPER_ALPHA(X) || (X) == '_')
 #  define WHITESPACE(X) ((X) == 0x20 || (X) == 0x0a || (X) == 0x09 || (X) == 0x00)
 #  define ATOI(X) (!(NUMBER(X)))? 0: (X) - 48
@@ -32,5 +32,7 @@ void War (char*, const char*, char*);
 #  define H_RESET(X) (X)=0
 #  define E_LOCK(X,Y) if (!X) (X)=(Y)
 #  define MAX_OF 0^1
+#  define POW2(x) (unsigned)((unsigned)1 << x)
+#  define __nl "\t\n"
 
 #endif

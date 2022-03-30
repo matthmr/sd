@@ -47,21 +47,26 @@ void tty_syn (_T t) {
 
 }
 
-// TODO: define new `ptree_add_uop` for unary operators
 void tty_math_op (_T t) {
 	switch (t.t) {
 	case '+':
-		ptree_add_op (ptree.curr.op? OP_UPLUS: OP_PLUS);
+		ptree.curr.op
+			? ptree_add_op (OP_PLUS)
+			: ptree_add_uop (OP_UPLUS);
 		break;
 
 	case '*':
+		ptree_add_op (OP_TIMES);
 		break;
 
 	case '-':
-		ptree_add_op (ptree.curr.op? OP_UMINUS: OP_MINUS);
+		ptree.curr.op
+			? ptree_add_op (OP_MINUS)
+			: ptree_add_uop (OP_UMINUS);
 		break;
 
 	case '%':
+		ptree_add_op (OP_MOD);
 		break;
 	}
 }

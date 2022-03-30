@@ -10,9 +10,10 @@
 #ifndef LOCK_PARSE
 #  define LOCK_PARSE
 
+#  include <sd/lang/callback/ptreecb.h>
 #  include <sd/lang/tree/ot.h>
 
-void next (char*, uint*, uint*, bool*, const uint);
+ptree_cb next (char*, uint*, uint*, bool*, const uint);
 void parser_stream (char*, Obj*, uint);
 
 #endif

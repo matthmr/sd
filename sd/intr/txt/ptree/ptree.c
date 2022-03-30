@@ -7,6 +7,8 @@
 #include <sd/lang/expr/drivers/drivers.h>
 #include <sd/lang/tokens/utils/txtmaps.h>
 #include <sd/lang/hooks/txt/txthooks.h>
+#include <sd/lang/callback/ptreecb.h>
+#include <sd/lang/callback/vmcb.h>
 #include <sd/lang/vm/vm.h>
 
 #include <sd/utils/types/shared.h>
@@ -14,19 +16,25 @@
 
 #include <sd/intr/txt/ptree/op/precedence.h>
 #include <sd/intr/txt/ptree/ptree.h>
+#include <sd/intr/limits.h>
 
 #define populate if (!ptree.curr.branch) set_branch()
 
-Heap ptree_buffer[BUFFER];
+// uint ptree_buffer_size = (6*KiB) / sizeof (Heap);
+// Heap ptree_buffer[(6*KiB) / sizeof (Heap)];
+
+bool direction;
 d_addr prec_mask = (d_addr) 0xf;
 
 static Heap* branch[3];
 static bool res_open;
 
+// -- tree functionality -- //
 static void set_branch (void);
 static void append_branch (void);
 static void prepend_branch (void);
 
+// -- branch functionality -- //
 static void set_op (Op);
 static void append_op (Op);
 static void prepend_op (Op);
@@ -66,30 +74,28 @@ void set_branch (void) {
 	ptree.curr.branch = branch;
 
 	ptree.branch.low = *branch;
-	ptree.branch.high1 = *branch;
+	ptree.branch.high = *branch;
 
 	ptree.curr.index += 3;
 
 }
 
-// TODO: define a static variable which knows
-//       which high* to get from
 void append_branch (void) {
 
 	// readjust branch position
-	branch[PARENT] = branch[CHILD2];
-	branch[CHILD1] = branch[CHILD2]+1;
+	branch[PARENT] = branch[CHILD2]+1;
 	branch[CHILD2] = branch[CHILD2]+2;
 
+	// derive child1
+	branch[CHILD1] += 1;
+
 	// readjust offsets
-	branch[CHILD1]->offset.parent = -1;
-	branch[CHILD2]->offset.parent = -2;
+	branch[CHILD2]->offset.parent = -1;
+	branch[CHILD1]->offset.parent = +1;
 
 	// assign new high
-	if (branch[PARENT] > ptree.branch.high1)
-		ptree.branch.high2 = *branch;
-	else
-		ptree.branch.high1 = *branch;
+	if (branch[PARENT] > ptree.branch.high)
+		ptree.branch.high = *branch;
 }
 
 void prepend_branch (void) {
@@ -98,9 +104,12 @@ void prepend_branch (void) {
 	branch[PARENT] = branch[CHILD2]+1;
 	branch[CHILD2] = branch[CHILD2]+2;
 
+	// derive child1
+	branch[CHILD1] -= 1;
+
 	// readjust offsets
-	branch[CHILD1]->offset.parent = -1;
-	branch[CHILD2]->offset.parent = -2;
+	branch[CHILD1]->offset.parent = +3;
+	branch[CHILD2]->offset.parent = -1;
 
 	// assign new low
 	ptree.branch.low = *branch;
@@ -115,16 +124,16 @@ void set_op (Op op) {
 }
 
 void append_op (Op op) {
-	Heap child2 = *branch[CHILD2];
+
+	// append child2 as op
+	branch[PARENT]->offset.children._2 += 1;
 
 	// append type
-	branch[CHILD2]->item.type = OP;
-	branch[CHILD2]->item.get.op = op;
 	append_branch ();
+	branch[PARENT]->item.type = OP;
+	branch[PARENT]->item.get.op = op;
 
-	// append child
-	*branch[CHILD1] = child2;
-	branch[CHILD1]->offset.parent = -2;
+	parent->offset.children._2 += 1;
 
 	ptree.curr.op = branch[PARENT]->item.get.op;
 	ptree.curr.children = 1;
@@ -132,7 +141,6 @@ void append_op (Op op) {
 }
 
 void prepend_op (Op op) {
-	Heap* parent = branch[PARENT];
 
 	// prepend type
 	prepend_branch ();
@@ -179,8 +187,13 @@ void ptree_add_op (uint op) {
 	if (ptree.curr.op == OP_NULL)
 		set_op (op);
 
+	/// TODO: append if bracket is on the right; otherwise prepend
+
 	// add as parent
-	else if (prec (ptree.curr.op) < prec (op) || res_open) {
+	else if (
+	  (prec (ptree.curr.op) < prec (op) && !ptree.curr.bracket) ||
+	  (res_open && !ptree.curr.bracket)
+	) {
 
 		if (res_open) {
 			H_RESET (res_open);
@@ -199,7 +212,20 @@ void ptree_add_op (uint op) {
 
 }
 
+void ptree_add_uop (uint);
+
 void ptree_add_float (float literal) { }
+
+void ptree_del_open (void) { }
+void ptree_del_close (void) { }
+
+void ptree_bracket_close (void) {
+	H_LOCK (res_open);
+}
+
+void ptree_bracket_open (void) {
+	ptree.curr.bracket++;
+}
 
 void ptree_exec (void) {
 
@@ -214,24 +240,12 @@ void ptree_exec (void) {
 
 	struct branch clean_branch = {
 		.low = NULL,
-		.high1 = NULL,
-		.high2 = NULL,
+		.high = NULL,
 	};
 
 	ptree.curr = clean_curr;
 	ptree.branch = clean_branch;
 
-}
-
-void ptree_del_open (void) { }
-void ptree_del_close (void) { }
-
-void ptree_bracket_close (void) {
-	H_LOCK (res_open);
-}
-
-void ptree_bracket_open (void) {
-	ptree.curr.bracket++;
 }
 
 struct parse_tree ptree = {
@@ -251,7 +265,6 @@ struct parse_tree ptree = {
 
 	.branch = {
 		.low = NULL,
-		.high1 = NULL,
-		.high2 = NULL,
+		.high = NULL,
 	},
 };

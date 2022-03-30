@@ -4,81 +4,103 @@
  * the SD vm
  */
 
+#include <stdlib.h>
+
+#include <sd/intr/limits.h>
+
 #include <sd/utils/types/shared.h>
 #include <sd/utils/types/cast.h>
 
-#define LOCK_LITERALFN
 #define LOCK_EXPRFN
-#include <sd/lang/hooks/txt/literal.h>
 #include <sd/lang/vm/tab/tab.h>
 #include <sd/lang/expr/expr.h>
 #include <sd/lang/vm/vm.h>
 
-byte mem[MEM];
-u64 reg[REGL_N + REGE_N + REGC_N];
+// -- user memory -- //
+byte* tab;
+byte* heap;
 
-u64 regl[REGL_N];
-u64 rege[REGE_N];
-u64 regc;
+// -- virtual registers -- //
+d_addr reg[REG_N];
 
-byte* s_bot;
-byte* s_top;
+d_addr* regl;
+d_addr* rege;
+d_addr* regf;
+d_addr* regc;
 
-u64 curr_mem_ceiling;
-u64 curr_stack_ceiling;
-u64 curr_heap_ceiling;
+// -- program pointers -- //
+d_addr* s_top;
+d_addr* sp;
+d_addr* ip;
 
-u64 mem_goffset = (u64) &mem;
-u64 mem_goffset_top;
+uint heapsize;
+uint tabsize;
 
-byte* heapp;
-byte* sp;
-byte* ip;
+void jump_ip (d_addr addr) { }
+void call_ip (d_addr addr) { }
+void ret (void) { }
 
-void jump_ip (void) {
-	ip--;
-	if (ip == sp)
-		;// handle frame collision
+void heap_alloc (int kib) {
+
+	static u8 call;
+
+	if (! call) {
+		H_LOCK (call);
+		heap = (byte*) malloc (kib*KiB);
+		heapsize = (unsigned)kib;
+	}
+	else {
+		heap = realloc (heap, heapsize+kib*KiB);
+		heapsize += (unsigned)kib;
+	}
+
+}
+
+void tab_alloc (int kib) {
+	static u8 call;
+
+	if (! call) {
+		H_LOCK (call);
+		tab = (byte*) malloc (kib*KiB);
+		tabsize = (unsigned)kib;
+	}
+	else {
+		tab = realloc (tab, tabsize+kib*KiB);
+		tabsize += (unsigned)kib;
+	}
+
 }
 
 void vm_init (void) {
 
-	// -- set memory boundaries -- //
-	curr_mem_ceiling = MEM;
-	curr_stack_ceiling = MEM_STACK;
-	curr_heap_ceiling = MEM - (MEM_TAB+MEM_STACK);
-
-	// -- arrange pointers -- //
-	s_bot = mem;
-	s_top = mem+curr_stack_ceiling;
-
-	ip = s_top+1;
-	heapp = mem+(MEM-1);
-	sp = s_bot;
+	// -- set memory pointers -- //
+	s_top = sp;
 
 	// -- set registers --/
-	regl[0] = reg[0] = 0x0000000000000000;
-	regl[1] = reg[1] = 0x0000000000000000;
-	rege[0] = reg[2] = 0x0000000000000000;
-	rege[1] = reg[3] = 0x0000000000000000;
-	regc = reg[4] = 0x0000000000000000;
+	reg[0] = reg[1] = // regl
+	reg[2] = reg[3] = // rege
+	reg[4] =          // regc
+	reg[5] =          // regf
+	0;
 
+	regl = &reg[0];
+	rege = &reg[2];
+	regf = &reg[4];
+	regc = &reg[5];
+	
 	// -- set global root -- //
-	push_tab (tab.let());
-	// c:w
-	// tab.chroot (CAST_addr ip);
+	/*tab_mkroot (&tab);
+	tab_push (tab.root);
+	tab_chroot (tab.root);*/
+
+	// -- allocate heap-like mem -- //
+	heap_alloc (8*KiB);
+	tab_alloc (8*KiB);
 
 }
 
-inline void* pop (void) {
-	sp--;
-	return (void*) sp;
-}
-
-inline void push (byte c) {
-	*sp = c;
-	sp++;
-}
+inline void* pop (void) { }
+inline void push (byte c) { }
 
 /// signed by default
 void* pop_t (bits bits) {
@@ -95,9 +117,9 @@ void* pop_t (bits bits) {
 
 	else if (bits >= bits_32i && bits <=
 		#if ADDR_BITS == 32
-			bits_addr
-		#elif ADDR_BITS == 64
 			bits_map
+		#else
+			bits_addr
 		#endif
 	) { /* 32 bits */
 		sp -= 4;
@@ -147,10 +169,10 @@ void push_t (bits bits, void* data)  {
 	}
 
 	else if (bits >= bits_32i && bits <=
-		#if ADDR_BITS == 32
-			bits_addr
-		#elif ADDR_BITS == 64
+		#if ADDR_BITS == 64
 			bits_map
+		#else
+			bits_addr
 		#endif
 	) { /* 32 bits */
 
@@ -182,7 +204,7 @@ void push_t (bits bits, void* data)  {
 	#endif
 }
 
-void push_tab (Normal c) {
+void push_tab (byte c) {
 	*ip = c;
 	ip++;
 }
@@ -191,9 +213,5 @@ inline void* pop_frame (uint blksize) { }
 
 inline void push_frame (uint blksize, void* data) { }
 
-inline void heap (uint t_size) {
-	*heapp += t_size;
-}
-
-void mov_rege (u64);
-void mov_regl (u64);
+void mov_rege (u64) { }
+void mov_regl (u64) { }

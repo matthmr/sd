@@ -6,6 +6,8 @@
 
 #include <string.h>
 
+#include <sd/intr/txt/ptree/ptree.h>
+
 #include <sd/lang/expr/drivers/drivers.h>
 #include <sd/lang/hooks/txt/txthooks.h>
 #include <sd/lang/hooks/txt/literal.h>
@@ -46,7 +48,7 @@ d_addr get_num_with_base (char* s, uint rel, u8 base) {
 	return ret;
 }
 
-void aint_hook (char* s, uint rel) {
+ptree_cb aint_hook (char* s, uint rel) {
 
 	uint dot_offset;
 	char* dot;
@@ -58,11 +60,16 @@ void aint_hook (char* s, uint rel) {
 		dot_offset = (uint) (dot - s);
 		retf = get_fnum (s, dot_offset);
 		gs_ctxt.base = 10;
-		ptree_add_literal (retf);
+		// ptree_add_float (retf);
 	}
 	else {
 		ret = get_num_with_base (s, rel, gs_ctxt.base);
 		gs_ctxt.base = 10;
+
+		if ((ptree.curr.children == 1 && !ptree.curr.op) ||
+			  (ptree.curr.children >= 2 && !ptree.curr.op))
+			;//ERR
+
 		ptree_add_literal (ret);
 	}
 

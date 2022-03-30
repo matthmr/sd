@@ -33,7 +33,10 @@ Index
             Each individual header and header[1] lock explained.
 
 5. files/
-            Echo invidual file explained.
+            Each invidual file explained.
+
+6. conventions/
+            Each file / memory convention explained.
 
 (the next section explains the markup of these files, it can be skipped)
 

@@ -9,15 +9,17 @@
 
 #include <sd/lang/tokens/utils/txtmaps.h>
 #include <sd/lang/hooks/txt/txthooks.h>
-#include <sd/lang/vm/tab/tab.h>
-#include <sd/lang/expr/expr.h>
-#include <sd/lang/tree/ot.h>
 #include <sd/lang/lang.h>
 
 #include <sd/utils/types/shared.h>
 #include <sd/utils/err/verr.h>
 #include <sd/utils/err/err.h>
 #include <sd/utils/utils.h>
+
+#define LOCK_PARSE
+#define LOCK_STACK
+#include <sd/intr/txt/ptree/ptree.h>
+#include <sd/intr/txt/sdparse.h>
 
 static void kwty_builtin_obj (_Kw);
 static void kwty_builtin_ty (_Kw);
@@ -29,22 +31,10 @@ static void kwty_acc (_Kw);
 static void kwty_loop (_Kw);
 
 void kwty_obj_def (_Kw kw) {
-
-	switch (kw.ty) {
-	case _LET:
-		if (! tab.head)
-			expr_expect (SYNC_OBJ);
-		else
-			vErr (0x03, NULL);
-		break;
-	case _PROC:
-		if (! tab.head)
-			expr_expect (SYNC_PROC);
-		else
-			vErr (0x03, NULL);
-		break;
-	}
-
+	if (! ptree.curr.driver)
+		ptree_cdriver_set (kw.id);
+	else
+		NO_INFO_ERR (0x08, "");
 }
 
 void kwty_builtin_obj (_Kw kw) {
@@ -55,7 +45,13 @@ void kwty_builtin_obj (_Kw kw) {
 	}
 }
 
-void kwty_builtin_ty (_Kw kw) {}
+void kwty_builtin_ty (_Kw kw) {
+	if (ptree.curr.driver)
+		ptree_cdriver_append (kw.id);
+	else
+		NO_LINEINFO_ERR (0x07, "\n");
+}
+
 void kwty_qual (_Kw kw) {}
 void kwty_flow (_Kw kw) {}
 void kwty_env (_Kw kw) {}
