@@ -5,8 +5,6 @@
  * frontend
  */
 
-#define VERSION "v0.3.2"
-
 #ifndef LOCK_READ
 #  define LOCK_READ
 
@@ -17,18 +15,50 @@
                "\tsdread -s <file> \"<expr>\" => <file> is SD bytecode code (compiled)\n\n"\
                "Info:\tsdread -h\t\t  => Displays this message and exits\n"\
                "\tsdread -v\t\t  => Displays the version and exits\n\n"\
-               "Note:\t\"<expr>\" is optional but must be used in quotes\n\n"\
+               "Note:\t\"<expr>\" is optional but must be used in quotes\n\n"
+#  define VERSION "v0.3.2"
 
+// prompt for interactive mode
 #  define PROMPT "> "
 #  define NL_PROMPT "~ "
 
+#  define FILE_IS_SOURCE(x) (x >= SOURCE_DISK)
+#  define FILE_IS_BYTECODE(x) (x <= BYTECODE_FIFO)
+#  define FILE_IS_FIFO(x) (x == BYTECODE_FIFO || x == SOURCE_FIFO)
+
 enum ftype {
-	SOURCE,
-	BYTECODE
+	BYTECODE_DISK,
+	BYTECODE_FIFO,
+
+	SOURCE_DISK,
+	SOURCE_FIFO,
 };
 
-extern enum ftype f_type;
-extern FILE* file;
+struct promise {
+	enum ftype ftype;
+
+	FILE* file;
+
+	bool PFILE;
+	bool HFILE;
+};
+
+extern struct promise p;
+
+enum exit {
+	EXIT_OK = 0,
+};
+
+enum arg {
+	ARG_ERR = 1,
+	ARG_OK = 0,
+	ARG_DEF,
+	ARG_INFO,
+};
+
+typedef struct promise promise;
+typedef enum exit exit;
+typedef enum arg arg;
 
 #endif
 

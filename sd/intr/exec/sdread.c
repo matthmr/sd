@@ -21,106 +21,131 @@
 #include <sd/utils/utils.h>
 
 byte data[BUFFER];
+promise p;
+exit RET = EXIT_OK;
+
+arg parseargs (int margc, char** margv) {
+
+	p.file = stdin;
+	p.ftype = SOURCE_DISK;
+
+	char c;
+
+	if (margc == 1)
+		return ARG_DEF;
+
+	else for (uint i = 1; i < margc; i++) {
+
+		// resolve promise
+		if (p.PFILE) {
+
+			if (p.HFILE)
+				goto _arg_err;
+
+			else if (margv[i][0] == '-' && margv[i][1] == '\0') {
+				p.file = stdin;
+				H_RESET (p.PFILE);
+				H_LOCK (p.HFILE);
+			}
+
+			else if (! (p.file = fopen (margv[i], "rb")))
+				Err (0x01, margv[i]);
+
+		}
+
+		// set promise
+		else if (margv[i][0] == '-') {
+
+			if (margv[i][1] && margv[i][2]) // -**
+				goto _arg_err;
+
+			switch (margv[i][1]) {
+
+			// info
+			case 'v':
+				fputs ("sdread " VERSION "\n", stdout);
+				return ARG_INFO;
+				break;
+			case 'h':
+				fputs (HELP, stdout);
+				return ARG_INFO;
+				break;
+
+			// set promise -- `BYTECODE_DISK`
+			case 's':
+				LOCK (p.PFILE);
+				p.ftype = BYTECODE_DISK;
+				break;
+
+			// skip promise -- `SOURCE_DISK` : stdin
+			case '\0':
+				p.ftype = SOURCE_DISK;
+				p.file = stdin;
+				H_LOCK (p.HFILE);
+				break;
+
+			default: _arg_err: // -?
+				fputs ("[ !! ] Bad usage. See sdread -h\n", stderr);
+				return ARG_ERR;
+				break;
+			}
+
+		}
+
+		// resolve promise / skip promise
+		else { /// argv[i][0] != '-'
+			if (!p.HFILE) {
+				p.ftype = p.PFILE? BYTECODE_DISK: SOURCE_DISK;
+				if (! (p.file = fopen (margv[i], "rb")))
+					Err (0x01, margv[i]);
+			}
+			else
+				goto _arg_err;
+		}
+
+	}
+
+	if (p.PFILE && !p.HFILE)
+		Err (0x02, "");
+
+	return ARG_OK;
+
+}
 
 /// TODO: unhandled `<expr>`: parse it and execute within main file context
 int main (int argc, char** argv) {
 
-	mkvmstack;
-
-	bool pipe = false;
-	bool promise = false;
-
-	file = NULL;
-
-	f_type = SOURCE;
+	mkvmstack;  // save current stack frame ...
 
 	e_set (TIME_ARG);
+	arg ret = parseargs (argc, argv);
 
-	uint i = 0;
-	if (argc > 1) for (i = 1; i < argc; i++) {
-		if (! promise) {
-			if (argv[i][0] == '-') {
-				switch (argv[i][1]) {
+	if (ret == ARG_ERR)
+		return ret;
 
-				case 'v':
-					fprintf (stdout, "sdread " VERSION "\n");
-					return 0;
-					break;
-				case 'h':
-					fprintf (stdout, HELP);
-					return 0;
-					break;
+	else if (ret == ARG_INFO)
+		goto quit;
 
-				case 's': if (! file)
-					f_type = BYTECODE;
-					LOCK (promise);
-					continue;
-					break;
-
-				case '\0':
-					LOCK (pipe);
-					file = stdin;
-					goto expr;
-					break;
-
-				default:
-					fprintf (stderr, "[ !! ] Bad usage. See sdread -h\n");
-					return 1;
-					break;
-				}
-			}
-			else { /// argv[i][0] != '-'
-				f_type = SOURCE;
-				goto open;
-			}
-		}
-		else /// promise file type
-			goto open;
-	}
-
-	else { /// interpret as `sdread -`
-		// TODO: detect pipe
-		LOCK (pipe);
-		file = stdin;
-	}
-
-	if (promise)
-		Err (0x02, "");
-
-	if (0) {
-	open: {
-		if (! (file = fopen (argv[i], "rb")))
-			Err (0x01, argv[i]);
-	}
-	expr: ;
-	}
-
-	vm_init ();
+	vm_init (); // ... then start the virtual machine
 
 	/// TODO: maybe accept multiple files as modules? this would become a loop
-	switch (f_type) {
 
-	case SOURCE:
-
-		/// main callback loop (vm)
-		while (src_callback != SRC_END)
+	/// main callback loop (vm)
+	if (FILE_IS_SOURCE (p.ftype))
+		while (src_callback != SRC_END) {
 			if (src_stack (src_callback))
 				stack_callback (src_callback);
-			parse_src (file, data, STDBUFFER);
-
-		break;
+			parse_src (p.file, data, STDBUFFER);
+		}
 
 	/// TODO: bytecode callback loop
-	case BYTECODE:
-		parse_bc (file, data, STDBUFFER);
-		break;
+	else if (FILE_IS_BYTECODE (p.ftype))
+		parse_bc (p.file, data, STDBUFFER);
 
-	}
+	/// close `file` on exit if not a pipe
+	if (! FILE_IS_FIFO (p.ftype))
+		fclose (p.file);
 
-	/* close `file` on exit */
-	if (!pipe)
-		fclose (file);
-
-	return 0;
+	quit: return RET;
 
 }

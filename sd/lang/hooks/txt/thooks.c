@@ -164,7 +164,7 @@ void tty_expr (_T t) {
 
 }
 
-_at_handler at_handler[] = {
+const _at_handler at_handler[] = {
 	[TTY_OBJ_REF_DEL] = &tty_obj_ref_del,
 	[TTY_BITWISE_OP] = &tty_bitwise_op,
 	[TTY_BOOL_CMP] = &tty_bool_cmp,

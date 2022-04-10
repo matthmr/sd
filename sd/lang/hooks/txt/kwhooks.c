@@ -58,7 +58,7 @@ void kwty_env (_Kw kw) {}
 void kwty_acc (_Kw kw) {}
 void kwty_loop (_Kw kw) {}
 
-_akw_handler akw_handler[] = {
+const _akw_handler akw_handler[] = {
 	[KWTY_BUILTIN_OBJ] = &kwty_builtin_obj,
 	[KWTY_BUILTIN_TY] = &kwty_builtin_ty,
 	[KWTY_OBJ_DEF] = &kwty_obj_def,

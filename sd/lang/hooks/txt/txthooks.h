@@ -31,8 +31,8 @@ extern bool lock_stream;
 typedef void (*_at_handler)(_T);
 typedef void (*_akw_handler)(_Kw);
 
-extern _at_handler at_handler[];
-extern _akw_handler akw_handler[];
+extern const _at_handler at_handler[];
+extern const _akw_handler akw_handler[];
 
 #  define at_hook(x) at_handler[x.ty] (x)
 #  define akw_hook(x) akw_handler[x.ty] (x)

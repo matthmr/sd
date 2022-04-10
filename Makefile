@@ -74,9 +74,9 @@ parser: sd/intr/exec/sdread.o\
 	@echo [ .. ] Finished compilation
 man: man/man1/sdread.1 man/man1/sdc.1
 	@echo [ .. ] Compressing 'sdread' man page
-	@${GZ} -c man/man1/sdread.1 > man/man1/sdread.1.gz
+	${GZ} -c man/man1/sdread.1 > man/man1/sdread.1.gz
 	@echo [ .. ] Compressing 'sdc' man page
-	@${GZ} -c man/man1/sdc.1 > man/man1/sdc.1.gz
+	${GZ} -c man/man1/sdc.1 > man/man1/sdc.1.gz
 compiler: sd/comp/sdc.o\
 	lib/libsdparse.a\
 	lib/libsdutils.a\
