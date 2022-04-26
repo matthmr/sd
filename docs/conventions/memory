@@ -8,7 +8,7 @@ Stack
 -----
 
 The stack starts growing at `main`. What we do is get the value of the
-stack pointer as its in the base, store it in `host_sp` and set callbacks for
+stack pointer as it's in the base, store it in `host_sp` and set callbacks for
 
 1. pushing
 2. popping

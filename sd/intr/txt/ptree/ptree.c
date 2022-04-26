@@ -4,11 +4,11 @@
  * text SD source code
  */
 
+#include <stdlib.h>
+
 #include <sd/lang/expr/drivers/drivers.h>
 #include <sd/lang/tokens/utils/txtmaps.h>
 #include <sd/lang/hooks/txt/txthooks.h>
-#include <sd/lang/callback/ptreecb.h>
-#include <sd/lang/callback/vmcb.h>
 #include <sd/lang/vm/vm.h>
 
 #include <sd/utils/types/shared.h>
@@ -18,206 +18,218 @@
 #include <sd/intr/txt/ptree/ptree.h>
 #include <sd/intr/limits.h>
 
-#define populate if (!ptree.curr.branch) set_branch()
+struct parse_tree ptree;
 
-// uint ptree_buffer_size = (6*KiB) / sizeof (Heap);
-// Heap ptree_buffer[(6*KiB) / sizeof (Heap)];
+static Node* branch[3];
+static Driver* driver[3];
 
-bool direction;
-d_addr prec_mask = (d_addr) 0xf;
-
-static Heap* branch[3];
 static bool res_open;
 
 // -- tree functionality -- //
 static void set_branch (void);
-static void append_branch (void);
-static void prepend_branch (void);
+static void append_branch (void);  // append.slave
+static void prepend_branch (void); // prepend.slave
+static void calc_branch (Node**);
 
 // -- branch functionality -- //
 static void set_op (Op);
-static void append_op (Op);
-static void prepend_op (Op);
+static void append_op (Op);  // append.master
+static void prepend_op (Op); // prepend.master
+static void subs_op (Op, dir);
 
 void set_branch (void) {
 
-	union tag_item tag;
+	/**
+	 * the branch (& parse tree) are setup as
+	 *
+	 *             [PARENT] {1, 2}
+	 *      [CHILD1] {-1}  [CHILD2] {-2}
+	 *
+	 */
 
-	Driver gen_driver = {
-		.manifest = DRIVER_NULL,
-		.attr_bits = bits_32i,
-		.attr_qual = qual_def,
-	};
+	// populate ptree.buffer
+	ptree_buffer[PARENT].offset.child._1 = 1;
+	ptree_buffer[PARENT].offset.child._2 = 2;
 
-	tag.driver = gen_driver;
+	ptree_buffer[CHILD1].offset.parent = -1;
+	ptree_buffer[CHILD2].offset.parent = -2;
 
-	Item item = {
-		.get = tag,
-		.type = EMPTY,
-	};
+	// set up the branch
+	branch[PARENT] = &ptree.buffer[PARENT];
+	branch[CHILD1] = &ptree.buffer[CHILD1];
+	branch[CHILD2] = &ptree.buffer[CHILD2];
 
-	Heap* buffer = (Heap*) ptree.buffer;
+	// initialize branch
+	branch[PARENT]->item.type = TY_OP;
+	branch[CHILD1]->item.type = TY_DRIVER;
+	branch[CHILD2]->item.type = TY_DRIVER;
 
-	buffer[PARENT].item = item;
-	buffer[CHILD1].item = item;
-	buffer[CHILD2].item = item;
+	// set up the drivers
+	driver[CHILD1] = &branch[PARENT]->item._.driver;
+	driver[CHILD2] = &branch[PARENT]->item._.driver;
 
-	buffer[PARENT].offset.child._1 = 1;
-	buffer[PARENT].offset.child._2 = 2;
-	buffer[CHILD1].offset.parent = -1;
-	buffer[CHILD2].offset.parent = -2;
+	// initialize drivers
+	driver[CHILD1]->attr_bits = bits_32;
+	driver[CHILD2]->attr_bits = bits_32;
 
-	branch[0] = &ptree.buffer[0];
-	branch[1] = &ptree.buffer[1];
-	branch[2] = &ptree.buffer[2];
-
+	// set up `ptree.curr`
 	ptree.curr.branch = branch;
+	ptree.curr.driver = driver;
 
+	// set up `ptree.branch`
 	ptree.branch.low = *branch;
 	ptree.branch.high = *branch;
 
-	ptree.curr.index += 3;
-
 }
 
+// append.slave
 void append_branch (void) {
 
-	// readjust branch position
-	branch[PARENT] = branch[CHILD2]+1;
-	branch[CHILD2] = branch[CHILD2]+2;
-
-	// derive child1
-	branch[CHILD1] += 1;
-
-	// readjust offsets
-	branch[CHILD2]->offset.parent = -1;
-	branch[CHILD1]->offset.parent = +1;
-
-	// assign new high
-	if (branch[PARENT] > ptree.branch.high)
-		ptree.branch.high = *branch;
 }
 
+// prepend.slave
 void prepend_branch (void) {
-
-	// readjust branch position
-	branch[PARENT] = branch[CHILD2]+1;
-	branch[CHILD2] = branch[CHILD2]+2;
-
-	// derive child1
-	branch[CHILD1] -= 1;
-
-	// readjust offsets
-	branch[CHILD1]->offset.parent = +3;
-	branch[CHILD2]->offset.parent = -1;
-
-	// assign new low
-	ptree.branch.low = *branch;
 
 }
 
 void set_op (Op op) {
-	ptree.curr.branch[PARENT]->item.type = OP;
-	ptree.curr.branch[PARENT]->item.get.op = op;
+	branch[PARENT]->item.type = TY_OP;
+	branch[PARENT]->item._.op = op;
 
-	ptree.curr.op = ptree.curr.branch[PARENT]->item.get.op;
+	ptree.curr.children++;
 }
 
+// append.master
 void append_op (Op op) {
+	branch[AVAILABLE_CHILD]->item.type = TY_OP;
+	branch[AVAILABLE_CHILD]->item._.op = op;
 
-	// append child2 as op
-	branch[PARENT]->offset.children._2 += 1;
-
-	// append type
-	append_branch ();
-	branch[PARENT]->item.type = OP;
-	branch[PARENT]->item.get.op = op;
-
-	parent->offset.children._2 += 1;
-
-	ptree.curr.op = branch[PARENT]->item.get.op;
-	ptree.curr.children = 1;
-	ptree.curr.index += 2;
+	ptree.curr.children++;
 }
 
+// prepend.master
 void prepend_op (Op op) {
 
-	// prepend type
-	prepend_branch ();
-	branch[PARENT]->item.type = OP;
-	branch[PARENT]->item.get.op = op;
+}
 
-	// prepend child
-	branch[CHILD1] = parent;
-	branch[CHILD1]->offset.parent = 2;
+void subs_op (Op op, dir d) {
 
-	ptree.curr.op = branch[PARENT]->item.get.op;
-	ptree.curr.children = 1;
-	ptree.curr.index += 2;
 }
 
 // -- EXPORTS -- //
+void ptree_add_driver_bits (int kw) { }
+void ptree_add_driver_qual (int kw) { }
+void ptree_add_driver_manifest (int kw) {
 
-void ptree_cdriver_append (int driver) { }
-void ptree_cdriver_set (int driver) { }
+	LOCK (ptree.expect._);
 
-// TODO: add the literal under a driver so that
-//       we can reuse it for uwords as well
+	Driver driver = {
+		.manifest = DRIVER_NULL,
+		.drivee = { .as32 = 0 },
+		.attr_bits = bits_32,
+		.attr_qual = qual_here,
+		.tag = AS_INLINE,
+	};
+
+	driver.manifest =  (kw);
+
+	ptree.expect.driver = driver;
+	**ptree.curr.driver = ptree.expect.driver;
+
+}
+
 void ptree_add_literal (d_addr literal) {
 
-	populate;
+	Driver literal_driver = {
+		.manifest = DRIVER_LITERAL,
+		.drivee = 0,
 
-	// E0x0b taken care of by the hooks
-	if (ptree.curr.children == 0) {
-		ptree.curr.branch[CHILD1]->item.get.op = literal; // debug
-		ptree.curr.children = 1;
+		.attr_bits = bits_32,
+		.attr_qual = qual_here,
+
+		.tag = AS_INLINE,
+	};
+
+	// edge case: first branch
+	if (ptree.branch.low == ptree.branch.high) {
+
+		// edge case: first driver == no cast; assume 32 bits
+		if (! ptree.curr.op)
+			goto _ptree_add_literal_as32;
+
+		else if (driver[CURRENT_CHILD]->attr_bits == bits_32)
+			goto _ptree_add_literal_as32;
+		else
+			goto _ptree_add_literal_as64;
+
+		_ptree_add_literal_as64: {
+			literal_driver.drivee.as64 = literal;
+			goto _ptree_add_literal_out;
+		}
+		_ptree_add_literal_as32: {
+			literal_driver.drivee.as32 = (d_addrl) literal;
+			goto _ptree_add_literal_out;
+		}
+
+		_ptree_add_literal_out:
+			branch[AVAILABLE_CHILD]->item._.driver = literal_driver;
+
+		ptree.curr.children++;
+
 	}
-	else if (ptree.curr.children == 1) {
-		ptree.curr.branch[CHILD2]->item.get.op = literal; // debug
-		ptree.curr.children = 0;
-	}
+
+	// normal case: can inherit from sibblings OR from cast
+
+	ptree.curr.children++;
 
 }
 
-void ptree_add_op (uint op) {
+void ptree_add_op (Op op) {
 
-	populate;
-
-	// add as orphan
-	if (ptree.curr.op == OP_NULL)
+	// edge case: first branch
+	if (ptree.branch.low == ptree.branch.high) {
 		set_op (op);
-
-	/// TODO: append if bracket is on the right; otherwise prepend
-
-	// add as parent
-	else if (
-	  (prec (ptree.curr.op) < prec (op) && !ptree.curr.bracket) ||
-	  (res_open && !ptree.curr.bracket)
-	) {
-
-		if (res_open) {
-			H_RESET (res_open);
-			ptree.curr.bracket--;
-		};
-
-		prepend_op (op);
+		return;
 	}
 
-	else if (ass (ptree.curr.op) == LR)
+	// normal case: check precedence; hook with whichever action is appropiate
+	else if (prec (op) > prec (ptree.curr.op))
 		prepend_op (op);
-
-	// add as child
-	else
+	else if (prec (op) < prec (ptree.curr.op))
 		append_op (op);
+	else if (ass (op) == LR) {
+
+	}
+	else {
+
+	}
 
 }
 
-void ptree_add_uop (uint);
+void ptree_add_uop (Op op) {
 
-void ptree_add_float (float literal) { }
+	// edge case: first branch
+	if (ptree.branch.low == ptree.branch.high) {
+		set_op (op);
+		branch[UNARY]->item.type = TY_DRIVER;
+		branch[UNARY]->item._.driver.manifest = DRIVER_UNARY;
+		return;
+	}
+	else ;
 
-void ptree_del_open (void) { }
-void ptree_del_close (void) { }
+}
+
+void ptree_add_float (float literal) {
+
+}
+
+void ptree_del_open (void) {
+
+}
+
+void ptree_del_close (void) {
+
+}
 
 void ptree_bracket_close (void) {
 	H_LOCK (res_open);
@@ -229,42 +241,50 @@ void ptree_bracket_open (void) {
 
 void ptree_exec (void) {
 
-	struct curr clean_curr = {
-		.children = 0,
-		.bracket = 0,
-		.index = 0,
-
-		.driver = NULL,
-		.branch = NULL,
-	};
-
-	struct branch clean_branch = {
-		.low = NULL,
-		.high = NULL,
-	};
-
-	ptree.curr = clean_curr;
-	ptree.branch = clean_branch;
-
 }
 
-struct parse_tree ptree = {
-	.buffer = ptree_buffer,
+void pt_init (void) {
 
-	.curr = {
+	struct curr curr = {
 		// -- flags -- //
 		.children = 0,
 		.bracket = 0,
-		.index = 0,
 		.op = OP_NULL,
 
 		// -- pointers -- //
-		.driver = NULL,
-		.branch = NULL,
-	},
+		.driver = driver,
+		.branch = branch,
+	};
 
-	.branch = {
+	struct branch branch = {
 		.low = NULL,
 		.high = NULL,
-	},
-};
+	};
+
+	Driver expect_driver = {
+		.manifest = DRIVER_NULL,
+		.drivee = { .as32 = 0 },
+
+		.attr_bits = bits_32,
+		.attr_qual = qual_here|qual_signed,
+
+		.tag = AS_INLINE,
+	};
+
+	ptree.curr = curr;
+	ptree.branch = branch;
+	ptree.expect.driver = expect_driver;
+	ptree.expect._ = false;
+
+	// TODO: implement a bootstrapped version of `malloc`
+	// for heap memory allocation
+	ptree_buffer = ptree.buffer = malloc (
+		ptree.buffer_size = (STDBUFFER / 2) / sizeof (Node)
+	);
+
+	bk_stack = ptree.bk_stack =
+		&ptree.buffer [ptree.buffer_size-1];
+
+	set_branch ();
+
+}

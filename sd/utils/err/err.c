@@ -39,15 +39,15 @@ const char* errmsg[] = {
 	" E0x08: keyword cannot be uword", // let let
 	" E0x09: unhookable word ", // a b
 	" E0x0a: missing ", // [1;
-	" E0x0b: literals are unhookable without `expr`s ", // 1 1
+	" E0x0b: literals are unhookable without expr token", // 1 1
 
 };
 
-inline void e_set (Time t) {
+void e_set (Time t) {
 	fmt = (char*) errfmt[t];
 	vfmt = (char*) verrfmt[t];
 }
 
-inline void Err (int code, char* info) {
+void Err (int code, char* info) {
 	Die (fmt, errmsg[code], info, code);
 }

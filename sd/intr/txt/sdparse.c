@@ -28,6 +28,7 @@
 #include <sd/intr/exec/sdread.h>
 #include <sd/intr/limits.h>
 
+uint e_eof;
 uint ln = 1;
 uint wstart_i = 0;
 uint wsize = 0;
@@ -148,9 +149,10 @@ void parser_stream (char* data, Obj* m_root, uint e_eof) {
 
 	const uint lnsize = (const uint) e_eof;
 
+	// main parsing loop
 	for (i = 0; i < lnsize; i++) {
 
-		if (lock_stream)
+		if (lock_stream) {
 
 			if (gs_ctxt.cmt) {
 				rstream (H_RESET (gs_ctxt.cmt));
@@ -176,6 +178,7 @@ void parser_stream (char* data, Obj* m_root, uint e_eof) {
 					break;
 				}
 			}
+		}
 
 		c = data[i];
 
@@ -224,17 +227,8 @@ void parse_src (FILE* file, char* _data, const uint buffer_size) {
 	/// ptree callback handle
 	if (ptree_stack (ptree_callback))
 		;//
-	else { /// if not on callback, act as if being called for the first time
-
-		uint e_eof;
-		e_set (TIME_TXT);
-
-		Obj l_root;
-		mkchild (&g_root, &l_root);
-		// g_self = CAST_addr l_root;
-
+	else /// if not on callback, act as if being called for the first time
 		ln = 1;
-	}
 
 	do {
 		e_eof = fread (_data, 1, buffer_size, file);

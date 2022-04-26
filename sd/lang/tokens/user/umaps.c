@@ -1,6 +1,6 @@
 /**
  * This file contains mappings
- * for user defined words
+ * for user-defined words
  */
 
 #include <sd/utils/types/shared.h>

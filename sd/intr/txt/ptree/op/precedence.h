@@ -22,6 +22,6 @@ struct precedence {
 
 typedef struct precedence Prec;
 
-extern const Prec const opptab[];
+extern const Prec opptab[];
 
 #endif

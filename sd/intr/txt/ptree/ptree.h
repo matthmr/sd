@@ -7,9 +7,12 @@
 #ifndef LOCK_PARSE_TREE
 #  define LOCK_PARSE_TREE
 
+// -- `branch` values -- //
 #  define PARENT 0
 #  define CHILD1 1
 #  define CHILD2 2
+#  define AVAILABLE_CHILD ptree.curr.children+1
+#  define CURRENT_CHILD ptree.curr.children
 
 #  include <sd/lang/expr/drivers/drivers.h>
 #  include <sd/lang/expr/expr.h>
@@ -18,109 +21,119 @@
 
 #  include <sd/intr/limits.h>
 
-// -- `direction` values
-#  define LEFT 0
-#  define RIGHT 1
+// -- `direction` values; they map to `branch`'s children -- //
+#  define LEFT CHILD1
+#  define RIGHT CHILD2
+#  define dir bool
 
-extern unsigned char direction;
+#  define UNARY LEFT
 
-extern d_addr prec_mask;
-
-// for `union offset`
+// `struct offset`
 struct child_offset {
 	short _1;
 	short _2;
 };
 
-// for `union offset`
-struct prec_offset {
-	short next;
-	short prev;
-};
-
-// for `struct heap`
-union offset {
+// `struct node`
+struct offset {
 	short parent;
-	struct prec_offset prec;
 	struct child_offset child;
 };
 
-// for `struct item`
+// `struct item`; node.item's content
 union tag_item {
 	Driver driver;
 	Op op;
 };
 
-// for `struct item`
+// `struct item`; node.item's tag
 enum enum_item {
-	DRIVER,
-	EMPTY,
-	OP,
+	TY_OP = -2,
+	TY_DRIVER,
+	TY_EMPTY=0, // empty item indicates the parent is an unary operator
 };
 
-// for `struct heap`
+// `struct node`
 struct item {
-	union tag_item get;
+	union tag_item _;
 	enum enum_item type;
 };
 
 typedef struct item Item;
-typedef union offset Offset;
+typedef struct offset Offset;
 
-struct heap {
+struct node {
 	Item item;
 	Offset offset;
 };
 
-typedef struct heap Heap;
+typedef struct node Node;
 
-// for `struct parse_tree`
+// `struct parse_tree`
 struct curr {
-	bool children;
+
+	// flags
+	u8 children;
 	uint bracket;
-	uint index;
 	Op op;
 
-	Heap** branch;
-	Driver* driver;
+	// pointers
+	Node** branch;
+	Driver** driver;
+
 };
 
-// for `struct parse_tree`
+// `struct parse_tree`
 struct branch {
-	Heap* low;
-	Heap* high;
+	Node* low;
+	Node* high;
+};
+
+// `struct parse_tree`
+struct expect {
+	Driver driver;
+	bool _;
 };
 
 struct parse_tree {
-	Heap* buffer;
+	Node* buffer; // shorthand
+	Node* bk_stack; // shorthand
 
-	struct curr curr;
-	struct branch branch;
+	uint buffer_size; // metadata @ptree.buffer
+
+	struct expect expect; // metadata @ptree.buffer.item._.driver
+	struct curr curr; // metadata @ptree
+	struct branch branch; // metadata @ptree.buffer
 };
 
 extern struct parse_tree ptree;
-extern Heap* ptree_buffer;
+extern Node* ptree_buffer;
+extern Node* bk_stack;
 
 // -- drivers -- //
-void ptree_cdriver_append (int);
-void ptree_cdriver_set (int);
+void ptree_add_driver_bits (int);
+void ptree_add_driver_qual (int);
+void ptree_add_driver_manifest (int);
 
-// -- hookings -- //
+// -- hooks -- //
 void ptree_add_literal (d_addr);
 void ptree_add_float (float);
-void ptree_add_op (uint);
-void ptree_add_uop (uint);
-// void ptree_add_uword (Hash);
+void ptree_add_double (double);
+void ptree_add_op (Op);
+void ptree_add_uop (Op); // u: unary
+// void ptree_add_uword (Hash); // u: user
 
-// -- delimiters/brackets -- //
+//   -- delimiters/brackets -- //
 void ptree_del_open (void);
 void ptree_del_close (void);
 
-/// resoluted by `ptree_add_op`; reset by `ptree_exec`
 void ptree_bracket_close (void);
 void ptree_bracket_open (void);
 
-// -- resolution -- //
+//   -- resolution; error checked in the callee's scope -- //
 void ptree_exec (void);
+
+// -- init -- //
+void pt_init (void);
 
 #endif

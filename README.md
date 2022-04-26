@@ -25,7 +25,7 @@ The `Makefile` also has a couple environment variables to pass through:
 
 [FLAG]: [EXPLANATION] (DEFAULT)
 
-- `CC`: the C compiler (GCC)
+- `CC`: the C compiler (clang)
 - `CCFLAG`: additional flags to pass to the compiler ()
 - `BITS`: the machine memory address bit length (64)
 - `INCLUDE`: additional include path to pass to the compiler (-I${PWD})
@@ -35,7 +35,7 @@ The `Makefile` also has a couple environment variables to pass through:
 
 Additionally for contributors, the `Makefile` also supports ctags with the `make tags` target.
 
-It can be compiled with {G}CC or its windows equivalents.
+It can be compiled with any modern C compiler.
 After compilation, the results will be stored at `/bin` (with the repository as root).
 
 # Documentation

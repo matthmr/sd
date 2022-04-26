@@ -47,30 +47,37 @@ void tty_syn (_T t) {
 
 }
 
+// @operator syntax: moslty infix, unary prefix
 void tty_math_op (_T t) {
+
+	// infix test: one child and non-null driver == non-unary operator == waiting for another driver
+	if (ptree.curr.children == 1 && ptree.curr.high->item._.driver != DRIVER_NULL)
+		;//ERR
+
 	switch (t.t) {
 	case '+':
-		ptree.curr.op
-			? ptree_add_op (OP_PLUS)
-			: ptree_add_uop (OP_UPLUS);
+		ptree.curr.children
+			? ptree_add_op (OP_MATHPLUS)
+			: ptree_add_uop (OP_UMATHPLUS);
 		break;
 
 	case '*':
-		ptree_add_op (OP_TIMES);
+		ptree_add_op (OP_MATHTIMES);
 		break;
 
 	case '-':
-		ptree.curr.op
-			? ptree_add_op (OP_MINUS)
-			: ptree_add_uop (OP_UMINUS);
+		ptree.curr.children
+			? ptree_add_op (OP_MATHMINUS)
+			: ptree_add_uop (OP_UMATHMINUS);
 		break;
 
 	case '%':
-		ptree_add_op (OP_MOD);
+		ptree_add_op (OP_MATHMOD);
 		break;
 	}
 }
 
+// @operator syntax: moslty infix, unary prefix
 void tty_bitwise_op (_T t) {
 
 	switch (t.t) {
@@ -120,6 +127,7 @@ void tty_obj_ref_del (_T t) {
 
 void tty_bool_cmp (_T t) {} // has doubles
 
+// @operator syntax: moslty infix, unary prefix
 void tty_obj_ref (_T t) {
 
 	switch (t.t) {

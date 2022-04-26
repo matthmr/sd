@@ -6,18 +6,15 @@
 **/*.core*
 bin/sd*
 
-# Units
-**/unit/
-
 # Gzip man pages
 **/*.gz
 
-# Tags
+# Dev
 **/tags
-
-# Logging
+**/compile_*
+.cache
 **/*.log
 **/*.task
-
-# Misc
+unit/
+**/.vim
 .vscode/**

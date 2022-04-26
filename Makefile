@@ -1,6 +1,6 @@
 # Made by mH (https://github.com/matthmr)
 ### COMPILER ###
-CC?=gcc
+CC?=clang
 INCLUDE?=-I${PWD}
 BITS?=64
 CCFLAG?=
@@ -85,7 +85,7 @@ compiler: sd/comp/sdc.o\
 	@echo [ .. ] Linking to 'sdc'
 	${CC} ${CCFLAG} -o bin/sdc sd/comp/sdc.o
 	@echo [ .. ] Finished compilation
-language: lib/libsdlang.so
+#language: lib/libsdlang.so
 ### END TARGETS ###
 ### BEGIN COMPILING ###
 sd/comp/sdc.o: sd/comp/sdc.c sd/comp/sdc.h
@@ -140,6 +140,9 @@ sd/lang/vm/vm.o: sd/lang/vm/vm.c sd/lang/vm/vm.h
 sd/lang/atom/atom.o: sd/lang/atom/atom.c sd/lang/atom/atom.h
 	@echo [ .. ] Compiling 'atom.o'
 	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/atom/atom.c -o sd/lang/atom/atom.o
+sd/lang/expr/drivers/drivers.o: sd/lang/expr/drivers/drivers.c sd/lang/expr/drivers/drivers.h
+	@echo [ .. ] Compiling 'drivers.o'
+	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/expr/drivers/drivers.c -o sd/lang/expr/drivers/drivers.o
 ### END COMPILING ###
 ### BEGIN COMPILING UTILS ###
 sd/lang/tokens/txt.o: sd/lang/tokens/txt.c sd/lang/tokens/txt.h
@@ -170,6 +173,7 @@ lib/libsdutils.a: sd/utils/utils.o\
 	${AR} ${ARFLAG} lib/libsdutils.a $?
 lib/libsdparse.a: sd/lang/hooks/txt/txthooks.o\
 	sd/intr/txt/ptree/op/precedence.o\
+	sd/lang/expr/drivers/drivers.o\
 	sd/intr/bytecode/sdbcparse.o\
 	sd/lang/hooks/txt/kwhooks.o\
 	sd/lang/hooks/txt/thooks.o\

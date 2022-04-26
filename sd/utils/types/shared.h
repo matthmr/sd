@@ -4,24 +4,22 @@
  */
 
 #ifndef NULL
-#  define NULL (void*)0x0
+#  define NULL ((void*)0x0)
 #endif
 
 #ifndef LOCK_TYPES
 #  define LOCK_TYPES
 
 typedef unsigned char bool;
-typedef unsigned char _bool;
 typedef unsigned char byte;
-typedef unsigned char ins;
 
 #endif
 
 #ifndef LOCK_BOOLEAN
 #  define LOCK_BOOLEAN
 
-#  define true 0b1
-#  define false 0b0
+#  define true (char)1
+#  define false (char)1
 
 #endif
 
@@ -38,12 +36,15 @@ typedef unsigned int uint;
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
-#if ADDR_BITS == 64
+
+#  if ADDR_BITS == 64
 typedef unsigned long u64;
 typedef unsigned long d_addr;
-#else
+typedef unsigned int d_addrl;
+#  else
 typedef unsigned int d_addr;
-#endif
+typedef unsigned int d_addrl;
+#  endif
 
 #endif
 
@@ -60,16 +61,16 @@ typedef unsigned int d_addr;
 #ifndef LOCK_MAGICN
 #  define LOCK_MAGICN
 
-#  define ASCII_NUM_OFFSET 0x30
-#  define ASCII_LHEX_OFFSET 0x57
-#  define ASCII_UHEX_OFFSET ASCII_LHEX_OFFSET - ASCII_CASE_OFFSET
-#  define ASCII_CASE_OFFSET 0x20
+#  define ASCII_NUM_OFFSET 0x30  // positive offset from ASCII to decimal (IF VALID)
+#  define ASCII_LHEX_OFFSET 0x57 // positive offset from ASCII lowercase hex to decimal
+#  define ASCII_UHEX_OFFSET 0x37 // positive offset from ASCII uppercase hex to decimal
+#  define ASCII_CASE_OFFSET 0x20 // positive offset from ASCII uppercase to lowercase; negative otherwise
 
 #endif
 
 #ifndef LOCK_MEMMACROS
 #  define LOCK_MEMMACROS
 
-#  define MEMSIZE(x) sizeof (x) / sizeof (*x)
+#  define BYTES(x) sizeof (x) / sizeof (*x)
 
 #endif

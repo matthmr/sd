@@ -7,55 +7,57 @@
 
 #include <sd/lang/expr/expr.h>
 
-// * Higher precedence means it's resoluted first
-// as in:
-//      [HIGH]     -->     *
-//   [LOW]  [LOW]  -->   +   +
-const Prec const opptab[] = {
-	[OP_DRIVE] = {0, LR}, // '[', ']'
+// * Lower precedence (close to zero)
+// means it's resoluted first as in:
+//        [HIGH]       -->     +   (6)
+//   [LOW]      [LOW]  -->   *   * (5)
+const Prec opptab[] = {
+	[OP_CAST] = {1, LR},
 
-	[OP_MCHILD] = {1, LR},
+	[OP_MEMCHILD] = {2, LR},
+	[OP_MEMCALL] = {2, LR},
 
-	[OP_INC] = {2, LR},
-	[OP_DEC] = {2, LR},
-	[OP_MCAST] = {2, LR},
-	[OP_MCALL] = {2, LR},
-	[OP_MSUB] = {2, LR},
+	[OP_UMATHINC] = {3, LR},
+	[OP_UMATHDEC] = {3, LR},
+	[OP_MEMCAST] = {3, LR},
 
-	[OP_LNOT] = {3, RL},
-	[OP_BWNOT] = {3, RL},
-	[OP_UPLUS] = {3, RL},
-	[OP_UMINUS] = {3, RL},
+	[OP_LOGNOT] = {4, RL},
+	[OP_BITWNOT] = {4, RL},
+	[OP_UMATHPLUS] = {4, RL},
+	[OP_UMATHMINUS] = {4, RL},
 
-	[OP_TIMES] = {4, LR},
-	[OP_DIV] = {4, LR},
-	[OP_MOD] = {4, LR},
+	[OP_MATHTIMES] = {5, LR},
+	[OP_MATHDIV] = {5, LR},
+	[OP_MATHMOD] = {5, LR},
 
-	[OP_PLUS] = {5, LR},
-	[OP_MINUS] = {5, LR},
+	[OP_MATHPLUS] = {6, LR},
+	[OP_MATHMINUS] = {6, LR},
 
-	[OP_BWRS] = {5, LR},
-	[OP_BWLS] = {5, LR},
+	[OP_BITWRS] = {6, LR},
+	[OP_BITWLS] = {6, LR},
 
-	[OP_LLT] = {6, LR},
-	[OP_LGT] = {6, LR},
-	[OP_LLTEQ] = {6, LR},
-	[OP_LGTEQ] = {6, LR},
+	[OP_LOGLT] = {7, LR},
+	[OP_LOGGT] = {7, LR},
+	[OP_LOGLTEQ] = {7, LR},
+	[OP_LOGGTEQ] = {7, LR},
 
-	[OP_LEQ] = {7, LR},
-	[OP_LNEQ] = {7, LR},
+	[OP_LOGEQ] = {8, LR},
+	[OP_LOGNEQ] = {8, LR},
 
-	[OP_BWAND] = {8, LR},
+	[OP_BITWAND] = {9, LR},
 
-	[OP_BWXOR] = {9, LR},
+	[OP_BITWXOR] = {10, LR},
 
-	[OP_BWOR] = {10, LR},
+	[OP_BITWOR] = {11, LR},
 
-	[OP_LAND] = {11, LR},
+	[OP_LOGAND] = {12, LR},
 
-	[OP_LOR] = {12, LR},
+	[OP_LOGOR] = {13, LR},
 
-	[OP_MASS] = {13, RL}, // assign
+	[OP_MEMASS] = {14, RL}, // assign
 
-	[OP_MSEP] = {14, LR},
+	[OP_MEMSEP] = {15, LR}, // separator
+
+	[OP_FLOWEXPR] = {16, LR},
+	[OP_FLOWLOOP] = {16, LR},
 };
