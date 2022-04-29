@@ -8,18 +8,18 @@
 #ifndef LOCK_LANG
 #  define LOCK_LANG
 
-// `id` comes from <sd/lang/tokens/utils/txtmaps.h>
+// `id` comes from <sd/lang/tokens/gen/txtmaps.h>
 typedef unsigned short id;
 
 #  include <sd/utils/utils.h>
 
 // interface for:
-//   * token compounding "<<"
-//   * token matching "{ ... }" (open and close are separate)
-//   * token masking "+"
-//   * token suffixing "1++"
-enum pty {
-	PTY_NULL = BIT (0),
+//   * token compounding "<<"       (not necessarily the same token '!=')
+//   * token matching    "{ ... }"  (open and close are separate)
+//   * token masking     "+"        (as in plus operator / unary plus operator)
+//   * token suffixing   "1++"      (as in [ 'A*B', '*AB', 'AB*' ])
+enum vty {
+	AS_IS = BIT (0),
 
 	COMPOUND = BIT (1),    // %
 	MASK = BIT (2),        // +
@@ -57,11 +57,12 @@ enum tty {
 	TTY_EXPR,
 	TTY_SYN,
 	TTY_PIPE,
+	TTY_COND,
 };
 
 typedef enum kwty Kwty;
 typedef enum tty Tty;
-typedef enum pty Pty;
+typedef enum vty Vty;
 
 #endif
 
@@ -74,11 +75,10 @@ typedef struct _kw {
 	Kwty ty;
 } _Kw;
 
-
 typedef struct _t {
 	char t;
 	id id;
-	Pty pty;
+	Vty vty;
 	Tty ty;
 } _T;
 

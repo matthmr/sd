@@ -10,7 +10,7 @@
 
 #  define ESC "\x1b["
 
-#  define RESET ESC "0m"
+#  define _RESET ESC "0m"
 
 // -- style -- //
 #  define BOLD ESC "1m"

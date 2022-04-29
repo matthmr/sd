@@ -3,14 +3,14 @@
  * for all keywords and tokens of
  * the standard SD language
  */
-#include <sd/lang/tokens/utils/txtmaps.h>
+#include <sd/lang/tokens/gen/txtmaps.h>
 #include <sd/lang/core/obj.h>
 #include <sd/lang/lang.h>
 
 #include <sd/utils/types/shared.h>
 
 #define kw(a,b,c) { .kw = a, .id = b, .ty = c }
-#define t(a,b,c,d) { .t = a, .id = b, .pty = c, .ty = d }
+#define t(a,b,c,d) { .t = a, .id = b, .vty = c, .ty = d }
 
 const _Kw keyword_manifest[] = {
 
@@ -42,10 +42,10 @@ const _Kw keyword_manifest[] = {
 	[KW_CONST] = kw ("const", _CONST, KWTY_QUAL),
 	[KW_STATIC] = kw ("static", _STATIC, KWTY_QUAL),
 	[KW_UNSIGNED] = kw ("unsigned", _UNSIGNED, KWTY_QUAL),
+	[KW_SIGNED] = kw ("signed", _SIGNED, KWTY_QUAL),
 
 	/* modifiers */
 	[KW_ENUM] = kw ("enum", _ENUM, KWTY_MOD),
-	[KW_ARRAY] = kw ("array", _ARRAY, KWTY_MOD),
 
 	/* object definition */
 	[KW_RM] = kw ("rm", _RM, KWTY_OBJ_DEF),
@@ -99,45 +99,48 @@ const _T token_manifest[] = {
 	[T_MOD_END] = t ('>', _MOD_END, MATCH_CLOSE|COMPOUND|MASK, TTY_OBJ_REF_DEL),
 	[T_PROC_BEGIN] = t ('(', _PROC_BEGIN, MATCH_OPEN, TTY_OBJ_REF_DEL),
 	[T_PROC_END] = t (')', _PROC_END, MATCH_CLOSE, TTY_OBJ_REF_DEL),
-	[T_SEP] = t (',', _SEP, PTY_NULL, TTY_OBJ_REF_DEL),
+	[T_SEP] = t (',', _SEP, AS_IS, TTY_OBJ_REF_DEL),
 
 	/* object reference */
-	[T_CHILD] = t ('/', _CHILD, COMPOUND|MASK, TTY_OBJ_REF),
-	[T_DEREF] = t ('@', _DEREF, COMPOUND, TTY_OBJ_REF),
+	[T_CHILD] = t ('/', _CHILD, COMPOUND, TTY_OBJ_REF),
+	[T_DEREF] = t ('@', _DEREF, AS_IS, TTY_OBJ_REF),
 	[T_CAST] = t ('.', _CAST, COMPOUND, TTY_OBJ_REF),
 
 	/* object definition */
 	[T_BODY_BEGIN] = t ('{', _BODY_BEGIN, MATCH_OPEN, TTY_OBJ_DEF),
 	[T_BODY_END] = t ('}', _BODY_END, MATCH_CLOSE, TTY_OBJ_DEF),
-	[T_ASSIGN] = t (':', _ASSIGN, PTY_NULL, TTY_OBJ_DEF),
+	[T_ASSIGN] = t (':', _ASSIGN, AS_IS, TTY_OBJ_DEF),
 
 	/* expression control */
-	[T_EXPR_END] = t (';', _EXPR_END, PTY_NULL, TTY_EXPR),
+	[T_EXPR_END] = t (';', _EXPR_END, AS_IS, TTY_EXPR),
 	[T_SELF] = t ('^', _SELF, COMPOUND, TTY_EXPR),
 
 	/* misc syntax */
 	[T_STRING] = t ('"', _STRING, MATCH_OPEN|MATCH_CLOSE, TTY_SYN),
-	[T_COMMENT] = t ('#', _COMMENT, PTY_NULL, TTY_SYN),
+	[T_COMMENT] = t ('#', _COMMENT, AS_IS, TTY_SYN),
 	[T_LABEL] = t ('$', _LABEL, COMPOUND, TTY_SYN),
 
 	/* math operation */
 	[T_MATH_PLUS] = t ('+', _MATH_PLUS, MASK|COMPOUND, TTY_MATH_OP),
-	[T_MATH_TIMES] = t ('*', _MATH_TIMES, COMPOUND, TTY_MATH_OP),
+	[T_MATH_TIMES] = t ('*', _MATH_TIMES, AS_IS, TTY_MATH_OP),
 	[T_MATH_MINUS] = t ('-', _MATH_MINUS, MASK|COMPOUND, TTY_MATH_OP),
 
 	/* bool comparison */
-	[T_BOOL_EQ] = t ('=', _BOOL_EQ, PTY_NULL, TTY_BOOL_CMP),
+	[T_BOOL_EQ] = t ('=', _BOOL_EQ, AS_IS, TTY_BOOL_CMP),
 
 	/* bool operation */
 	[T_BOOL_NEG] = t ('!', _BOOL_NEG, MASK|COMPOUND, TTY_BOOL_OP),
 
 	/* bitwise operation */
-	[T_BIT_NEG] = t ('~', _BIT_NEG, COMPOUND, TTY_BITWISE_OP),
+	[T_BIT_NEG] = t ('~', _BIT_NEG, AS_IS, TTY_BITWISE_OP),
 	[T_BIT_AND] = t ('&', _BIT_AND, COMPOUND, TTY_BITWISE_OP),
 	[T_BIT_OR] = t ('|', _BIT_OR, COMPOUND, TTY_BITWISE_OP),
 
 	/* piping */
-	[T_PIPE] = t ('%', _PIPE, MASK|COMPOUND, TTY_PIPE),
+	[T_PIPE] = t ('%', _PIPE, COMPOUND, TTY_PIPE),
+
+	/* conditional branching */
+	[T_IF] = t ('?', _IF, COMPOUND, TTY_COND),
 
 };
 

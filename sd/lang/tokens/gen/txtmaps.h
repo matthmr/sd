@@ -25,7 +25,7 @@
 
 /* modifiers */
 #  define _ENUM 0x000c
-#  define _ARRAY 0x000d
+#  define _SIGNED 0x000d
 
 /* object definition */
 #  define _RM 0x000e
@@ -108,4 +108,12 @@
 /* piping */
 #  define _PIPE 0x0039
 
+/* conditional branching */
+#  define _IF 0x003a
+
+#endif
+
+#ifndef LOCK_TXTMAPS_BOUND
+#  define LOCK_TXTMAPS_BOUND
+#  define _TXTMAPS_BOUND 0x003a
 #endif

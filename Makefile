@@ -101,9 +101,9 @@ sd/intr/exec/sdread.o: sd/intr/exec/sdread.c sd/intr/exec/sdread.h\
 	sd/utils/utils.h
 	@echo [ .. ] Compiling 'sdread.o'
 	${CC} ${INCLUDE} -c ${CCFLAG} sd/intr/exec/sdread.c -o sd/intr/exec/sdread.o
-sd/lang/tree/ot.o: sd/lang/tree/ot.c sd/lang/tree/ot.h
+sd/lang/fs/ot.o: sd/lang/fs/ot.c sd/lang/fs/ot.h
 	@echo [ .. ] Compiling 'ot.o'
-	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/tree/ot.c -o sd/lang/tree/ot.o
+	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/fs/ot.c -o sd/lang/fs/ot.o
 sd/intr/txt/sdparse.o: sd/intr/txt/sdparse.c sd/intr/txt/sdparse.h\
 	sd/utils/types/shared.h\
 	sd/lang/core/obj.h\
@@ -143,6 +143,9 @@ sd/lang/atom/atom.o: sd/lang/atom/atom.c sd/lang/atom/atom.h
 sd/lang/expr/drivers/drivers.o: sd/lang/expr/drivers/drivers.c sd/lang/expr/drivers/drivers.h
 	@echo [ .. ] Compiling 'drivers.o'
 	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/expr/drivers/drivers.c -o sd/lang/expr/drivers/drivers.o
+sd/lang/tokens/virtual/vt.o: sd/lang/tokens/virtual/vt.c sd/lang/tokens/virtual/vt.h
+	@echo [ .. ] Compiling 'vt.o'
+	${CC} ${INCLUDE} -c ${CCFLAG} sd/lang/tokens/virtual/vt.c -o sd/lang/tokens/virtual/vt.o
 ### END COMPILING ###
 ### BEGIN COMPILING UTILS ###
 sd/lang/tokens/txt.o: sd/lang/tokens/txt.c sd/lang/tokens/txt.h
@@ -182,9 +185,10 @@ lib/libsdparse.a: sd/lang/hooks/txt/txthooks.o\
 	@echo [ .. ] Archiving to 'libsdparse.a'
 	${AR} ${ARFLAG} lib/libsdparse.a $?
 lib/libsdlang.a: sd/lang/hooks/txt/literal.o\
+	sd/lang/tokens/virtual/vt.o\
 	sd/lang/tokens/txt.o\
 	sd/lang/expr/expr.o\
-	sd/lang/tree/ot.o
+	sd/lang/fs/ot.o
 	@echo [ .. ] Archiving to 'libsdlang.a'
 	${AR} ${ARFLAG} lib/libsdlang.a $?
 lib/libsdvm.a: sd/lang/vm/vm.o\
