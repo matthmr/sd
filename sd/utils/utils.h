@@ -1,11 +1,15 @@
 /**
+ * @file utils.h
+ *
+ * @brief standard utils; context agnostic
+ *
  * This file contains basic / useful
  * functionality that are used throughout
  * the resolution of symbols
  */
 
 #ifndef LOCK_UTILS
-#  define LOCK_UTILS
+#  define LOCK_UTILS ///< lock: lock functional utils
 
 void Die (char*, const char*, char*, int);
 void War (char*, const char*, char*);
@@ -13,7 +17,7 @@ void War (char*, const char*, char*);
 #endif
 
 #ifndef  LOCK_MACROS
-#  define LOCK_MACROS
+#  define LOCK_MACROS ///< lock: lock macros utils
 
 // numeric utils
 #  define NUMBER(X) ((X) >= '0' && (X) <= '9')
@@ -29,8 +33,7 @@ void War (char*, const char*, char*);
 #  define ATOI(X) (!(NUMBER(X)))? -1: (X) - 48
 
 // language-specific utils
-#  define VALID(X) (LOWER_ALPHA(X) || UPPER_ALPHA(X) || (X) == '_')
-#  define VALIDN(X) (VALID(X) || NUMBER (X))
+#  define VALID(X) (LOWER_ALPHA(X) || UPPER_ALPHA(X) || (X) == '_' || NUMBER(X))
 
 // general purpose utils
 #  define TOGGLE(X) (X) = (X)^1
@@ -41,8 +44,9 @@ void War (char*, const char*, char*);
 #  define MAX_OF(x) (x) 0|1 // as cast to `type`
 #  define POW2(x) (unsigned)((unsigned)1 << x)
 #  define BIT(x) POW2(x)
+#  define BYTES(x) sizeof (x) / sizeof (*x)
 
 // string utils
-#  define __nl "\t\n"
+#  define __nl "\n"
 
 #endif

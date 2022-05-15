@@ -1,17 +1,21 @@
 /**
- * This file contains bytecode
- * definition of core
- * objects in SD
+ * @file obj.h
+ *
+ * @brief semantical object definition
+ *
+ * This file contains semantical
+ * object definition of SD
+ * drivers and operators
  */
 
-#ifndef LOCK_CORE_LANG_BYTECODE
-#  define LOCK_CORE_LANG_BYTECODE
+#ifndef LOCK_CORE_SEMANTICS
+#  define LOCK_CORE_SEMANTICS ///< lock: standard lock
 
 #  include <sd/utils/types/shared.h>
 
-/* these are what gets sorted at compile time
- * as seen in <sd/lang/tokens/txt.h>
- */
+/// @brief keywords
+/// these are what gets sorted at compile time
+/// as seen in `txt.c`
 enum keyword {
 	KW_AS,
 	KW_ASYNC,
@@ -29,8 +33,10 @@ enum keyword {
 	KW_INT,
 	KW_ITER,
 	KW_JUMP,
+	KW_LET,
 	KW_LONG,
 	KW_NIL,
+	KW_PROC,
 	KW_RET,
 	KW_RM,
 	KW_SCOPE,
@@ -47,9 +53,10 @@ enum keyword {
 
 typedef enum keyword Kw;
 
-/* the elements indexed by this enum
- * are ascii only, so this is sorted
- * merely by numeric value */
+/// @brief tokens
+/// the elements indexed by this enum
+/// are ascii only, so this is sorted
+/// merely by numeric value
 enum token {
 	T_BOOL_NEG,
 	T_STRING,
@@ -57,6 +64,7 @@ enum token {
 	T_LABEL,
 	T_MATH_MOD,
 	T_BIT_AND,
+	T_CHAR,
 	T_PROC_BEGIN,
 	T_PROC_END,
 	T_MATH_TIMES,
@@ -68,9 +76,9 @@ enum token {
 	T_ASSIGN,
 	T_PIPE,
 	T_EXPR_END,
-	T_MOD_BEGIN,
+	T_ARR_BEGIN,
 	T_BOOL_EQ,
-	T_MOD_END,
+	T_ARR_END,
 	T_DEREF,
 	T_OBJ_BEGIN,
 	T_OBJ_END,

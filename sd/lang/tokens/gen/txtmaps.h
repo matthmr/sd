@@ -1,119 +1,154 @@
 /**
- * This file contains type definitions
- * for utils for tokens and keywords
- * of text type
+ *
+ * @file txtmaps.h
+ *
+ * @brief Basic keyword and token definitions
+ *
+ * This file contains generic type definitions
+ * for utils for tokens and keywords identification
  */
 
 #ifndef LOCK_TXTMAPS_KW
-#  define LOCK_TXTMAPS_KW
+#  define LOCK_TXTMAPS_KW ///< lock: lock keywords
 
-/// TODO: implement `double` data type
-/* built-in data types */
-#  define _INT 0x0001
-#  define _CHAR 0x0002
-#  define _FLOAT 0x0003
-#  define _LONG 0x0004
-#  define _SHORT 0x0005
-#  define _BOOL 0x0006
+// TODO: implement `double` data type
+/// @brief keyword identification
+enum kwid {
 
-/* qualifiers */
-#  define _CONST 0x0007
-#  define _STATIC 0x0008
-#  define _UNSIGNED 0x0009
-#  define _SCOPE 0x000a
-#  define _HERE 0x000b
+	/* built-in data types */
+	_INT = 0x0001,
+	_CHAR = 0x0002,
+	_FLOAT = 0x0003,
+	_LONG = 0x0004,
+	_SHORT = 0x0005,
+	_BOOL = 0x0006,
 
-/* modifiers */
-#  define _ENUM 0x000c
-#  define _SIGNED 0x000d
+	/* qualifiers */
+	_CONST = 0x0007,
+	_STATIC = 0x0008,
+	_UNSIGNED = 0x0009,
+	_SCOPE = 0x000a,
+	_HERE = 0x000b,
 
-/* object definition */
-#  define _RM 0x000e
-#  define _TYPE 0x000f
-#  define _TAG 0x0010
+	/* modifiers */
+	_ENUM = 0x000c,
+	_SIGNED = 0x000d,
 
-/* scope control */
-#  define _IMPORT 0x0011
-#  define _IMPL 0x0012
+	/* object definition */
+	_RM = 0x000e,
+	_TYPE = 0x000f,
+	_TAG = 0x0010,
+	_LET = 0x0011,
+	_PROC = 0x0012,
 
-/* built-in objects */
-#  define _NIL 0x0013
-#  define _THIS 0x0014
-#  define _TRUE 0x0015
-#  define _FALSE 0x0016
+	/* scope control */
+	_IMPORT = 0x0013,
+	_IMPL = 0x0014,
 
-/* flow control */
-#  define _ASYNC 0x0017
-#  define _SYNC 0x0018
-#  define _END 0x0019
-#  define _JUMP 0x001a
-#  define _RET 0x001b
-#  define _GOTO 0x001c
+	/* built-in objects */
+	_NIL = 0x0015,
+	_THIS = 0x0016,
+	_TRUE = 0x0017,
+	_FALSE = 0x0018,
 
-/* literal syntax */
-#  define _AS 0x001d
+	/* flow control */
+	_ASYNC = 0x0019,
+	_SYNC = 0x001a,
+	_END = 0x001b,
+	_JUMP = 0x001c,
+	_RET = 0x001d,
+	_GOTO = 0x001e,
+	// _BRANCH 0x001f,
 
-/* loops */
-#  define _ITER 0x001e
+	/* literal syntax */
+	_AS = 0x001f,
+
+	/* loops */
+	_ITER = 0x0020,
+
+};
+
+typedef enum kwid Kwid;
+
+#ifndef _KWID_BOUND
+#  define _KWID_BOUND _ITER ///< lock: lock @p _KWID_BOUND, the upper bound
+                            ///        for character tokens
+#endif
 
 #endif
 
 #ifndef LOCK_TXTMAPS_T
-#  define LOCK_TXTMAPS_T
+#  define LOCK_TXTMAPS_T ///< lock: lock tokens
 
-/* reference delimiters */
-#  define _OBJ_BEGIN 0x001f
-#  define _OBJ_END 0x0020
-#  define _MOD_BEGIN 0x0021
-#  define _MOD_END 0x0022
-#  define _PROC_BEGIN 0x0023
-#  define _PROC_END 0x0024
-#  define _SEP 0x0025
+#  define tid_append(x) _KWID_BOUND+x
 
-/* object reference */
-#  define _CHILD 0x0026
-#  define _DEREF 0x0027
-#  define _CAST 0x0028
+/// @brief token identification
+/// This does **not** include virtual tokens.
+/// All tokens here can be identified by a **single character**
+/// @note `SCHAR` is used instead of `char` to avoid
+///       name collision with `Kwid`'s `char`, so
+///       that makes `_STRING` `_DCHAR`
+enum tid {
 
-/* object definition */
-#  define _BODY_BEGIN 0x0029
-#  define _BODY_END 0x002a
-#  define _ASSIGN 0x002b
+	/* reference delimiters */
+	_OBJ_BEGIN = tid_append (0x001),
+	_OBJ_END = tid_append (0x0002),
+	_MOD_BEGIN = tid_append (0x0003),
+	_MOD_END = tid_append (0x0004),
+	_PROC_BEGIN = tid_append (0x0005),
+	_PROC_END = tid_append (0x0006),
+	_SEP = tid_append (0x0007),
 
-/* expression control */
-#  define _EXPR_END 0x002c
-#  define _SELF 0x002d
+	/* object reference */
+	_CHILD = tid_append (0x0008),
+	_DEREF = tid_append (0x0009),
+	_CAST = tid_append (0x000a),
 
-/* misc syntax */
-#  define _STRING 0x002e
-#  define _COMMENT 0x002f
-#  define _LABEL 0x0030
+	/* object definition */
+	_BODY_BEGIN = tid_append (0x000b),
+	_BODY_END = tid_append (0x000c),
+	_ASSIGN = tid_append (0x000d),
 
-/* math operation */
-#  define _MATH_PLUS 0x0031
-#  define _MATH_TIMES 0x0032
-#  define _MATH_MINUS 0x0033
+	/* expression control */
+	_EXPR_END = tid_append (0x000e),
+	_SELF = tid_append (0x000f),
 
-/* bool comparison */
-#  define _BOOL_EQ 0x0034
+	/* misc syntax */
+	_DCHAR = tid_append (0x0010),
+	_COMMENT = tid_append (0x0011),
+	_LABEL = tid_append (0x0012),
+	_SCHAR = tid_append (0x0013),
 
-/* bool operation */
-#  define _BOOL_NEG 0x0035
+	/* math operation */
+	_MATH_PLUS = tid_append (0x0014),
+	_MATH_TIMES = tid_append (0x0015),
+	_MATH_MINUS = tid_append (0x0016),
 
-/* bitwise operation */
-#  define _BIT_NEG 0x0036
-#  define _BIT_AND 0x0037
-#  define _BIT_OR 0x0038
+	/* bool comparison */
+	_BOOL_EQ = tid_append (0x0017),
 
-/* piping */
-#  define _PIPE 0x0039
+	/* bool operation */
+	_BOOL_NEG = tid_append (0x0018),
 
-/* conditional branching */
-#  define _IF 0x003a
+	/* bitwise operation */
+	_BIT_NEG = tid_append (0x0019),
+	_BIT_AND = tid_append (0x001a),
+	_BIT_OR = tid_append (0x001b),
+
+	/* piping */
+	_PIPE = tid_append (0x001c),
+
+	/* conditional branching */
+	_IF = tid_append (0x001d),
+
+};
+
+typedef enum tid Tid;
 
 #endif
 
 #ifndef LOCK_TXTMAPS_BOUND
-#  define LOCK_TXTMAPS_BOUND
-#  define _TXTMAPS_BOUND 0x003a
+#  define LOCK_TXTMAPS_BOUND ///< lock: lock @p _TID_BOUND, the upper bound
+                             ///        for virtual tokens
+#  define _TID_BOUND _IF
 #endif

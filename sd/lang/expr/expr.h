@@ -1,11 +1,15 @@
 /**
+ * @file expr.h
+ *
+ * @brief stack-based & general expressions source
+ *
  * This file contains utils
  * for making a generic
  * parse tree on demand
  */
 
 #ifndef LOCK_EXPR
-#  define LOCK_EXPR
+#  define LOCK_EXPR ///< lock: lock operators and bit qualification
 
 #  define LOCK_VM
 #  include <sd/utils/types/shared.h>
@@ -14,71 +18,71 @@
 
 #  include <sd/utils/utils.h>
 
-// SD operators
+/// @brief SD operators
 enum op {
 
-	OP_NULL=-1,    // PLACEHOLDER
+	OP_NULL=-1,    ///< PLACEHOLDER
 
-	//  -- math -- //
-	OP_MATHPLUS,   // '+'
-	OP_MATHMINUS,  // '-'
-	OP_MATHDIV,    // '//'
-	OP_MATHTIMES,  // '*'
-	OP_MATHMOD,    // '%'
+	// -- math -- //
+	OP_MATHPLUS,   ///< such as: '+'
+	OP_MATHMINUS,  ///< such as: '-'
+	OP_MATHDIV,    ///< such as: '//'
+	OP_MATHTIMES,  ///< such as: '*'
+	OP_MATHMOD,    ///< such as: '%%'
 
-	//  -- unary math -- //
-	OP_UMATHPLUS,  // '+'
-	OP_UMATHMINUS, // '-'
-	OP_UMATHINC,   // '++'
-	OP_UMATHDEC,   // '--'
+	// -- unary math -- //
+	OP_UMATHPLUS,  ///< such as: '+a'
+	OP_UMATHMINUS, ///< such as: '-a'
+	OP_UMATHINC,   ///< such as: '++' (postfix only)
+	OP_UMATHDEC,   ///< such as: '--' (postfix only)
 
 	// -- bool -- //
-	OP_LOGAND,     // '&&'
-	OP_LOGOR,      // '||'
-	OP_LOGNOT,     // '!'
-	OP_LOGGT,      // '>'
-	OP_LOGLT,      // '<'
-	OP_LOGEQ,      // '='
-	OP_LOGNEQ,     // '!='
-	OP_LOGLTEQ,    // '<='
-	OP_LOGGTEQ,    // '>='
+	OP_LOGAND,     ///< such as: '&&'
+	OP_LOGOR,      ///< such as: '||'
+	OP_LOGNOT,     ///< such as: '!'
+	OP_LOGGT,      ///< such as: '>'
+	OP_LOGLT,      ///< such as: '<'
+	OP_LOGEQ,      ///< such as: '='
+	OP_LOGNEQ,     ///< such as: '!='
+	OP_LOGLTEQ,    ///< such as: '<='
+	OP_LOGGTEQ,    ///< such as: '>='
 
 	// -- bitwise -- //
-	OP_BITWAND,    // '&'
-	OP_BITWOR,     // '|'
-	OP_BITWXOR,    // '^'
-	OP_BITWNOT,    // '~'
-	OP_BITWRS,     // '>>'
-	OP_BITWLS,     // '<<'
+	OP_BITWAND,    ///< such as: '&'
+	OP_BITWOR,     ///< such as: '|'
+	OP_BITWXOR,    ///< such as: '^^'
+	OP_BITWNOT,    ///< such as: '~'
+	OP_BITWRS,     ///< such as: '>>'
+	OP_BITWLS,     ///< such as: '<<'
 	
 	// -- mem -- //
-	OP_MEMCALL,    // '(' and ')'
-	OP_MEMCAST,    // '.'
-	OP_MEMCHILD,   // '/'
-	OP_MEMASS,     // ':'
-	OP_SEMMUB,     // '<' and '>'
-	OP_MEMSEP,     // ','
+	OP_MEMCALL,    ///< such as: '()'
+	OP_MEMCAST,    ///< such as: '.'
+	OP_MEMCHILD,   ///< such as: '/'
+	OP_MEMPIPE,    ///< such as: '%'
+	OP_MEMASS,     ///< such as: ':'
+	OP_MEMARR,     ///< such as: '<>'
+	OP_MEMSEP,     ///< such as: ','
 
 	// -- flow -- //
-	OP_FLOWEXPR,   // '?'
-	OP_FLOWLOOP,   // '!'
+	OP_FLOWEXPR,   ///< such as: '?'
+	OP_FLOWLOOP,   ///< such as: '!'
 	
 	// -- macro -- //
-	OP_MACCONST,   // '$$'
-	OP_MACFUNC,    // '$()'
-	OP_MACLITSYN,  // '$<' and '>$'
+	OP_MACCONST,   ///< such as: '$$'
+	OP_MACFUNC,    ///< such as: '$()'
+	OP_MACLITSYN,  ///< such as: '$<>$'
 
 	// -- syntax sugar -- //
-	OP_FAUX,       // '$'
-	OP_CAST,       // '%%'
+	OP_FAUX,       ///< such as: '$'
 
 };
 
 typedef enum op Op;
 
-// bit size + bit interpretation
-//   * distinguish `int` from `char` on
-//     size only, not on interpretation
+/// @brief bit size + bit interpretation
+/// distinguish `int` from `char` on
+/// size only, not on interpretation
 enum bits {
 
 	// 8 bits
@@ -101,12 +105,13 @@ enum bits {
 	#endif
 };
 
+/// @brief data qualifier
 enum qual {
-	qual_const = BIT (1),
-	qual_signed = BIT (2), // toggle : <signed,unsigned>
-	qual_static = BIT (3),
-	qual_here = BIT (4),
-	qual_scope = BIT (5),
+	qual_const = BIT (1),  ///< toggle: const, mut
+	qual_signed = BIT (2), ///< toggle: signed, unsigned (int-like only)
+	qual_static = BIT (3), ///< toggle: static, auto
+	qual_here = BIT (4),   ///< toggle: local, global (module-wise)
+	qual_scope = BIT (5),  ///< toggle: local, global (object-wise)
 };
 
 typedef enum bits bits;
@@ -115,7 +120,7 @@ typedef enum qual qual;
 #endif
 
 #ifndef LOCK_EXPRFN
-#  define LOCK_EXPRFN
+#  define LOCK_EXPRFN ///< lock: lock stack expression structure
 struct expr {
 	addr e1; /* heap/stack (l) or tab/register (e) */
 	addr e2; /* heap/stack (l) or tab/register (e) */

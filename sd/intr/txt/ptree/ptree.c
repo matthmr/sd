@@ -1,4 +1,8 @@
 /**
+ * @file ptree.c
+ *
+ * @brief parse tree implementation
+ *
  * This file defines parse
  * tree mapping for plain-
  * text SD source code
@@ -7,7 +11,7 @@
 #include <stdlib.h>
 
 #include <sd/lang/expr/drivers/drivers.h>
-#include <sd/lang/tokens/utils/txtmaps.h>
+#include <sd/lang/tokens/gen/txtmaps.h>
 #include <sd/lang/hooks/txt/txthooks.h>
 #include <sd/lang/vm/vm.h>
 

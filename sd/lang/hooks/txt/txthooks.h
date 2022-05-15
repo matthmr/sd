@@ -8,15 +8,22 @@
 #ifndef LOCK_AHOOKS
 #  define LOCK_AHOOKS
 
-#include <sd/utils/types/shared.h>
 #include <sd/lang/lang.h>
 
+#include <sd/intr/txt/tokens/form.h>
+
+#include <sd/utils/types/shared.h>
+
+/// @brief fields `cmt`, `str`, `literal`, `exepect_compound` &
+///        `exepect_match` are part of a bitfield padded by `__PAD`
 struct stream_ctxt {
+
 	bool cmt: 1;
 	bool str: 1;
 	bool literal: 1;
 	bool expect_compound: 1;
-	bool __PAD: 4;
+	bool expect_match: 1;
+	bool __PAD: 3;
 
 	uint base;
 };

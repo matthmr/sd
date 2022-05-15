@@ -7,7 +7,7 @@ This contains the sources for the:
 - plain-text & bytecode interpreter
 - compiler
 
-Besides the sources for the main `libsdlang.so` library for the entire language to function.
+Besides the sources for the main `libsd.so` library for the entire language to function.
 
 # Building
 
@@ -15,18 +15,22 @@ This uses a `Makefile` at root to compile. It has the following targets:
 
 - help: show the options below
 - install: makes **all** utilites (and install man documentation)
-- man: makes [man](https://en.wikipedia.org/wiki/Man_page) documentation (but doesn't install it)
+- man: compresses [man](https://en.wikipedia.org/wiki/Man_page) documentation (but doesn't install it)
 - parser: makes the plain-text & bytecode interpreter plus its dependencies
 - compiler: makes the compiler plus its dependencies
 - language: makes the SD language libraries (this is a dependency for most targets)
+- docs: makes [doxygen](https://www.doxygen.nl/) HTML documentation (if `doxygen` is available). An older pre-compiled version of this can be found at [docs.sd/source](https://matthmr.github.io/docs.sd/source).
 - clean: removes all compilation junk (`.o` and `.a` files, keeps `.so` and executables)
+- clean-docs: removes all documentation junk (man's `.gz` pages and doxygen's `docs/html` output)
+
+The default for `make` being run alone is `make install`.
 
 The `Makefile` also has a couple environment variables to pass through:
 
 [FLAG]: [EXPLANATION] (DEFAULT)
 
 - `CC`: the C compiler (clang)
-- `CCFLAG`: additional flags to pass to the compiler ()
+- `CCFLAGS`: additional flags to pass to the compiler ()
 - `BITS`: the machine memory address bit length (64)
 - `INCLUDE`: additional include path to pass to the compiler (-I${PWD})
 - `AR`: the `.a` archiver (ar)
@@ -40,8 +44,9 @@ After compilation, the results will be stored at `/bin` (with the repository as 
 
 # Documentation
 
-Find language documentation at the [main website](https://matthmr.github.io/docs.sd) and
-source code documentation at the [/docs folder](https://github.com/matthmr/sd/blob/master/docs).
+Find the language syntax documentation at the [main website](https://matthmr.github.io/docs.sd),
+source code documentation at [docs.sd/source](https://matthmr.github.io/docs.sd/source)
+and the parser stack documentation at the [/docs directory](https://github.com/matthmr/sd/blob/master/docs).
 
 # License
 

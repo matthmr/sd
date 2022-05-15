@@ -14,6 +14,8 @@
 
 #  include <sd/utils/types/shared.h>
 
+extern bool verr;
+
 void vErr (int, char*, char*);
 
 char* vErr_get_type (int);

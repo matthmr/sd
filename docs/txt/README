@@ -2,7 +2,8 @@
 
 ================================================================
 This series of files contain source code documentation
-in plain text form.
+in plain text form to complement Doxygen's inlined
+documentation.
 
 This is NOT intended to be read by learners of the language
 but by developers or anyone who wants to fork the SD language
@@ -13,8 +14,14 @@ read the official language documentation:
 
                https://matthmr.github.io/docs.sd
 
+or run `make lang-docs` to compile the markdown of the `docs.sd`
+git submodule
+
 Whenever refering to a specific file, use this directory
-README file is in as root (e.g /docs/README refers to this file).
+README file is in as root
+
+               /docs/txt/README refers to this file
+
 ================================================================
 
 Index

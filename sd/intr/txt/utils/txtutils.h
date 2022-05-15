@@ -1,29 +1,32 @@
 /**
+ * @file txtutils.h
+ *
+ * @brief Plain-text source code utilities
+ *
  * This file contains utils
  * for parsing plain-text
  * SD source code
  */
 
 #ifndef LOCK_TXT_UTILS
-#  define LOCK_TXT_UTILS
+#  define LOCK_TXT_UTILS ///< lock: standard lock
 
 #  include <sd/utils/types/shared.h>
 #  include <sd/lang/lang.h>
 
-// -- `nfind_def` exit status -- //
-#  define not_found 1
-#  define found 2
-#  define ttoken 3
-#  define number 4
-#  define repeats 5
+#  define not_found 1 ///< (`nfind_def`): if not found
+#  define found 2 ///< (`nfind_def`): if found to be word
+#  define ttoken 3 ///< (`nfind_def`): if found to be a token
+#  define number 4 ///< (`nfind_def`): if found to be a number
+#  define repeats 5 ///< (`nfind_def`): if found to be a word but needs differentiation
 
-// -- `nbound_def` manifest type -- //
-#  define KEYWORD_MANIFEST 0
-#  define TOKEN_MANIFEST 1
+#  define KEYWORD_MANIFEST 0 ///< (`nbound_def`): as a keyword
+#  define TOKEN_MANIFEST 1 ///< (`nbound_def`): as a token
 
-// -- `nbound_def` exit status -- //
-#  define npass 0
-#  define nfound 1
+#  define npass 0 ///< (`nbound_def`): if exhausted seek space (normal case)
+#  define nfound 1 ///< (`nbound_def`): if had an **exact** match (best case)
+
+#  define BLOCK_SIZE 4 //< (`nbount_def`): block size
 
 extern uint t;
 

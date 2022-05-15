@@ -1,33 +1,34 @@
 /**
- * This file contains all type
- * definitions needed for parsing
- * and executing plain-text sd
- * source code.
+ * @file sdparse.h
+ *
+ * @brief `sdread`'s plain-text source code backend
+ *
+ * This file contains type definitions
+ * needed for parsing and executing
+ * plain-text sd source code.
  */
 
 #include <sd/utils/types/shared.h>
 
 #ifndef LOCK_PARSE
-#  define LOCK_PARSE
+#  define LOCK_PARSE ///< lock: lock function interface
 
-#  include <sd/lang/callback/ptreecb.h>
-#  include <sd/lang/tree/ot.h>
+//#  include <sd/lang/obj/ot.h>
 
-ptree_cb next (char*, uint*, uint*, bool*, const uint);
-void parser_stream (char*, Obj*, uint);
+void next (char*, uint*, uint*, bool*, const uint);
+void parser_stream (char*, uint);
 
 #endif
 
 #ifndef LOCK_STACK
 #  define LOCK_STACK
 
-/* This is the main wrappable function */
 void parse_src (FILE*, char*, uint);
 
 #endif
 
 #ifndef LOCK_VERBOSITY
-#  define LOCK_VERBOSITY
+#  define LOCK_VERBOSITY ///< lock: lock verbose metadata (line number, etc...)
 
 extern uint ln;
 extern uint wstart_i;

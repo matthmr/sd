@@ -1,4 +1,8 @@
 /**
+ * @file ptree.h
+ *
+ * @brief parse tree implementation
+ *
  * This file defines parse
  * tree mapping for plain-
  * text SD source code

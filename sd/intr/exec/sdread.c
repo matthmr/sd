@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 #include <sd/lang/callback/vmcb.h>
-#include <sd/lang/tree/ot.h>
+#include <sd/lang/obj/ot.h>
 #include <sd/lang/vm/vm.h>
 
 #include <sd/intr/bytecode/sdbcparse.h>

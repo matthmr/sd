@@ -20,6 +20,13 @@
 #include <sd/utils/err/err.h>
 #include <sd/utils/utils.h>
 
+#define host_unary(x) (\
+	x[UNARY]->type == TY_DRIVER || x[UNARY]->item._.driver != DRIVER_UNARY\
+)
+#define host_op(x) (\
+	x[PARENT]->item._.op != OP_NULL\
+)
+
 static void tty_obj_ref_del (_T);
 static void tty_bitwise_op (_T);
 static void tty_bool_cmp (_T);
@@ -47,37 +54,46 @@ void tty_syn (_T t) {
 
 }
 
-// @operator syntax: moslty infix, unary prefix
 void tty_math_op (_T t) {
 
-	// infix test: one child and non-null driver == non-unary operator == waiting for another driver
-	if (ptree.curr.children == 1 && ptree.curr.high->item._.driver != DRIVER_NULL)
-		;//ERR
+	Node** branch = ptree.curr.branch;
+	u8 children = ptree.curr.children;
 
+	if (!children)
+		goto _tty_math_op_infix;
+	else
+		goto _tty_math_op_prefix;
+
+_tty_math_op_infix:
 	switch (t.t) {
 	case '+':
-		ptree.curr.children
-			? ptree_add_op (OP_MATHPLUS)
-			: ptree_add_uop (OP_UMATHPLUS);
+		ptree_add_op (OP_MATHPLUS);
 		break;
-
 	case '*':
 		ptree_add_op (OP_MATHTIMES);
 		break;
-
 	case '-':
-		ptree.curr.children
-			? ptree_add_op (OP_MATHMINUS)
-			: ptree_add_uop (OP_UMATHMINUS);
+		ptree_add_op (OP_MATHMINUS);
 		break;
-
 	case '%':
 		ptree_add_op (OP_MATHMOD);
 		break;
 	}
+	return;
+
+_tty_math_op_prefix:
+	switch (t.t) {
+	case '+':
+		ptree_add_uop (OP_UMATHPLUS);
+		break;
+	case '-':
+		ptree_add_uop (OP_UMATHMINUS);
+		break;
+	}
+	return;
+
 }
 
-// @operator syntax: moslty infix, unary prefix
 void tty_bitwise_op (_T t) {
 
 	switch (t.t) {
@@ -127,7 +143,6 @@ void tty_obj_ref_del (_T t) {
 
 void tty_bool_cmp (_T t) {} // has doubles
 
-// @operator syntax: moslty infix, unary prefix
 void tty_obj_ref (_T t) {
 
 	switch (t.t) {

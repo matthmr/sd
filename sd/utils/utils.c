@@ -1,4 +1,8 @@
 /**
+ * @file utils.c
+ *
+ * @brief standard utils; context agnostic
+ *
  * This file contains basic / useful
  * functionality that are used throughout
  * the resolution of symbols; context

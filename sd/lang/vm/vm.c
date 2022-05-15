@@ -99,109 +99,9 @@ void vm_init (void) {
 
 }
 
-inline void* pop (void) { }
-inline void push (byte c) { }
-
-/// signed by default
-void* pop_t (bits bits) {
-
-	if (bits <= bits_8c) { /* 8 bits */
-		sp -= 1;
-		return (char*) sp;
-	}
-
-	else if (bits == bits_16i) { /* 16 bits */
-		sp -= 2;
-		return (short*) sp;
-	}
-
-	else if (bits >= bits_32i && bits <=
-		#if ADDR_BITS == 32
-			bits_map
-		#else
-			bits_addr
-		#endif
-	) { /* 32 bits */
-		sp -= 4;
-
-		switch (bits) {
-		case bits_32i: case bits_enum: case bits_map:
-			return (int*) sp; break;
-		case bits_32f:
-			return (float*) sp; break;
-
-		#if ADDR_BITS == 32
-		case bits_addr:
-			return (void*) sp; break;
-		#endif
-
-		}
-	}
-
-	#if ADDR_BITS == 64
-	else if (bits >= bits_64l || bits <= bits_addr) { /* 64 bits */
-		sp -= 8;
-
-		switch (bits) {
-		case bits_64l:
-			return (long*) sp; break;
-		case bits_64d:
-			return (double*) sp; break;
-		case bits_addr:
-			return (void*) sp; break;
-		}
-		
-	}
-	#endif
-
-}
-
-void push_t (bits bits, void* data)  {
-
-	if (bits <= bits_8c) { /* 8 bits */
-		CAST_i8 sp = CAST_i8 data;
-		sp += 1;
-	}
-
-	else if (bits == bits_16i) { /* 16 bits */
-		CAST_i16 sp = CAST_i16 data;
-		sp += 2;
-	}
-
-	else if (bits >= bits_32i && bits <=
-		#if ADDR_BITS == 64
-			bits_map
-		#else
-			bits_addr
-		#endif
-	) { /* 32 bits */
-
-		switch (bits) {
-		case bits_32i: case bits_enum: case bits_map:
-		#if ADDR_BITS == 32
-		case bits_addr:
-		#endif
-			CAST_i32 sp = CAST_i32 data; break;
-		case bits_32f:
-			CAST_f32 sp = CAST_f32 data; break;
-		}
-
-		sp += 4;
-	}
-
-	#if ADDR_BITS == 64
-	else if (bits >= bits_64l || bits <= bits_addr) { /* 64 bits */
-
-		switch (bits) {
-		case bits_64l:
-			CAST_i64 sp = CAST_i64 data;
-		case bits_64d: case bits_addr:
-			CAST_d64 sp = CAST_d64 data;
-		}
-		
-		sp += 8;
-	}
-	#endif
+void push8 (u8 val) {
+	*sp = 1;
+	sp += 1 / (ADDR_BITS / 8);
 }
 
 void push_tab (byte c) {
@@ -209,9 +109,11 @@ void push_tab (byte c) {
 	ip++;
 }
 
-inline void* pop_frame (uint blksize) { }
+void* pop_frame (uint blksize) { }
+void push_frame (uint blksize, void* data) { }
 
-inline void push_frame (uint blksize, void* data) { }
+void push_reg (d_addr regv) { }
+d_addr* pop_reg (void) { }
 
-void mov_rege (u64) { }
-void mov_regl (u64) { }
+void mov_rege (u64 val) { }
+void mov_regl (u64 val) { }

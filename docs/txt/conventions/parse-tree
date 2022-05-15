@@ -1,0 +1,21 @@
+                    |parse tree|
+
+The SD parse tree is a binary parse tree that implements the use of
+DRIVERS and OPERATORS. In general, a BRANCH of the parse tree may
+look like:
+
+                           [OP]
+                          /    \
+               [DRIVER/OP]      [DRIVER/OP]
+
+* a DRIVER is a literal value or a memory address plus its attributes
+  (size, interpreted type, etc)
+* an OPERATOR is a generalization of anything can perform operations,
+  be it arithmetic, bitwise, logical or even syntactical
+
+
+Code
+----
+
+In code, SD uses the `ptree` variable, which has the `struct parse_tree`,
+found in `sd/intr/txt/ptree/ptree.h`

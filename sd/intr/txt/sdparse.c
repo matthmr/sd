@@ -1,5 +1,9 @@
 /**
- * This file contains all logic needed
+ * @file sdparse.c
+ *
+ * @brief `sdread`'s plain-text source code backend
+ *
+ * This file contains entry logic needed
  * for parsing and executing plain-text
  * SD source code.
  */
@@ -15,9 +19,9 @@
 
 #include <sd/lang/hooks/txt/txthooks.h>
 #include <sd/lang/hooks/txt/literal.h>
-#include <sd/lang/tokens/user/umaps.h>
+#include <sd/lang/uword/umaps.h>
 #include <sd/lang/tokens/txt.h>
-#include <sd/lang/tree/ot.h>
+#include <sd/lang/obj/ot.h>
 #include <sd/lang/vm/vm.h>
 #include <sd/lang/lang.h>
 
@@ -28,24 +32,32 @@
 #include <sd/intr/exec/sdread.h>
 #include <sd/intr/limits.h>
 
-uint e_eof;
-uint ln = 1;
-uint wstart_i = 0;
-uint wsize = 0;
-uint t;
+uint e_eof; ///< counter: counts how many characters until `EOF` OR until the end of the file buffer
+uint ln = 1; ///< indexer: indexes the current line
+uint wstart_i = 0; ///< indexer: indexes the start of a *probable* word
+uint wsize = 0; ///< counter: counts the size of a word that is in the @p word buffer
+uint t; ///< indexer: indexes the current element in one of manifests; defined in `txtutils`
 
-char gbuffer[STDBUFFER];
-char uword[STDUWORD];
-char word[STDWORD];
+char gbuffer[STDBUFFER]; ///< buffer: as in "Global BUFFER"; main text buffer for sdparse
+char uword[STDUWORD]; ///< buffer: as in "User WORD"; main user word (variable name) buffer for sdparse, lengthed by @p STDUWORD
+char word[STDWORD]; ///< buffer: main word buffer, lengthed by @p STDWORD
 
-static uint gbuffer_size = BUFFER;
+static uint gbuffer_size = BUFFER; ///< @p gbuffer size, mostly constant
 static char* ins_p = gbuffer;
 
-ptree_cb next (char* data,
-               uint* i,
-               uint* wstart_i,
-               bool* e,
-               const uint lnsize) {
+/// @brief advances the current buffer index to the next word
+///
+/// Hooks with whichever action is most feasible. Some hardcoded syntax
+/// errors such the 64 character name rule are caught by this function.
+///
+/// It hooks first `e`-wise then context-wise.
+///
+/// @param data current buffer
+/// @param i points to current buffer index
+/// @param wstart_i points to the start of a word in the current buffer
+/// @param e points to the current exit status of nfind_def
+/// @param lnsize same as e_eof
+void next (char* data, uint* i, uint* wstart_i, bool* e, const uint lnsize) {
 
 	switch (*e) {
 
@@ -70,8 +82,8 @@ ptree_cb next (char* data,
 
 	case found:
 
-		/// it might be the case that a token cuts a repetition keyword short
-		if (tfind_def (*(data+*i)) == ttoken) {
+		// it might be the case that a token cuts a repetition keyword short
+		if (tfind_def (*(data+*i)) == ttoken) { // faux
 
 			wsize = (*i - *wstart_i)+1;
 			strncpy (gbuffer, (data + *wstart_i), wsize);
@@ -85,7 +97,7 @@ ptree_cb next (char* data,
 		offset_i (i, data, lnsize);
 		wsize = (*i - *wstart_i)+1;
 
-		if (wsize > STDWORD) { /// mismatch(1)
+		if (wsize > STDWORD) { // mismatch(1)
 
 			strncpy (uword, (data + *wstart_i), wsize);
 			goto _au_hook;
@@ -138,7 +150,23 @@ ptree_cb next (char* data,
 	return;
 }
 
-void parser_stream (char* data, Obj* m_root, uint e_eof) {
+/// @brief main parser function for receiving direct buffer content
+///
+/// This function deals with stream promises and hooks. For example,
+/// a open # means the stream up to a newline is ignored.
+/// It also uses @p nfind_def to differentiate between
+///   - words
+///   - uwords
+///   - literal
+///   - comments
+///   - tokens
+///
+/// local variables:
+///   - `leading`: lock: the leading content before a gword (mostly whitespace)
+///
+/// @param data the main buffer
+/// @param e_eof the buffer length
+void parser_stream (char* data, uint e_eof) {
 
 	uint i = 0;
 
@@ -152,11 +180,12 @@ void parser_stream (char* data, Obj* m_root, uint e_eof) {
 	// main parsing loop
 	for (i = 0; i < lnsize; i++) {
 
+		// main stream locker
 		if (lock_stream) {
 
 			if (gs_ctxt.cmt) {
 				rstream (H_RESET (gs_ctxt.cmt));
-				break;
+				break; // FIXME: it should't break, it should seek for a newline
 			}
 
 			else if (gs_ctxt.str) {
@@ -173,11 +202,14 @@ void parser_stream (char* data, Obj* m_root, uint e_eof) {
 
 					continue;
 				}
+
 				else {
 					// gbuffer_cat (ins_p, data+i);
 					break;
 				}
+
 			}
+
 		}
 
 		c = data[i];
@@ -204,8 +236,7 @@ void parser_stream (char* data, Obj* m_root, uint e_eof) {
 
 		next (data, &i, &wstart_i, &e_status, lnsize);
 
-		/// TODO: this doesn't fit in with my callback schema
-		if (0) parser_not_found: {
+		if (0) parser_not_found: { // TODO: this doesn't fit in with my callback schema
 
 			offset_i (&i, data, lnsize);
 			wsize = (i - wstart_i)+1;
@@ -219,20 +250,26 @@ void parser_stream (char* data, Obj* m_root, uint e_eof) {
 
 }
 
-/* this wraps around `parser_stream` to buffer
- * to `data` and define module roots
- */
+/// @brief the main `sdparse` **exposed** interface
+///
+/// This is called by `sdread`.
+/// This wraps around @ref parser_stream(char*,uint) to buffer
+/// to `data` and define module roots.
+///
+/// @param file the file descriptor to be read
+/// @param _data the buffer to buff the file to
+/// @param buffer_size the buffer size
 void parse_src (FILE* file, char* _data, const uint buffer_size) {
 
-	/// ptree callback handle
-	if (ptree_stack (ptree_callback))
+	// vm callback handle
+	if (1)
 		;//
-	else /// if not on callback, act as if being called for the first time
+	else // if not on callback, act as if being called for the first time
 		ln = 1;
 
 	do {
 		e_eof = fread (_data, 1, buffer_size, file);
-		parser_stream (_data, &l_root, e_eof);
+		parser_stream (_data, e_eof);
 	} while (e_eof == buffer_size);
 
 }

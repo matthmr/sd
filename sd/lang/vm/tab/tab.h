@@ -9,21 +9,18 @@
 
 #include <sd/utils/types/shared.h>
 
-typedef unsigned char Normal;
+typedef byte tab_index;
 
 struct tab {
-	Normal* (*let) (void);
-	Normal* (*proc) (void);
-
-	addr (*heap_data) (void);
-	addr head;
-
-	void (*chroot) (addr);
-	void (*buffer) (byte);
+	tab_index* root;
+	tab_index* head;
+	uint gidn;
+	uint gid;
 };
 
 typedef struct tab Tab;
+extern Tab obj_tab;
 
-extern Tab tab;
+void tab_gen (void);
 
 #endif

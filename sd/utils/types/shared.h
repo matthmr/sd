@@ -1,14 +1,18 @@
 /**
- * This file contains types CAN be shared
- * through all files; binary agnostic.
+ * @file shared.h
+ *
+ * @brief shared macros and utils
+ *
+ * This file contains types can be shared
+ * through all files; interface agnostic.
  */
 
 #ifndef NULL
 #  define NULL ((void*)0x0)
 #endif
 
-#ifndef LOCK_TYPES
-#  define LOCK_TYPES
+#ifndef LOCK_8BIT_TYPES
+#  define LOCK_8BIT_TYPES ///< lock: lock 8-bit length typedefs
 
 typedef unsigned char bool;
 typedef unsigned char byte;
@@ -16,15 +20,15 @@ typedef unsigned char byte;
 #endif
 
 #ifndef LOCK_BOOLEAN
-#  define LOCK_BOOLEAN
+#  define LOCK_BOOLEAN ///< lock: lock boolean
 
-#  define true (char)1
-#  define false (char)1
+#  define true '\1'
+#  define false '\0'
 
 #endif
 
-#ifndef LOCK_UNSIGNED_INT
-#  define LOCK_UNSIGNED_INT
+#ifndef LOCK_BYTE_TYPES
+#  define LOCK_BYTE_TYPES ///< lock: lock multiple bit length typedefs
 
 #  define LOCK_INTR_LIMITS
 #  include <sd/intr/limits.h>
@@ -49,7 +53,7 @@ typedef unsigned int d_addrl;
 #endif
 
 #ifndef LOCK_MEM
-#  define LOCK_MEM
+#  define LOCK_MEM ///< lock: lock memory utils
 
 #  define b  1
 #  define kb 1000
@@ -59,18 +63,11 @@ typedef unsigned int d_addrl;
 #endif
 
 #ifndef LOCK_MAGICN
-#  define LOCK_MAGICN
+#  define LOCK_MAGICN ///< lock: lock magic numbers
 
-#  define ASCII_NUM_OFFSET 0x30  // positive offset from ASCII to decimal (IF VALID)
-#  define ASCII_LHEX_OFFSET 0x57 // positive offset from ASCII lowercase hex to decimal
-#  define ASCII_UHEX_OFFSET 0x37 // positive offset from ASCII uppercase hex to decimal
-#  define ASCII_CASE_OFFSET 0x20 // positive offset from ASCII uppercase to lowercase; negative otherwise
-
-#endif
-
-#ifndef LOCK_MEMMACROS
-#  define LOCK_MEMMACROS
-
-#  define BYTES(x) sizeof (x) / sizeof (*x)
+#  define ASCII_NUM_OFFSET 0x30  ///< positive offset from ASCII to decimal (IF VALID)
+#  define ASCII_LHEX_OFFSET 0x57 ///< positive offset from ASCII lowercase hex to decimal
+#  define ASCII_UHEX_OFFSET 0x37 ///< positive offset from ASCII uppercase hex to decimal
+#  define ASCII_CASE_OFFSET 0x20 ///< positive offset from ASCII uppercase to lowercase; negative otherwise
 
 #endif

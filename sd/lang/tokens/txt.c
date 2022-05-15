@@ -1,33 +1,43 @@
 /**
- * This file contains all the arrays
- * for all keywords and tokens of
- * the standard SD language
+ * @file txt.c
+ *
+ * @brief plain-text manifests
+ *
+ * This file contains sorted manifests
+ * for keywords and tokens of the
+ * standard written SD language
  */
+
 #include <sd/lang/tokens/gen/txtmaps.h>
 #include <sd/lang/core/obj.h>
 #include <sd/lang/lang.h>
 
+#include <sd/intr/txt/tokens/form.h>
+
 #include <sd/utils/types/shared.h>
+#include <sd/utils/utils.h>
 
 #define kw(a,b,c) { .kw = a, .id = b, .ty = c }
 #define t(a,b,c,d) { .t = a, .id = b, .vty = c, .ty = d }
 
+/// @brief keyword manifest
+///
+/// The keywords are sorted by:
+/// @verbatim
+///   1. alphabetic - repetition - size
+///      aabc
+///      aa
+///      bbcd
+///      bb
+///
+///   2. alphabetic - plain - size
+///      abcd
+///      bcde
+///      cdef
+/// @endverbatim
 const _Kw keyword_manifest[] = {
 
-	/**
-	 * The keywords are sorted by:
-	 *
-	 *   1. alphabetic - repetition - size
-	 *      aabc
-	 *      aa
-	 *      bbcd
-	 *      bb
-	 *
-	 *   2. alphabetic - plain - size
-	 *      abcd
-	 *      bcde
-	 *      cdef
-	 */
+	// TODO: wrap, unwrap
 
 	// -- ASSIGNMENT -- //
 	/* built-in data types */
@@ -51,6 +61,8 @@ const _Kw keyword_manifest[] = {
 	[KW_RM] = kw ("rm", _RM, KWTY_OBJ_DEF),
 	[KW_TYPE] = kw ("type", _TYPE, KWTY_OBJ_DEF),
 	[KW_TAG] = kw ("tag", _TAG, KWTY_OBJ_DEF),
+	[KW_LET] = kw ("let", _LET, KWTY_OBJ_DEF),
+	[KW_PROC] = kw ("proc", _PROC, KWTY_OBJ_DEF),
 
 	/* scope control */
 	[KW_IMPORT] = kw ("import", _IMPORT, KWTY_ENV),
@@ -73,6 +85,7 @@ const _Kw keyword_manifest[] = {
 	[KW_JUMP] = kw ("jump", _JUMP, KWTY_FLOW),
 	[KW_RET] = kw ("ret", _RET, KWTY_FLOW),
 	[KW_GOTO] = kw ("goto", _GOTO, KWTY_FLOW),
+	// [KW_BRANCH] = kw ("branch", _BRANCH, KWTY_FLOW),
 
 	// -- MISC -- //
 	/* accumulatives */
@@ -83,64 +96,63 @@ const _Kw keyword_manifest[] = {
 
 };
 
+/// @brief plain-text token manifest
+/// @note the `SUFFIX` bit field only applies to
+///       their immidiate (plain-text) forms,
+///       virtual forms **may** have different
+///       types of suffixing
 const _T token_manifest[] = {
 
-	/**
-	 * The tokens that have `COMPOUND` or `MASK` (or both)
-	 * do NOT have to specify what level of suffix their
-	 * virual counterpart has OR what that counterpart is:
-	 * their `_T.id` gets it for them.
-	 */
-
 	/* reference delimiters */
-	[T_OBJ_BEGIN] = t ('[', _OBJ_BEGIN, MATCH_OPEN, TTY_OBJ_REF_DEL),
-	[T_OBJ_END] = t (']', _OBJ_END, MATCH_CLOSE, TTY_OBJ_REF_DEL),
-	[T_MOD_BEGIN] = t ('<', _MOD_BEGIN, MATCH_OPEN|COMPOUND|MASK, TTY_OBJ_REF_DEL),
-	[T_MOD_END] = t ('>', _MOD_END, MATCH_CLOSE|COMPOUND|MASK, TTY_OBJ_REF_DEL),
-	[T_PROC_BEGIN] = t ('(', _PROC_BEGIN, MATCH_OPEN, TTY_OBJ_REF_DEL),
-	[T_PROC_END] = t (')', _PROC_END, MATCH_CLOSE, TTY_OBJ_REF_DEL),
-	[T_SEP] = t (',', _SEP, AS_IS, TTY_OBJ_REF_DEL),
+	[T_OBJ_BEGIN] = t ('[', _OBJ_BEGIN, MATCH|SUFFIX_NOC1, TTY_OBJ_REF_DEL),
+	[T_OBJ_END] = t (']', _OBJ_END, MATCH|SUFFIX_NOC2, TTY_OBJ_REF_DEL),
+	[T_PROC_BEGIN] = t ('(', _PROC_BEGIN, MATCH|SUFFIX_NOC1, TTY_OBJ_REF_DEL),
+	[T_PROC_END] = t (')', _PROC_END, MATCH|SUFFIX_NOC2, TTY_OBJ_REF_DEL),
+	[T_SEP] = t (',', _SEP, AS_IS|SUFFIX_NOC2|SUFFIX_CHLD|SUFFIX_NOC1, TTY_OBJ_REF_DEL),
 
 	/* object reference */
-	[T_CHILD] = t ('/', _CHILD, COMPOUND, TTY_OBJ_REF),
-	[T_DEREF] = t ('@', _DEREF, AS_IS, TTY_OBJ_REF),
-	[T_CAST] = t ('.', _CAST, COMPOUND, TTY_OBJ_REF),
+	[T_CHILD] = t ('/', _CHILD, COMPOUND|SUFFIX_NOC1|SUFFIX_CHLD, TTY_OBJ_REF),
+	[T_DEREF] = t ('@', _DEREF, AS_IS|SUFFIX_NOC1, TTY_OBJ_REF),
+	[T_CAST] = t ('.', _CAST, COMPOUND|SUFFIX_CHLD, TTY_OBJ_REF),
+	[T_ARR_BEGIN] = t ('<', _MOD_BEGIN, MATCH|COMPOUND|MASK|SUFFIX_NOC1, TTY_OBJ_REF_DEL),
+	[T_ARR_END] = t ('>', _MOD_END, MATCH|COMPOUND|MASK|SUFFIX_NOC2, TTY_OBJ_REF_DEL),
 
 	/* object definition */
-	[T_BODY_BEGIN] = t ('{', _BODY_BEGIN, MATCH_OPEN, TTY_OBJ_DEF),
-	[T_BODY_END] = t ('}', _BODY_END, MATCH_CLOSE, TTY_OBJ_DEF),
-	[T_ASSIGN] = t (':', _ASSIGN, AS_IS, TTY_OBJ_DEF),
+	[T_BODY_BEGIN] = t ('{', _BODY_BEGIN, MATCH|SUFFIX_NOC1, TTY_OBJ_DEF),
+	[T_BODY_END] = t ('}', _BODY_END, MATCH|SUFFIX_NOC2, TTY_OBJ_DEF),
+	[T_ASSIGN] = t (':', _ASSIGN, AS_IS|SUFFIX_CHLD, TTY_OBJ_DEF),
 
 	/* expression control */
-	[T_EXPR_END] = t (';', _EXPR_END, AS_IS, TTY_EXPR),
+	[T_EXPR_END] = t (';', _EXPR_END, AS_IS|SUFFIX_NOC2, TTY_EXPR),
 	[T_SELF] = t ('^', _SELF, COMPOUND, TTY_EXPR),
 
 	/* misc syntax */
-	[T_STRING] = t ('"', _STRING, MATCH_OPEN|MATCH_CLOSE, TTY_SYN),
+	[T_CHAR] = t ('\'', _SCHAR, MATCH|SUFFIX_NOC1|SUFFIX_NOC2, TTY_SYN),
+	[T_STRING] = t ('"', _DCHAR, MATCH|SUFFIX_NOC1|SUFFIX_NOC2, TTY_SYN),
 	[T_COMMENT] = t ('#', _COMMENT, AS_IS, TTY_SYN),
-	[T_LABEL] = t ('$', _LABEL, COMPOUND, TTY_SYN),
+	[T_LABEL] = t ('$', _LABEL, COMPOUND|SUFFIX_NOC1, TTY_SYN),
 
 	/* math operation */
-	[T_MATH_PLUS] = t ('+', _MATH_PLUS, MASK|COMPOUND, TTY_MATH_OP),
-	[T_MATH_TIMES] = t ('*', _MATH_TIMES, AS_IS, TTY_MATH_OP),
-	[T_MATH_MINUS] = t ('-', _MATH_MINUS, MASK|COMPOUND, TTY_MATH_OP),
+	[T_MATH_PLUS] = t ('+', _MATH_PLUS, MASK|COMPOUND|SUFFIX_CHLD, TTY_MATH_OP),
+	[T_MATH_TIMES] = t ('*', _MATH_TIMES, AS_IS|SUFFIX_CHLD, TTY_MATH_OP),
+	[T_MATH_MINUS] = t ('-', _MATH_MINUS, MASK|COMPOUND|SUFFIX_CHLD, TTY_MATH_OP),
 
 	/* bool comparison */
-	[T_BOOL_EQ] = t ('=', _BOOL_EQ, AS_IS, TTY_BOOL_CMP),
+	[T_BOOL_EQ] = t ('=', _BOOL_EQ, AS_IS|SUFFIX_CHLD, TTY_BOOL_CMP),
 
 	/* bool operation */
-	[T_BOOL_NEG] = t ('!', _BOOL_NEG, MASK|COMPOUND, TTY_BOOL_OP),
+	[T_BOOL_NEG] = t ('!', _BOOL_NEG, MASK|COMPOUND|SUFFIX_NOC1, TTY_BOOL_OP),
 
 	/* bitwise operation */
-	[T_BIT_NEG] = t ('~', _BIT_NEG, AS_IS, TTY_BITWISE_OP),
-	[T_BIT_AND] = t ('&', _BIT_AND, COMPOUND, TTY_BITWISE_OP),
-	[T_BIT_OR] = t ('|', _BIT_OR, COMPOUND, TTY_BITWISE_OP),
+	[T_BIT_NEG] = t ('~', _BIT_NEG, AS_IS|SUFFIX_NOC1, TTY_BITWISE_OP),
+	[T_BIT_AND] = t ('&', _BIT_AND, COMPOUND|SUFFIX_CHLD, TTY_BITWISE_OP),
+	[T_BIT_OR] = t ('|', _BIT_OR, COMPOUND|SUFFIX_CHLD, TTY_BITWISE_OP),
 
 	/* piping */
-	[T_PIPE] = t ('%', _PIPE, COMPOUND, TTY_PIPE),
+	[T_PIPE] = t ('%', _PIPE, COMPOUND|SUFFIX_CHLD, TTY_PIPE),
 
 	/* conditional branching */
-	[T_IF] = t ('?', _IF, COMPOUND, TTY_COND),
+	[T_IF] = t ('?', _IF, COMPOUND|SUFFIX_NOC2, TTY_COND),
 
 };
 

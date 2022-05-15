@@ -1,0 +1,3 @@
+[submodule "docs.sd"]
+	path = docs/lang
+	url = https://github.com/matthmr/docs.sd

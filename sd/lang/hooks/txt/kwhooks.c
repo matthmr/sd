@@ -7,7 +7,7 @@
 
 #include <string.h>
 
-#include <sd/lang/tokens/utils/txtmaps.h>
+#include <sd/lang/tokens/gen/txtmaps.h>
 #include <sd/lang/hooks/txt/txthooks.h>
 #include <sd/lang/lang.h>
 
@@ -32,7 +32,7 @@ static void kwty_loop (_Kw);
 
 void kwty_obj_def (_Kw kw) {
 	if (! ptree.curr.driver)
-		ptree_cdriver_set (kw.id);
+		ptree_add_driver_manifest (kw.id);
 	else
 		NO_INFO_ERR (0x08, "");
 }
@@ -46,8 +46,10 @@ void kwty_builtin_obj (_Kw kw) {
 }
 
 void kwty_builtin_ty (_Kw kw) {
-	if (ptree.curr.driver)
-		ptree_cdriver_append (kw.id);
+	if (ptree.curr.driver) {
+		/// TODO: check to prevent type override
+		ptree_add_driver_bits (kw.id);
+	}
 	else
 		NO_LINEINFO_ERR (0x07, "\n");
 }

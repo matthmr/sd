@@ -1,20 +1,20 @@
-# Objects / Archives / Cores / Executables -- binary
-**/*.o
-**/*.a
-**/*.so
-**/*core.*
-**/*.core*
+# Binary
+*.o
+*.a
+*.so
+*core*
 bin/sd*
 
-# Gzip man pages
-**/*.gz
-
 # Dev
-**/tags
-**/compile_*
-.cache
-**/*.log
-**/*.task
+.cache/
+.vim/
+.vscode/
 unit/
-**/.vim
-.vscode/**
+*.log
+*.task
+tags
+compile_*
+
+# Documentation
+*.gz
+docs/html/*
