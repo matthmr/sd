@@ -10,6 +10,7 @@ bin/sd*
 .vim/
 .vscode/
 unit/
+task/
 *.log
 *.task
 tags
@@ -17,4 +18,3 @@ compile_*
 
 # Documentation
 *.gz
-docs/html/*

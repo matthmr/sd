@@ -1,4 +1,8 @@
 /**
+ * @file literal.h
+ *
+ * @brief SD source code literal object utility
+ *
  * This file contains functionality
  * for literal integer-like
  * assignment/reference

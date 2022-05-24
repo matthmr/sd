@@ -1,7 +1,7 @@
 /**
  * @file utils.h
  *
- * @brief standard utils; context agnostic
+ * @brief generic standard utils; context agnostic
  *
  * This file contains basic / useful
  * functionality that are used throughout
@@ -42,7 +42,7 @@ void War (char*, const char*, char*);
 #  define H_LOCK(X) (X)=1
 #  define H_RESET(X) (X)=0
 #  define MAX_OF(x) (x) 0|1 // as cast to `type`
-#  define POW2(x) (unsigned)((unsigned)1 << x)
+#  define POW2(x) (unsigned)(1u << x)
 #  define BIT(x) POW2(x)
 #  define BYTES(x) sizeof (x) / sizeof (*x)
 

@@ -7,32 +7,36 @@
  * token definition
  */
 
+#include <sd/lang/tokens/interface/vti.h>
 #include <sd/lang/tokens/virtual/comp.h>
-#include <sd/lang/tokens/virtual/vt.h>
-#include <sd/lang/core/obj.h>
+#include <sd/lang/tokens/groups.h>
 
-#include <sd/utils/utils.h>
+#define comp(x,y,z,w) { .with = x, .common = { .id = y, .vty = z, .ty = w } }
+
+///< @brief virtual compound token identification interface
 
 /// @brief virtual compound direct token definition
-const vtid_comp_direct vtoken_manifest_comp_direct[] = {
-	// compound only
-	[T_BIT_AND] = _BOOL_AND,
-	[T_BIT_OR] = _BOOL_OR,
-	[T_PIPE] = _MATH_MOD,
-	[T_CHILD] = _MATH_DIV,
-	[T_CAST] = _OBJ_PARENT,
-	[T_SELF] = _BIT_XOR,
-	[T_LABEL] = _MACRO_LIT,
+const vtid_comp_txt txt[] = {
 
-	// compound and mask
-	[T_ARR_BEGIN] = _BIT_LS,
-	[T_ARR_END] = _BIT_RS,
-	[T_MATH_PLUS] = _MATH_INC,
-	[T_MATH_MINUS] = _MATH_DEC,
-	[T_BOOL_NEG] = _WHILE_TRUE,
+	// -- direct -- //
+	[_CHILD] = comp ('/', _MATH_DIV, AS_IS, TTY_MATH_OP),
+	[_BIT_AND] = comp ('&', _BOOL_AND, AS_IS, TTY_BOOL_CMP),
+	[_BIT_OR] = comp ('|', _BOOL_OR, AS_IS, TTY_BOOL_CMP),
+	[_PIPE] = comp ('%', _MATH_MOD, AS_IS, TTY_BOOL_OP),
+	[_CAST] = comp ('.', _OBJ_PARENT, AS_IS, TTY_OBJ_REF),
+	[_SELF] = comp ('^', _BIT_XOR, AS_IS, TTY_BITWISE_OP),
+	[_LIT] = comp ('$', _MACRO_LIT, AS_IS, TTY_SYN),
+	[_ARR_BEGIN] = comp ('<', _BIT_LS, AS_IS, TTY_BITWISE_OP),
+	[_ARR_END] = comp ('>', _BIT_RS, AS_IS, TTY_BITWISE_OP),
+	[_MATH_PLUS] = comp ('+', _MATH_INC, AS_IS, TTY_MATH_OP),
+	[_MATH_MINUS] = comp ('-', _MATH_DEC, AS_IS, TTY_MATH_OP),
+	[_IF] = comp ('?', _WHILE, AS_IS, TTY_COND),
+
+	// -- indirect -- //
+
 };
 
-const vtid_comp_indirect vtoken_manifest_comp_indirect[] = {
+const _vti [] = {
 	[_MATH_LTEQ] = { .against = _BOOL_EQ, .make = _MATH_LTEQ },
 	[_MATH_GTEQ] = 0,
 	[_MATH_NEQ] = vtid_append (0x0017),
@@ -57,10 +61,8 @@ const vtid_comp_indirect vtoken_manifest_comp_indirect[] = {
 	[_ASSIGN_EQ] = vtid_append (0x0029),
 };
 
-const unsigned short compdlen = BYTES (vtoken_manifest_comp_direct);
-const unsigned short compidlen = BYTES (vtoken_manifest_comp_indirect);
-
-vitd_comp vtoken_manifest_comp = {
-	.direct = vtoken_manifest_comp_direct,
-	.indirect = vtoken_manifest_comp_indirect,
+const _vti vtoken_manifest_comp = {
+	.txt = vtoken_manifest_comp_direct,
+	.mask = vtoken_manifest_comp_indirect,
+	.comp = vtoken_manifest_comp_indirect,
 };

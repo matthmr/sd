@@ -1,4 +1,8 @@
 /**
+ * @file bitmap.h
+ *
+ * @brief SD bytecode bitmapping
+ *
  * This file contains definitions
  * for bitmaps of SD bytecode:
  *  >  NORMAL BYTE

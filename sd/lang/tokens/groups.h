@@ -1,19 +1,18 @@
 /**
- * @file lang.h
+ * @file groups.h
  *
- * @brief SD object grouping
+ * @brief SD syntatical object grouping
  *
- * This file contains object grouping
+ * This file contains syntax grouping
  * for better separation of tokens
  * and keywords and for more specific
- * hook usage.
+ * hook usage
  */
 
 #ifndef LOCK_LANG
-#  define LOCK_LANG
+#  define LOCK_LANG ///< lock: standard lock
 
-#  include <sd/lang/tokens/gen/txtmaps.h>
-
+/// @brief keyword group
 enum kwty {
 	KWTY_BUILTIN_OBJ,
 	KWTY_BUILTIN_TY,
@@ -26,6 +25,7 @@ enum kwty {
 	KWTY_MOD,
 };
 
+/// @brief token group
 enum tty {
 	TTY_OBJ_REF,
 	TTY_OBJ_DEF,
@@ -44,6 +44,5 @@ enum tty {
 
 typedef enum kwty Kwty;
 typedef enum tty Tty;
-typedef enum vty Vty;
 
 #endif

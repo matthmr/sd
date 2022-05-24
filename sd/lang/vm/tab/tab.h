@@ -1,4 +1,8 @@
 /**
+ * @file tab.h
+ *
+ * @brief object table internal structure
+ *
  * This file contains the
  * implementations for
  * the SD vm table

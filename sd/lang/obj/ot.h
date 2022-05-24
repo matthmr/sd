@@ -1,4 +1,8 @@
 /**
+ * @file ot.h
+ *
+ * @brief object table external interface
+ *
  * This file contains definitions
  * for object creation and basic
  * tree manipulation
@@ -8,7 +12,7 @@
 #  define LOCK_OBJ_TREE
 
 #  include <sd/utils/types/shared.h>
-#  include <sd/lang/lang.h>
+#  include <sd/lang/tokens/groups.h>
 
 struct data {
 	void* data;

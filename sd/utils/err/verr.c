@@ -1,4 +1,8 @@
 /**
+ * @file verr.c
+ *
+ * @brief verbose error formating
+ *
  * This file contains verbose
  * error messaging formating
  */
@@ -13,9 +17,13 @@
 #include <sd/utils/err/verr.h>
 #include <sd/utils/err/err.h>
 
-extern uint ln;
-bool verr = 0;
+extern uint ln; ///< @brief current line number
+bool verr = 0; ///< @brief lock: use verbose error
 
+/// @brief standard verbose error exitter
+/// @param code exit code
+/// @param info message to send to the error handler
+/// @param lineinfo file info to send to the error handler
 void vErr (int code, char* info, char* lineinfo) {
 	fprintf (stderr, vfmt, errmsg[code], info, lineinfo);
 	verr = 1;

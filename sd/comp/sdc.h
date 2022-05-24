@@ -1,4 +1,8 @@
 /**
+ * @file sdc.h
+ *
+ * @brief SD compiler source code entry
+ *
  * This file contains the logic
  * for the compiler to bytecode
  *

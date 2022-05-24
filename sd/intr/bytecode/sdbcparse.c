@@ -1,4 +1,8 @@
 /**
+ * @file sdbcparse.c
+ *
+ * @brief `sdc`'s bytecode source code backend
+ *
  * This file contains the logic
  * for parsing SD bytecode.
  */

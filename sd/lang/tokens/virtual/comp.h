@@ -10,21 +10,25 @@
 #ifndef LOCK_VIRTUAL_COMPOUND
 #  define LOCK_VIRTUAL_COMPOUND ///< lock: standard lock
 
-/// @brief virtual compound direct token index getter
-#  define compgetter(x) 
+#  include <sd/lang/tokens/virtual/gen/id.h>
 
-typedef unsigned short vtid_comp_direct;
-
-struct vtid_comp_indirect {
-	short against;
-	short make;
+struct vtid_comp_txt {
+	const char with;
+	const _vti common;
 };
 
-typedef struct vtid_comp_indirect vtid_comp_indirect[];
+struct vtid_comp_mask {
+	const _vti common
+}
+
+typedef struct vtid_comp_txt vtid_comp_txt;
+typedef struct vtid_comp_mask vtid_comp_mask;
+typedef struct vtid_comp_comp vtid_comp_comp;
 
 struct vtid_comp {
-	vtid_comp_direct* direct;
-	vtid_comp_indirect* indirect;
+	const vtid_comp_txt* txt;
+	const vtid_comp_mask* mask;
+	const vtid_comp_comp* comp;
 };
 
 typedef struct vtid_comp vtid_comp;

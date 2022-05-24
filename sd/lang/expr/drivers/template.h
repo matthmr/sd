@@ -1,4 +1,8 @@
 /**
+ * @file template.h
+ *
+ * @brief AST driver template
+ *
  * This file contains
  * driver templates
  */

@@ -1,7 +1,11 @@
 /**
+ * @file vm.h
+ *
+ * @brief SDVM implementation
+ *
  * This file contains
  * type definitions
- * for the SD vm
+ * for the SDVM
  */
 
 #ifndef LOCK_VM

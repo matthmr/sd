@@ -1,4 +1,8 @@
 /**
+ * @file thooks.c
+ *
+ * @brief hooks for text tokens
+ *
  * This file contains the
  * implementation for built-in
  * object hooks found in plain-
@@ -6,10 +10,9 @@
  * ping around the parse tree
  */
 
-
 #include <sd/lang/hooks/txt/txthooks.h>
+#include <sd/lang/tokens/groups.h>
 #include <sd/lang/expr/expr.h>
-#include <sd/lang/lang.h>
 
 #define LOCK_PARSE
 #define LOCK_STACK

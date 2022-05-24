@@ -1,4 +1,8 @@
 /**
+ * @file kwhooks.c
+ *
+ * @brief hooks for text keywords
+ *
  * This file contains the
  * implementation for built-in
  * object hooks found in plain-
@@ -9,7 +13,7 @@
 
 #include <sd/lang/tokens/gen/txtmaps.h>
 #include <sd/lang/hooks/txt/txthooks.h>
-#include <sd/lang/lang.h>
+#include <sd/lang/tokens/groups.h>
 
 #include <sd/utils/types/shared.h>
 #include <sd/utils/err/verr.h>
@@ -38,11 +42,6 @@ void kwty_obj_def (_Kw kw) {
 }
 
 void kwty_builtin_obj (_Kw kw) {
-	if (kw.id == _THIS); // this
-		//
-	else { // nil
-		//
-	}
 }
 
 void kwty_builtin_ty (_Kw kw) {

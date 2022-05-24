@@ -1,7 +1,7 @@
 /**
  * @file txtutils.c
  *
- * @brief Plain-text source code utilities
+ * @brief plain-text source code utilities
  *
  * This file contains the
  * implementation of utils
@@ -18,8 +18,8 @@
 #include <sd/utils/utils.h>
 
 #include <sd/lang/hooks/txt/txthooks.h>
+#include <sd/lang/core/statement.h>
 #include <sd/lang/tokens/txt.h>
-#include <sd/lang/core/obj.h>
 
 #define st_comp(x) dir? (x)<=t_end: (x)>=t_start ///< compares the manifest index according with `dir`
 #define st_advance(x) dir? (x++): (x--) ///< advances the manifest index according to `dir`

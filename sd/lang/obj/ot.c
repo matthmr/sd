@@ -1,4 +1,8 @@
 /**
+ * @file ot.c
+ *
+ * @brief object table external interface
+ *
  * This file contains definitions
  * for object creation and basic
  * tree manipulation
@@ -7,8 +11,8 @@
 #include <sd/utils/types/shared.h>
 #include <sd/utils/types/cast.h>
 
+#include <sd/lang/tokens/groups.h>
 #include <sd/lang/obj/ot.h>
-#include <sd/lang/lang.h>
 
 Obj g_root = {
 	.data = {

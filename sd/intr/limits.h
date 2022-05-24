@@ -1,7 +1,7 @@
 /**
  * @file limits.h
  *
- * @brief Limits for SD and the SDVM
+ * @brief limits for SD and the SDVM
  *
  * This file contains generic limits
  * for the SD interpreters and other
@@ -21,14 +21,7 @@
 #  define LOCK_INTR_LIMITS ///< lock: standard lock
 
 #  include <sd/utils/types/shared.h>
-
-#  ifdef LOCK_UTILS
-#    include <sd/utils/utils.h>
-#  else
-#    define LOCK_UTILS
-#    include <sd/utils/utils.h>
-#    undef LOCK_UTILS
-#  endif
+#  include <sd/utils/utils.h>
 
 #  define KiB POW2 (10) *b
 #  define MiB POW2 (10) *KiB

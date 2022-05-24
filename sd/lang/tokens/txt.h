@@ -12,7 +12,7 @@
 #  define LOCK_TOKENS
 
 #    include <sd/utils/types/shared.h>
-#    include <sd/lang/lang.h>
+#    include <sd/lang/tokens/groups.h>
 
 extern const _Kw keyword_manifest[];
 extern const _T token_manifest[];

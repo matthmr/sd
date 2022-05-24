@@ -1,4 +1,8 @@
 /**
+ * @file sdread.c
+ *
+ * @brief SD read wrapper functionality
+ *
  * This file is a WRAPPER arround functionality
  * regarding the SD language. It makes it possible
  * to parse and interpret plain-text source code

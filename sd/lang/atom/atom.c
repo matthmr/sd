@@ -1,5 +1,10 @@
 /**
+ * @file atom.c
+ *
+ * @brief SDVM atoms
+ *
  * This file contains glibc atoms
+ * for the SDVM
  */
 
 #include <sd/utils/types/shared.h>

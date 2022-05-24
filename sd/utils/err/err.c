@@ -1,4 +1,8 @@
 /**
+ * @file err.c
+ *
+ * @brief standard error formatting
+ *
  * This file contains standard error
  * information so that error messages
  * can be a bit more informative and
@@ -8,9 +12,10 @@
 #include <sd/utils/err/err.h>
 #include <sd/utils/utils.h>
 
-char* fmt;
-char* vfmt;
+char* fmt; ///< @brief normal error format
+char* vfmt; ///< @brief verbose error format
 
+/// @brief normal error formating for run/compile-time
 static const char* errfmt[] = {
 	[TIME_ARG] = "arg:%s%s\n",
 	[TIME_TXT] = "main:%s%s\n",
@@ -18,7 +23,8 @@ static const char* errfmt[] = {
 	[TIME_COMP] = "compile:%s%s\n"
 };
 
-// TODO: file:LN:COL: ERR: ...
+// TODO: file:LN ERR: ...
+/// @brief verbose error formating for run/compile-time
 static const char* verrfmt[] = {
 	[TIME_ARG] = "arg:%s%s%s\n",
 	[TIME_TXT] = "main:%s%s%s\n",
@@ -26,6 +32,7 @@ static const char* verrfmt[] = {
 	[TIME_COMP] = "compile:%s%s%s\n"
 };
 
+/// @brief error message manifest
 const char* errmsg[] = {
 	0x00,
 
@@ -43,11 +50,16 @@ const char* errmsg[] = {
 
 };
 
+/// @brief error time setter
+/// @param t time to be set to
 void e_set (Time t) {
 	fmt = (char*) errfmt[t];
 	vfmt = (char*) verrfmt[t];
 }
 
+/// @brief standard error exitter
+/// @param code exit code
+/// @param info message to send to the error handler
 void Err (int code, char* info) {
 	Die (fmt, errmsg[code], info, code);
 }

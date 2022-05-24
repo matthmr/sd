@@ -1,4 +1,8 @@
 /**
+ * @file sdbcparse.h
+ *
+ * @brief `sdc`'s bytecode source code backend
+ *
  * This file contains type
  * definition for parsing
  * SD bytecode.

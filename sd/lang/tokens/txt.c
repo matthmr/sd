@@ -1,7 +1,7 @@
 /**
  * @file txt.c
  *
- * @brief plain-text manifests
+ * @brief plain text manifests
  *
  * This file contains sorted manifests
  * for keywords and tokens of the
@@ -9,16 +9,16 @@
  */
 
 #include <sd/lang/tokens/gen/txtmaps.h>
-#include <sd/lang/core/obj.h>
-#include <sd/lang/lang.h>
+#include <sd/lang/core/statement.h>
+#include <sd/lang/tokens/groups.h>
 
 #include <sd/intr/txt/tokens/form.h>
 
 #include <sd/utils/types/shared.h>
 #include <sd/utils/utils.h>
 
-#define kw(a,b,c) { .kw = a, .id = b, .ty = c }
-#define t(a,b,c,d) { .t = a, .id = b, .vty = c, .ty = d }
+#define kw(a,b,c) { .kw = a, .id = b, .ty = c } ///< @brief keyword plain-text interface
+#define t(a,b,c,d) { .t = a, .id = b, .vty = c, .ty = d } ///< @brief token plain-text interface
 
 /// @brief keyword manifest
 ///
@@ -36,8 +36,6 @@
 ///      cdef
 /// @endverbatim
 const _Kw keyword_manifest[] = {
-
-	// TODO: wrap, unwrap
 
 	// -- ASSIGNMENT -- //
 	/* built-in data types */
@@ -69,11 +67,11 @@ const _Kw keyword_manifest[] = {
 	[KW_IMPL] = kw ("impl", _IMPL, KWTY_ENV),
 	[KW_SCOPE] = kw ("scope", _SCOPE, KWTY_ENV),
 	[KW_HERE] = kw ("here", _HERE, KWTY_ENV),
+	[KW_EXPAND] = kw ("expand", _EXPAND, KWTY_ENV),
 
 	// -- INTRINSIC -- //
 	/* built-in objects */
 	[KW_NIL] = kw ("nil", _NIL, KWTY_BUILTIN_OBJ),
-	[KW_THIS] = kw ("this", _THIS, KWTY_BUILTIN_OBJ),
 	[KW_TRUE] = kw ("true", _TRUE, KWTY_BUILTIN_OBJ),
 	[KW_FALSE] = kw ("false", _FALSE, KWTY_BUILTIN_OBJ),
 
@@ -85,7 +83,9 @@ const _Kw keyword_manifest[] = {
 	[KW_JUMP] = kw ("jump", _JUMP, KWTY_FLOW),
 	[KW_RET] = kw ("ret", _RET, KWTY_FLOW),
 	[KW_GOTO] = kw ("goto", _GOTO, KWTY_FLOW),
-	// [KW_BRANCH] = kw ("branch", _BRANCH, KWTY_FLOW),
+	[KW_BRANCH] = kw ("branch", _BRANCH, KWTY_FLOW),
+	[KW_PEEK] = kw ("peek", _PEEK, KWTY_FLOW),
+	[KW_LABEL] = kw ("label", _LABEL, KWTY_FLOW),
 
 	// -- MISC -- //
 	/* accumulatives */
@@ -104,22 +104,22 @@ const _Kw keyword_manifest[] = {
 const _T token_manifest[] = {
 
 	/* reference delimiters */
-	[T_OBJ_BEGIN] = t ('[', _OBJ_BEGIN, MATCH|SUFFIX_NOC1, TTY_OBJ_REF_DEL),
-	[T_OBJ_END] = t (']', _OBJ_END, MATCH|SUFFIX_NOC2, TTY_OBJ_REF_DEL),
-	[T_PROC_BEGIN] = t ('(', _PROC_BEGIN, MATCH|SUFFIX_NOC1, TTY_OBJ_REF_DEL),
-	[T_PROC_END] = t (')', _PROC_END, MATCH|SUFFIX_NOC2, TTY_OBJ_REF_DEL),
+	[T_OBJ_BEGIN] = t ('[', _OBJ_BEGIN, MATCH|SUFFIX_IRR, TTY_OBJ_REF_DEL),
+	[T_OBJ_END] = t (']', _OBJ_END, MATCH|SUFFIX_IRR, TTY_OBJ_REF_DEL),
+	[T_PROC_BEGIN] = t ('(', _PROC_BEGIN, MATCH|SUFFIX_IRR, TTY_OBJ_REF_DEL),
+	[T_PROC_END] = t (')', _PROC_END, MATCH|SUFFIX_IRR, TTY_OBJ_REF_DEL),
 	[T_SEP] = t (',', _SEP, AS_IS|SUFFIX_NOC2|SUFFIX_CHLD|SUFFIX_NOC1, TTY_OBJ_REF_DEL),
 
 	/* object reference */
 	[T_CHILD] = t ('/', _CHILD, COMPOUND|SUFFIX_NOC1|SUFFIX_CHLD, TTY_OBJ_REF),
 	[T_DEREF] = t ('@', _DEREF, AS_IS|SUFFIX_NOC1, TTY_OBJ_REF),
 	[T_CAST] = t ('.', _CAST, COMPOUND|SUFFIX_CHLD, TTY_OBJ_REF),
-	[T_ARR_BEGIN] = t ('<', _MOD_BEGIN, MATCH|COMPOUND|MASK|SUFFIX_NOC1, TTY_OBJ_REF_DEL),
-	[T_ARR_END] = t ('>', _MOD_END, MATCH|COMPOUND|MASK|SUFFIX_NOC2, TTY_OBJ_REF_DEL),
+	[T_ARR_BEGIN] = t ('<', _ARR_BEGIN, MATCH|COMPOUND|MASK|SUFFIX_NOC1, TTY_OBJ_REF_DEL),
+	[T_ARR_END] = t ('>', _ARR_END, MATCH|COMPOUND|MASK|SUFFIX_NOC2, TTY_OBJ_REF_DEL),
 
 	/* object definition */
-	[T_BODY_BEGIN] = t ('{', _BODY_BEGIN, MATCH|SUFFIX_NOC1, TTY_OBJ_DEF),
-	[T_BODY_END] = t ('}', _BODY_END, MATCH|SUFFIX_NOC2, TTY_OBJ_DEF),
+	[T_BODY_BEGIN] = t ('{', _BODY_BEGIN, MATCH|SUFFIX_IRR, TTY_OBJ_DEF),
+	[T_BODY_END] = t ('}', _BODY_END, MATCH|SUFFIX_IRR, TTY_OBJ_DEF),
 	[T_ASSIGN] = t (':', _ASSIGN, AS_IS|SUFFIX_CHLD, TTY_OBJ_DEF),
 
 	/* expression control */
@@ -130,7 +130,7 @@ const _T token_manifest[] = {
 	[T_CHAR] = t ('\'', _SCHAR, MATCH|SUFFIX_NOC1|SUFFIX_NOC2, TTY_SYN),
 	[T_STRING] = t ('"', _DCHAR, MATCH|SUFFIX_NOC1|SUFFIX_NOC2, TTY_SYN),
 	[T_COMMENT] = t ('#', _COMMENT, AS_IS, TTY_SYN),
-	[T_LABEL] = t ('$', _LABEL, COMPOUND|SUFFIX_NOC1, TTY_SYN),
+	[T_LIT] = t ('$', _LIT, COMPOUND|SUFFIX_NOC1, TTY_SYN),
 
 	/* math operation */
 	[T_MATH_PLUS] = t ('+', _MATH_PLUS, MASK|COMPOUND|SUFFIX_CHLD, TTY_MATH_OP),
@@ -152,7 +152,7 @@ const _T token_manifest[] = {
 	[T_PIPE] = t ('%', _PIPE, COMPOUND|SUFFIX_CHLD, TTY_PIPE),
 
 	/* conditional branching */
-	[T_IF] = t ('?', _IF, COMPOUND|SUFFIX_NOC2, TTY_COND),
+	[T_IF] = t ('?', _IF, COMPOUND|MASK|SUFFIX_NOC2, TTY_COND),
 
 };
 

@@ -18,6 +18,8 @@
 
 #  include <sd/utils/utils.h>
 
+// TODO: make `op` also have virtual operations
+//       (function argument, function body)
 /// @brief SD operators
 enum op {
 
@@ -66,7 +68,7 @@ enum op {
 
 	// -- flow -- //
 	OP_FLOWEXPR,   ///< such as: '?'
-	OP_FLOWLOOP,   ///< such as: '!'
+	OP_FLOWLOOP,   ///< such as: '??'
 	
 	// -- macro -- //
 	OP_MACCONST,   ///< such as: '$$'
@@ -81,38 +83,30 @@ enum op {
 typedef enum op Op;
 
 /// @brief bit size + bit interpretation
-/// distinguish `int` from `char` on
-/// size only, not on interpretation
 enum bits {
-
-	// 8 bits
 	bits_8,
-
-	// 16 bits
 	bits_16,
-
-	// 32 bits
 	bits_32,
-	bits_32f,  // intr<float>
-	#if ADDR_BITS == 32
-	bits_addr, // intr<addr>
-	#endif
-
 	bits_64,
-	bits_64f,  // intr<double>
-	#if ADDR_BITS == 64
-	bits_addr, // intr<addr>
-	#endif
+
+	bits_addr,
 };
 
 /// @brief data qualifier
+/// @note all numerical types (excluding floats)
+///       are unsigned by default
 enum qual {
-	qual_const = BIT (1),  ///< toggle: const, mut
-	qual_signed = BIT (2), ///< toggle: signed, unsigned (int-like only)
-	qual_static = BIT (3), ///< toggle: static, auto
-	qual_here = BIT (4),   ///< toggle: local, global (module-wise)
-	qual_scope = BIT (5),  ///< toggle: local, global (object-wise)
+	qual_const = BIT (0),   ///< toggle: const, mut
+	qual_signed = BIT (1),  ///< toggle: signed, unsigned (int-like only)
+	qual_static = BIT (2),  ///< toggle: static, auto (heap/stack)
+	qual_here = BIT (3),    ///< toggle: local, global (module-wise)
+	qual_scope = BIT (4),   ///< toggle: local, global (object-wise)
+	qual_array = BIT (5),   ///< toggle: array, object
+	qual_decimal = BIT (6), ///< toggle: numerical, float/double
+	qual_toobig = BIT (7),  ///< toggle: address overflow
 };
+
+#  define gqual(byte,qual) (byte) & (~qual) ///< macro: get @p qual from @p byte as a bitmap
 
 typedef enum bits bits;
 typedef enum qual qual;
@@ -125,7 +119,6 @@ struct expr {
 	addr e1; /* heap/stack (l) or tab/register (e) */
 	addr e2; /* heap/stack (l) or tab/register (e) */
 	u32 op;
-	// u8 ty;
 };
 
 void expr_exec (void);

@@ -1,7 +1,7 @@
 /**
  * @file shared.h
  *
- * @brief shared macros and utils
+ * @brief generic shared macros and utils
  *
  * This file contains types can be shared
  * through all files; interface agnostic.

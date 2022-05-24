@@ -15,5 +15,5 @@ for the first one. It is written in plain text.
 The third one refers to the `docs.sd` git submodule
 (which won't be present if this repository is cloned as
 `git clone --depth=1`). It is written in markdown and
-can be compiled to html using any standard markdown
-to html converter (cmark, markdown, pandoc, ...)
+can be compiled to html using the common markdown
+to html converter [cmark](https://commonmark.org/).

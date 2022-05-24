@@ -1,5 +1,10 @@
 /**
+ * @file atom.h
+ *
+ * @brief SDVM atoms
+ *
  * This file contains glibc atoms
+ * for the SDVM
  */
 
 #ifndef LOCK_ATOM

@@ -12,16 +12,20 @@
 #ifndef LOCK_VTID ///< lock: standard lock
 #  define LOCK_VTID
 
+#  include <sd/lang/tokens/interface/vti.h>
 #  include <sd/lang/tokens/gen/txtmaps.h>
+#  include <sd/lang/tokens/groups.h>
+
 #  define vtid_append(x) _TID_BOUND+x
 
 // TODO: maybe the idea of macros doesn't work in the SD paradigm?
+// TODO: maybe change `!` to `??` and ignore doubling as always-true?
 /// @brief virtual token definition
 enum vtid {
 
 	/* compound:
 	 *    <<, >>, //, $$, $(), $<>$,
-	 *    .., ^^, ++, --, !!, ??, &&,
+	 *    .., ^^, ++, --, ??, &&,
 	 *    ||, %%
 	 */
 	_BIT_LS = vtid_append (0x0001),
@@ -34,20 +38,20 @@ enum vtid {
 	_BIT_XOR = vtid_append (0x0008),
 	_MATH_INC = vtid_append (0x0009),
 	_MATH_DEC = vtid_append (0x000a),
-	_WHILE_TRUE = vtid_append (0x000b),
-	_IF_TRUE = vtid_append (0x000c),
-	_BOOL_AND = vtid_append (0x000d),
-	_BOOL_OR = vtid_append (0x000e),
-	_MATH_MOD = vtid_append (0x000f),
+	_WHILE = vtid_append (0x000b),
+	_BOOL_AND = vtid_append (0x000c),
+	_BOOL_OR = vtid_append (0x000d),
+	_MATH_MOD = vtid_append (0x000e),
 
 	/* mask:
-	 *    <, >, +, -, !
+	 *    <, >, <, >, +, -
 	 */
-	_BOOL_LT = vtid_append (0x0010),
-	_BOOL_GT = vtid_append (0x0011),
+	_BOOL_LT = vtid_append (0x000f),
+	_BOOL_GT = vtid_append (0x0010),
+	_MOD_BEGIN = vtid_append (0x0011),
+	_MOD_END = vtid_append (0x0012),
 	_MATH_UPLUS = vtid_append (0x0012),
 	_MATH_UMINUS = vtid_append (0x0013),
-	_WHILE = vtid_append (0x0014),
 
 	/* `ttoken`-defined indirect compounds:
 	 *    <=, >=, !=, +:, -:, |:, *:,
@@ -82,7 +86,16 @@ enum vtid {
 
 };
 
+typedef enum vtid Vtid;
+
 const unsigned short tdef_comp = _ASSIGN_PLUS;
 const unsigned short cdef_comp = _ASSIGN_MOD;
+
+/// @brief virtual token interface
+typedef struct _vt_common {
+	Vtid id;
+	Vty vty;
+	Tty ty;
+} _vti;
 
 #endif

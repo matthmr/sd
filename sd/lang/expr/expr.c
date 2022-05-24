@@ -1,4 +1,8 @@
 /**
+ * @file expr.c
+ *
+ * @brief SDVM stack expression structure
+ *
  * This file contains utils
  * for making a generic
  * parse tree on demand

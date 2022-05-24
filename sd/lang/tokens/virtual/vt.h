@@ -22,9 +22,9 @@
 ///   - _vt::comp compound tokens
 ///   - _vt::match match tokens
 struct _vt {
-	vtid_mask* mask;
-	vtid_comp* comp;
-	vtid_match* match;
+	const vtid_mask* mask;
+	const vtid_comp* comp;
+	const vtid_match* match;
 };
 
 typedef struct _vt _vT;

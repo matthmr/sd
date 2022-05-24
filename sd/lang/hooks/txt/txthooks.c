@@ -1,4 +1,8 @@
 /**
+ * @file txthooks.c
+ *
+ * @brief text hook interface
+ *
  * This file contains the
  * definitions for built-in
  * object hooks found in plain-

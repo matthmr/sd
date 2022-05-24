@@ -1,8 +1,7 @@
 /**
- *
  * @file txtmaps.h
  *
- * @brief Basic keyword and token definitions
+ * @brief basic keyword and token definitions
  *
  * This file contains generic type definitions
  * for utils for tokens and keywords identification
@@ -12,6 +11,7 @@
 #  define LOCK_TXTMAPS_KW ///< lock: lock keywords
 
 // TODO: implement `double` data type
+// TODO: implement `wrap` and `unwrap` keywords
 /// @brief keyword identification
 enum kwid {
 
@@ -44,10 +44,10 @@ enum kwid {
 	/* scope control */
 	_IMPORT = 0x0013,
 	_IMPL = 0x0014,
+	_EXPAND = 0x0015,
 
 	/* built-in objects */
-	_NIL = 0x0015,
-	_THIS = 0x0016,
+	_NIL = 0x0016,
 	_TRUE = 0x0017,
 	_FALSE = 0x0018,
 
@@ -58,21 +58,22 @@ enum kwid {
 	_JUMP = 0x001c,
 	_RET = 0x001d,
 	_GOTO = 0x001e,
-	// _BRANCH 0x001f,
+	_BRANCH = 0x001f,
+	_PEEK = 0x0020,
+	_LABEL = 0x0021,
 
 	/* literal syntax */
-	_AS = 0x001f,
+	_AS = 0x0022,
 
 	/* loops */
-	_ITER = 0x0020,
+	_ITER = 0x0023,
 
 };
 
 typedef enum kwid Kwid;
 
 #ifndef _KWID_BOUND
-#  define _KWID_BOUND _ITER ///< lock: lock @p _KWID_BOUND, the upper bound
-                            ///        for character tokens
+#  define _KWID_BOUND _ITER ///< lock: lock @p _KWID_BOUND, the upper bound for character tokens
 #endif
 
 #endif
@@ -93,8 +94,8 @@ enum tid {
 	/* reference delimiters */
 	_OBJ_BEGIN = tid_append (0x001),
 	_OBJ_END = tid_append (0x0002),
-	_MOD_BEGIN = tid_append (0x0003),
-	_MOD_END = tid_append (0x0004),
+	_ARR_BEGIN = tid_append (0x0003),
+	_ARR_END = tid_append (0x0004),
 	_PROC_BEGIN = tid_append (0x0005),
 	_PROC_END = tid_append (0x0006),
 	_SEP = tid_append (0x0007),
@@ -116,7 +117,7 @@ enum tid {
 	/* misc syntax */
 	_DCHAR = tid_append (0x0010),
 	_COMMENT = tid_append (0x0011),
-	_LABEL = tid_append (0x0012),
+	_LIT = tid_append (0x0012),
 	_SCHAR = tid_append (0x0013),
 
 	/* math operation */
@@ -144,7 +145,6 @@ enum tid {
 };
 
 typedef enum tid Tid;
-
 #endif
 
 #ifndef LOCK_TXTMAPS_BOUND

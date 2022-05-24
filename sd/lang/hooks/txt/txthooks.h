@@ -1,4 +1,8 @@
 /**
+ * @file txthooks.h
+ *
+ * @brief text hook interface
+ *
  * This file contains the
  * definitions for built-in
  * object hooks found in plain-
@@ -8,7 +12,7 @@
 #ifndef LOCK_AHOOKS
 #  define LOCK_AHOOKS
 
-#include <sd/lang/lang.h>
+#include <sd/lang/tokens/groups.h>
 
 #include <sd/intr/txt/tokens/form.h>
 

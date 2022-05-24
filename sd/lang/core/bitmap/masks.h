@@ -1,4 +1,8 @@
 /**
+ * @file masks.h
+ *
+ * @brief SD bytecode masking
+ *
  * This file contains bitmap
  * masks */
 

@@ -1,4 +1,8 @@
 /**
+ * @file sdread.h
+ *
+ * @brief SD read wrapper functionality
+ *
  * This file contains promises
  * set for parser frontends
  * and misc data for sdread

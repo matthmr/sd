@@ -1,4 +1,8 @@
 /**
+ * @file drivers.h
+ *
+ * @brief AST expression drivers
+ *
  * This file contains
  * expression drivers
  */
@@ -19,7 +23,7 @@ enum drivers_manifest {
 	DRIVER_MACRO,
 	DRIVER_LITERAL,
 	DRIVER_CALL,
-	DRIVER_KW_IMM,   // jump, ret, end, sync, sync, 
+	DRIVER_KW_IMM,   // jump-like
 
 	DRIVER_IMPL,
 

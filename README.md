@@ -5,13 +5,13 @@ This is the main SD language git repository.
 This contains the sources for the:
 
 - plain-text & bytecode interpreter
-- compiler
+- bytecode compiler
 
 Besides the sources for the main `libsd.so` library for the entire language to function.
 
 # Building
 
-This uses a `Makefile` at root to compile. It has the following targets:
+This uses a Makefile at root to compile. It has the following targets:
 
 - help: show the options below
 - install: makes **all** utilites (and install man documentation)
@@ -25,22 +25,20 @@ This uses a `Makefile` at root to compile. It has the following targets:
 
 The default for `make` being run alone is `make install`.
 
-The `Makefile` also has a couple environment variables to pass through:
+The Makefile also has a couple environment variables to pass through:
 
-[FLAG]: [EXPLANATION] (DEFAULT)
-
-- `CC`: the C compiler (clang)
-- `CCFLAGS`: additional flags to pass to the compiler ()
-- `BITS`: the machine memory address bit length (64)
-- `INCLUDE`: additional include path to pass to the compiler (-I${PWD})
-- `AR`: the `.a` archiver (ar)
-- `ARFLAG`: the archiver flags (rc)
+- `CC`: the C compiler (cc)
+- `CCFLAGS`: additional flags to pass to the compiler (-Wall)
+- `AR`: the ar archiver (ar)
+- `ARFLAGS`: the archiver flags (rc)
+- `C_INCLUDE_PATH`: additional include path to pass to the compiler (${PWD})
+- `BITS`: the machine memory address bit length (`getconf LONG_BIT`)
 - `PREFIX`: the prefix for the installation (/usr/local)
 
-Additionally for contributors, the `Makefile` also supports ctags with the `make tags` target.
+Additionally for contributors, the Makefile also supports ctags with the `make tags` target.
 
 It can be compiled with any modern C compiler.
-After compilation, the results will be stored at `/bin` (with the repository as root).
+After compilation, the results will be stored at `bin`.
 
 # Documentation
 

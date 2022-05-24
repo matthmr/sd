@@ -1,7 +1,11 @@
 /**
+ * @file vm.c
+ *
+ * @brief SDVM implementation
+ *
  * This file contains the
  * implementations for
- * the SD vm
+ * the SDVM
  */
 
 #include <stdlib.h>

@@ -1,7 +1,7 @@
 /**
  * @file txtutils.h
  *
- * @brief Plain-text source code utilities
+ * @brief plain-text source code utilities
  *
  * This file contains utils
  * for parsing plain-text
@@ -12,7 +12,7 @@
 #  define LOCK_TXT_UTILS ///< lock: standard lock
 
 #  include <sd/utils/types/shared.h>
-#  include <sd/lang/lang.h>
+#  include <sd/lang/tokens/groups.h>
 
 #  define not_found 1 ///< (`nfind_def`): if not found
 #  define found 2 ///< (`nfind_def`): if found to be word

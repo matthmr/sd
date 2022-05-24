@@ -19,11 +19,11 @@
 
 #include <sd/lang/hooks/txt/txthooks.h>
 #include <sd/lang/hooks/txt/literal.h>
+#include <sd/lang/tokens/groups.h>
 #include <sd/lang/uword/umaps.h>
 #include <sd/lang/tokens/txt.h>
 #include <sd/lang/obj/ot.h>
 #include <sd/lang/vm/vm.h>
-#include <sd/lang/lang.h>
 
 #define LOCK_READ
 #include <sd/intr/txt/utils/txtutils.h>
