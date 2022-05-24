@@ -7,62 +7,59 @@
  * token definition
  */
 
-#include <sd/lang/tokens/interface/vti.h>
+#include <sd/lang/tokens/virtual/gen/id.h>
 #include <sd/lang/tokens/virtual/comp.h>
 #include <sd/lang/tokens/groups.h>
 
-#define comp(x,y,z,w) { .with = x, .common = { .id = y, .vty = z, .ty = w } }
+#define compound(x,y,z,w) { .with = x, .common = { .id = y, .vty = z, .ty = w } }
 
-///< @brief virtual compound token identification interface
-
-/// @brief virtual compound direct token definition
-const vtid_comp_txt txt[] = {
-
-	// -- direct -- //
-	[_CHILD] = comp ('/', _MATH_DIV, AS_IS, TTY_MATH_OP),
-	[_BIT_AND] = comp ('&', _BOOL_AND, AS_IS, TTY_BOOL_CMP),
-	[_BIT_OR] = comp ('|', _BOOL_OR, AS_IS, TTY_BOOL_CMP),
-	[_PIPE] = comp ('%', _MATH_MOD, AS_IS, TTY_BOOL_OP),
-	[_CAST] = comp ('.', _OBJ_PARENT, AS_IS, TTY_OBJ_REF),
-	[_SELF] = comp ('^', _BIT_XOR, AS_IS, TTY_BITWISE_OP),
-	[_LIT] = comp ('$', _MACRO_LIT, AS_IS, TTY_SYN),
-	[_ARR_BEGIN] = comp ('<', _BIT_LS, AS_IS, TTY_BITWISE_OP),
-	[_ARR_END] = comp ('>', _BIT_RS, AS_IS, TTY_BITWISE_OP),
-	[_MATH_PLUS] = comp ('+', _MATH_INC, AS_IS, TTY_MATH_OP),
-	[_MATH_MINUS] = comp ('-', _MATH_DEC, AS_IS, TTY_MATH_OP),
-	[_IF] = comp ('?', _WHILE, AS_IS, TTY_COND),
-
-	// -- indirect -- //
-
+/// @brief virtual compound token manifest, direct compound, identified by text
+static const vtid_comp_txt_dir txt_dir[] = {
+	[norm_comp_txt_dir (_CHILD)] = compound ('/', _MATH_DIV, COMPOUND_INDIR|SUFFIX_CHLD, TTY_MATH_OP),
+	[norm_comp_txt_dir (_BIT_AND)] = compound ('&', _BOOL_AND, COMPOUND_INDIR|SUFFIX_CHLD, TTY_BOOL_CMP),
+	[norm_comp_txt_dir (_BIT_OR)] = compound ('|', _BOOL_OR, COMPOUND_INDIR|SUFFIX_CHLD, TTY_BOOL_CMP),
+	[norm_comp_txt_dir (_PIPE)] = compound ('%', _MATH_MOD, COMPOUND_INDIR|SUFFIX_CHLD, TTY_BOOL_OP),
+	[norm_comp_txt_dir (_CAST)] = compound ('.', _OBJ_PARENT, AS_IS, TTY_OBJ_REF),
+	[norm_comp_txt_dir (_SELF)] = compound ('^', _BIT_XOR, AS_IS|SUFFIX_CHLD, TTY_BITWISE_OP),
+	[norm_comp_txt_dir (_LIT)] = compound ('$', _MACRO_LIT, AS_IS|SUFFIX_NOC1, TTY_SYN),
+	[norm_comp_txt_dir (_BOOL_LT)] = compound ('<', _BIT_LS, COMPOUND_INDIR|SUFFIX_CHLD, TTY_BITWISE_OP),
+	[norm_comp_txt_dir (_BOOL_GT)] = compound ('>', _BIT_RS, COMPOUND_INDIR|SUFFIX_CHLD, TTY_BITWISE_OP),
+	[norm_comp_txt_dir (_MATH_PLUS)] = compound ('+', _MATH_INC, AS_IS|SUFFIX_NOC1, TTY_MATH_OP),
+	[norm_comp_txt_dir (_MATH_MINUS)] = compound ('-', _MATH_DEC, AS_IS|SUFFIX_NOC1, TTY_MATH_OP),
+	[norm_comp_txt_dir (_IF)] = compound ('?', _IN_IF, AS_IS|SUFFIX_CHLD, TTY_COND),
+	[norm_comp_txt_dir (_ASSIGN)] = compound (':', _IN_ASSIGN, AS_IS|SUFFIX_CHLD, TTY_OBJ_DEF),
 };
 
-const _vti [] = {
-	[_MATH_LTEQ] = { .against = _BOOL_EQ, .make = _MATH_LTEQ },
-	[_MATH_GTEQ] = 0,
-	[_MATH_NEQ] = vtid_append (0x0017),
-
-	[_ASSIGN_PLUS] = vtid_append (0x0018),
-	[_ASSIGN_MINUS] = vtid_append (0x0019),
-	[_ASSIGN_DIV] = vtid_append (0x001a),
-	[_ASSIGN_TIMES] = vtid_append (0x001b),
-	[_ASSIGN_MOD] = vtid_append (0x001c),
-	[_ASSIGN_AND] = vtid_append (0x001d),
-	[_ASSIGN_OR] = vtid_append (0x001e),
-	[_ASSIGN_NOT] = vtid_append (0x001f),
-	[_ASSIGN_BWAND] = vtid_append (0x0020),
-	[_ASSIGN_BWOR] = vtid_append (0x0021),
-	[_ASSIGN_BWXOR] = vtid_append (0x0022),
-	[_ASSIGN_BWNOT] = vtid_append (0x0023),
-	[_ASSIGN_BWRS] = vtid_append (0x0024),
-	[_ASSIGN_BWLS] = vtid_append (0x0025),
-	[_ASSIGN_LTEQ] = vtid_append (0x0026),
-	[_ASSIGN_GTEQ] = vtid_append (0x0027),
-	[_ASSIGN_NEQ] = vtid_append (0x0028),
-	[_ASSIGN_EQ] = vtid_append (0x0029),
+// TODO: make a group that deals with bool_cmp a bit more specifically
+static const vtid_comp_txt_indir txt_indir[] = {
+	[norm_comp_txt_indir (_BOOL_LT)] = compound ('=', _BOOL_LTEQ, AS_IS|SUFFIX_CHLD, TTY_BOOL_CMP),
+	[norm_comp_txt_indir (_BOOL_GT)] = compound ('=', _BOOL_GTEQ, AS_IS|SUFFIX_CHLD, TTY_BOOL_CMP),
+	[norm_comp_txt_indir (_BOOL_NEG)] = compound ('=', _BOOL_NEQ, AS_IS|SUFFIX_CHLD, TTY_BOOL_CMP),
+	[norm_comp_txt_indir (_MATH_PLUS)] = compound (':', _ASSIGN_PLUS, AS_IS|SUFFIX_CHLD, TTY_OBJ_DEF),
+	[norm_comp_txt_indir (_MATH_MINUS)] = compound (':', _ASSIGN_MINUS, AS_IS|SUFFIX_CHLD, TTY_OBJ_DEF),
+	[norm_comp_txt_indir (_MATH_TIMES)] = compound (':', _ASSIGN_TIMES, AS_IS|SUFFIX_CHLD, TTY_OBJ_DEF),
+	[norm_comp_txt_indir (_BIT_OR)] = compound (':', _ASSIGN_OR, AS_IS|SUFFIX_CHLD, TTY_OBJ_DEF),
+	[norm_comp_txt_indir (_BIT_AND)] = compound (':', _ASSIGN_AND, AS_IS|SUFFIX_CHLD, TTY_OBJ_DEF),
 };
 
-const _vti vtoken_manifest_comp = {
-	.txt = vtoken_manifest_comp_direct,
-	.mask = vtoken_manifest_comp_indirect,
-	.comp = vtoken_manifest_comp_indirect,
+static const vtid_comp_comp comp[] = {
+	[norm_comp_comp (_MATH_MOD)] = compound (':', _ASSIGN_MOD, AS_IS|SUFFIX_CHLD, TTY_OBJ_DEF),
+	[norm_comp_comp (_MATH_DIV)] = compound (':', _ASSIGN_DIV, AS_IS|SUFFIX_CHLD, TTY_OBJ_DEF),
+	[norm_comp_comp (_BOOL_AND)] = compound (':', _ASSIGN_AND, AS_IS|SUFFIX_CHLD, TTY_OBJ_DEF),
+	[norm_comp_comp (_BOOL_OR)] = compound (':', _ASSIGN_OR, AS_IS|SUFFIX_CHLD, TTY_OBJ_DEF),
+	//[norm_comp_cond (_BOOL_XOR)] = compound (':', _ASSIGN_XOR, AS_IS|SUFFIX_CHLD, TTY_OBJ_DEF), //TODO
+	[norm_comp_comp (_BIT_XOR)] = compound (':', _ASSIGN_BWXOR, AS_IS|SUFFIX_CHLD, TTY_OBJ_DEF),
+	[norm_comp_comp (_BIT_RS)] = compound (':', _ASSIGN_BWRS, AS_IS|SUFFIX_CHLD, TTY_OBJ_DEF),
+	[norm_comp_comp (_BIT_LS)] = compound (':', _ASSIGN_BWLS, AS_IS|SUFFIX_CHLD, TTY_OBJ_DEF),
+};
+
+static const vtid_comp_txt txt = {
+	.direct = (vtid_comp_txt_dir*)txt_dir,
+	.indirect = (vtid_comp_txt_indir*)txt_indir,
+};
+
+const vtid_comp vtoken_manifest_comp = {
+	.txt = &txt,
+	.mask = (vtid_comp_mask*)0,
+	.comp = (vtid_comp_comp*)comp,
 };

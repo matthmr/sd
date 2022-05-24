@@ -18,84 +18,78 @@
 
 #  define vtid_append(x) _TID_BOUND+x
 
-// TODO: maybe the idea of macros doesn't work in the SD paradigm?
-// TODO: maybe change `!` to `??` and ignore doubling as always-true?
+// TODO: the macros shbang
 /// @brief virtual token definition
 enum vtid {
 
-	/* compound:
-	 *    <<, >>, //, $$, $(), $<>$,
-	 *    .., ^^, ++, --, ??, &&,
-	 *    ||, %%
+	/* `ttoken`-defined direct compounds:
+	 *    <<, >>,        (bitwise)
+	 *    //, %%,        (math)
+	 *    $$, $(), $<>$, (macros (compiled only))
+	 *    ..,            (object)
+	 *    ++, --,        (unary)
+	 *    &&, ||, ^^,    (boolean)
+	 *    ??, !!, ::     (inlined)
 	 */
 	_BIT_LS = vtid_append (0x0001),
 	_BIT_RS = vtid_append (0x0002),
 	_MATH_DIV = vtid_append (0x0003),
-	_MACRO_LIT = vtid_append (0x0004),
-	_MACRO_FN = vtid_append (0x0005),
-	_MACRO_SYN = vtid_append (0x0006),
-	_OBJ_PARENT = vtid_append (0x0007),
-	_BIT_XOR = vtid_append (0x0008),
+	_MATH_MOD = vtid_append (0x0004),
+	_MACRO_LIT = vtid_append (0x0005),
+	_MACRO_FN = vtid_append (0x0006),
+	_MACRO_SYN = vtid_append (0x0007),
+	_OBJ_PARENT = vtid_append (0x0008),
 	_MATH_INC = vtid_append (0x0009),
 	_MATH_DEC = vtid_append (0x000a),
-	_WHILE = vtid_append (0x000b),
-	_BOOL_AND = vtid_append (0x000c),
-	_BOOL_OR = vtid_append (0x000d),
-	_MATH_MOD = vtid_append (0x000e),
-
-	/* mask:
-	 *    <, >, <, >, +, -
-	 */
-	_BOOL_LT = vtid_append (0x000f),
-	_BOOL_GT = vtid_append (0x0010),
-	_MOD_BEGIN = vtid_append (0x0011),
-	_MOD_END = vtid_append (0x0012),
-	_MATH_UPLUS = vtid_append (0x0012),
-	_MATH_UMINUS = vtid_append (0x0013),
+	_BOOL_AND = vtid_append (0x000b),
+	_BOOL_OR = vtid_append (0x000c),
+	_BIT_XOR = vtid_append (0x000d),
+	_IN_WHILE = vtid_append (0x000e),
+	_IN_IF = vtid_append (0x000f),
+	_IN_ASSIGN = vtid_append (0x0010),
 
 	/* `ttoken`-defined indirect compounds:
-	 *    <=, >=, !=, +:, -:, |:, *:,
-	 *    !:, &:, ~:, =:
+	 *    <=, >=, !=,     (boolean)
+	 *    +:, -:, *:,     (assign)
+	 *    |:, &:
 	 */
-	_MATH_LTEQ = vtid_append (0x0015),
-	_MATH_GTEQ = vtid_append (0x0016),
-	_MATH_NEQ = vtid_append (0x0017),
-	_ASSIGN_PLUS = vtid_append (0x0018),
-	_ASSIGN_MINUS = vtid_append (0x0019),
-	_ASSIGN_BWOR = vtid_append (0x0020),
-	_ASSIGN_TIMES = vtid_append (0x0021),
-	_ASSIGN_NOT = vtid_append (0x0022),
-	_ASSIGN_BWAND = vtid_append (0x0023),
-	_ASSIGN_BWNOT = vtid_append (0x0024),
-	_ASSIGN_EQ = vtid_append (0x0025),
+	_BOOL_LTEQ = vtid_append (0x0011),
+	_BOOL_GTEQ = vtid_append (0x0012),
+	_BOOL_NEQ = vtid_append (0x0013),
+	_ASSIGN_PLUS = vtid_append (0x0014),
+	_ASSIGN_MINUS = vtid_append (0x0015),
+	_ASSIGN_TIMES = vtid_append (0x0016),
+	_ASSIGN_BWOR = vtid_append (0x0017),
+	_ASSIGN_BWAND = vtid_append (0x0018),
 
 	/* `comp`-defined indirect compounds:
-	 *    %%:, &&:, ||:, //:, ^^:, >>:,
-	 *    <<:, <=:, >=:, !=:
+	 *    (assign)
+	 *    %%:, //:,
+	 *    &&:, ||:, ^|:
+	 *    ^^:, >>:, <<:,
 	 */
-	_ASSIGN_MOD = vtid_append (0x0026),
-	_ASSIGN_AND = vtid_append (0x0027),
-	_ASSIGN_OR = vtid_append (0x0028),
-	_ASSIGN_DIV = vtid_append (0x0029),
-	_ASSIGN_BWXOR = vtid_append (0x002a),
-	_ASSIGN_BWRS = vtid_append (0x002b),
-	_ASSIGN_BWLS = vtid_append (0x002c),
-	_ASSIGN_LTEQ = vtid_append (0x002d),
-	_ASSIGN_GTEQ = vtid_append (0x002e),
-	_ASSIGN_NEQ = vtid_append (0x002f),
+	_ASSIGN_MOD = vtid_append (0x001f),
+	_ASSIGN_AND = vtid_append (0x0020),
+	_ASSIGN_OR = vtid_append (0x0021),
+	_ASSIGN_DIV = vtid_append (0x0022),
+	_ASSIGN_BWXOR = vtid_append (0x0023),
+	_ASSIGN_BWRS = vtid_append (0x0024),
+	_ASSIGN_BWLS = vtid_append (0x0025),
+
+	/* mask:
+	 *    <, >, (array)
+	 *    <, >, (module)
+	 *    +, -  (unary)
+	 */
+	_ARR_BEGIN = vtid_append (0x0026),
+	_ARR_END = vtid_append (0x0027),
+	_MOD_BEGIN = vtid_append (0x0028),
+	_MOD_END = vtid_append (0x0029),
+	_MATH_UPLUS = vtid_append (0x002a),
+	_MATH_UMINUS = vtid_append (0x002b),
 
 };
 
 typedef enum vtid Vtid;
-
-const unsigned short tdef_comp = _ASSIGN_PLUS;
-const unsigned short cdef_comp = _ASSIGN_MOD;
-
-/// @brief virtual token interface
-typedef struct _vt_common {
-	Vtid id;
-	Vty vty;
-	Tty ty;
-} _vti;
 
 #endif

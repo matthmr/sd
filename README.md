@@ -16,7 +16,7 @@ This uses a Makefile at root to compile. It has the following targets:
 - help: show the options below
 - install: makes **all** utilites (and install man documentation)
 - man: compresses [man](https://en.wikipedia.org/wiki/Man_page) documentation (but doesn't install it)
-- parser: makes the plain-text & bytecode interpreter plus its dependencies
+- interpreter: makes the plain-text & bytecode interpreter plus its dependencies
 - compiler: makes the compiler plus its dependencies
 - language: makes the SD language libraries (this is a dependency for most targets)
 - docs: makes [doxygen](https://www.doxygen.nl/) HTML documentation (if `doxygen` is available). An older pre-compiled version of this can be found at [docs.sd/source](https://matthmr.github.io/docs.sd/source).

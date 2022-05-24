@@ -18,9 +18,9 @@
 
 #  include <sd/utils/utils.h>
 
-// TODO: make `op` also have virtual operations
-//       (function argument, function body)
-/// @brief SD operators
+// TODO: make `op` also have AST operations
+//       (function argument, function body, ...)
+/// @brief SDVM operators
 enum op {
 
 	OP_NULL=-1,    ///< PLACEHOLDER
@@ -93,8 +93,10 @@ enum bits {
 };
 
 /// @brief data qualifier
-/// @note all numerical types (excluding floats)
-///       are unsigned by default
+/// @note all numerical types are
+///       unsigned by default. Floats
+///       override the @p qual_signed
+///       flag, so do arrays
 enum qual {
 	qual_const = BIT (0),   ///< toggle: const, mut
 	qual_signed = BIT (1),  ///< toggle: signed, unsigned (int-like only)

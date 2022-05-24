@@ -36,8 +36,6 @@ arg parseargs (int margc, char** margv) {
 	p.file = stdin;
 	p.ftype = SOURCE_DISK;
 
-	char c;
-
 	if (margc == 1)
 		return ARG_DEF;
 

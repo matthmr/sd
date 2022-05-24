@@ -26,7 +26,7 @@ clean:
 clean-docs:
 	@echo [ .. ] Cleaning documentation
 	rm -rf man/**/*.gz && rm -rf docs/html/*
-install: language parser compiler man docs
+install: language interpreter compiler man docs
 	@echo [ .. ] Stripping symbols off of 'sdread' and 'sdc'
 	pushd bin
 	${STRIP} sdread
@@ -50,7 +50,7 @@ install: language parser compiler man docs
 	endif
 help:
 	@echo \[\[ available targets \]\]
-	@echo   - parser: main parser for SD \(sdread\)
+	@echo   - interpreter: main interpreter for SD \(sdread\)
 	@echo   - compiler: main compiler for SD \(sdc\)
 	@echo   - language: main library for SD \(libsd.so\)
 	@echo   - man: compresses man pages
@@ -75,7 +75,7 @@ help:
 	@echo   - DOCS: set to \<yes\> to install language syntax html documentation, otherwise set to \<no\> \(${DOCS}\)
 ### END BASE ###
 ### BEGIN TARGETS ###
-parser: sd/intr/exec/sdread.o\
+interpreter: sd/intr/exec/sdread.o\
 	lib/libsdparse.a\
 	lib/libsdutils.a\
 	lib/libsdlang.a\
@@ -89,7 +89,7 @@ compiler: sd/comp/sdc.o\
 	lib/libsdlang.a\
 	lib/libsdvm.a
 	@echo CC sdc
-	@${CC} ${CCFLAGS} -o bin/sdc sd/comp/sdc.o
+	@${CC} ${CCFLAGS} -o bin/sdc sd/comp/sdc.o -Llib -lsdparse -lsdlang -lsdutils -lsdvm
 	@echo [ .. ] Finished compilation
 #language: lib/libsd.so
 man: man/man1/sdread.1 man/man1/sdc.1
@@ -227,4 +227,4 @@ tags:
 	@echo [ .. ] Updating tags file
 	${CTAGS} -R .
 ### END OPTIONAL ###
-.PHONY: tags parser man compiler language docs clean clean-docs help
+.PHONY: tags interpreter man compiler language docs clean clean-docs help
