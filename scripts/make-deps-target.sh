@@ -20,12 +20,12 @@ esac
 
 echo "[ .. ] Flattening target output"
 $SED -E 's/.*\.o: (.*)\.c/\1.o: \1.c/g' make/Sources.mk.m4.in |\
-$SED -z 's/ \\\n //gm' > make/Sources.mk.m4
+$SED -z 's/ \\\n//gm' > make/Sources.mk.m4
 
 echo "[ .. ] Setting up make template"
 $SED -Ei 's/((.*?\/(.*?)\.o): .*)$/\0\n\t@echo "[ CC \2 ]"\n\t@${CC} -I${C_INCLUDE_PATH} -c M4FLAG_\3 ${CFLAGS} $< -o $@/g' make/Sources.mk.m4
 
-echo "[ .. ] Applying preprocessor headers from \`make/Headers.m4'"
+echo "[ .. ] Applying preprocessor headers from \`make/Flags.m4'"
 $M4 make/Flags.m4 | $SED -E 's/M4FLAG_[A-Za-z]* / /g' > make/Sources.mk
 
 echo "[ OK ] Done"
