@@ -24,6 +24,9 @@
 
 struct parse_tree ptree;
 
+Node* ptree_buffer;
+Node* bk_stack;
+
 static Node* branch[3];
 static Driver* driver[3];
 
@@ -46,9 +49,10 @@ void set_branch (void) {
 	/**
 	 * the branch (& parse tree) are setup as
 	 *
+	 * @verbatim
 	 *             [PARENT] {1, 2}
 	 *      [CHILD1] {-1}  [CHILD2] {-2}
-	 *
+	 * @endverbatim
 	 */
 
 	// populate ptree.buffer
@@ -58,12 +62,12 @@ void set_branch (void) {
 	ptree_buffer[CHILD1].offset.parent = -1;
 	ptree_buffer[CHILD2].offset.parent = -2;
 
-	// set up the branch
+	// set up the local branch
 	branch[PARENT] = &ptree.buffer[PARENT];
 	branch[CHILD1] = &ptree.buffer[CHILD1];
 	branch[CHILD2] = &ptree.buffer[CHILD2];
 
-	// initialize branch
+	// initialize local branch
 	branch[PARENT]->item.type = TY_OP;
 	branch[CHILD1]->item.type = TY_DRIVER;
 	branch[CHILD2]->item.type = TY_DRIVER;
@@ -75,6 +79,8 @@ void set_branch (void) {
 	// initialize drivers
 	driver[CHILD1]->attr_bits = bits_32;
 	driver[CHILD2]->attr_bits = bits_32;
+	driver[CHILD1]->attr_qual = (qual)0;
+	driver[CHILD2]->attr_qual = (qual)0;
 
 	// set up `ptree.curr`
 	ptree.curr.branch = branch;

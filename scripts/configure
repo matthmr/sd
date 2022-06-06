@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+case $1 in
+	'-h'|'--help')
+		printf 'Usage:       configure
+Description: Runs the build script suite for SD
+Variables:   CC="C compiler"
+             FIND="find-like command"
+             SED="sed-like command"
+             M4="m4-like command"
+Note:        Make sure to call this script from the repository root
+
+|----------------------------------|
+|       ./configure callees        |
+|----------------------------------|
+| /                                |
+| | Makefile                       |
+| | make/                          |
+| |     | Flags.mk                 |
+| |     | Headers.m4               |
+| | scripts/                       |
+| |        | make-sources.sh       |
+| |        | make-deps.sh          |
+| |        | make-deps-target.sh   |
+|----------------------------------|
+'
+		exit 1
+		;;
+esac
+
+echo "[ .. ] Calling make on \`sources.txt'"
+CC=$CC make sources BITS=64
+# `BITS' here is just a placeholder to prevent getconf from being called
+
+echo "[ .. ] Calling \`make-deps.sh'"
+FIND=$FIND scripts/make-deps.sh
+
+echo "[ .. ] Calling \`make-deps-target.sh'"
+SED=$SED scripts/make-deps-target.sh
+
+echo "[ OK ] Done! This source tree is ready to compile!"
+echo "----------------------------------------------------------"
+echo "Run \`make help' to get a list of targets to run make with"
+echo "----------------------------------------------------------"

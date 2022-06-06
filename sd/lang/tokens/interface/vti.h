@@ -15,6 +15,7 @@
 
 #  include <sd/utils/utils.h>
 
+// TODO: maybe `AS_IS` can go away an `SUFFIX_IRR` can come back?
 /// @brief virtual interface
 /// interface for:
 ///   - token compounding "<<"       (not necessarily the same token, for instance: '!=')
@@ -41,7 +42,7 @@ typedef enum vty Vty;
 
 /// @brief virtual token common interface; similar to Vty
 typedef struct _vt_common {
-	int id; // masks the appropiate enum
+	int id; // int promotes itself to the appropiate enum
 	Vty vty;
 	Tty ty;
 } _vti;

@@ -30,17 +30,5 @@ void vErr (int code, char* info, char* lineinfo) {
 	// exit (code);
 }
 
-/// TODO: what the fuck happened here?
-//char* vErr_get_type (int id) {
-//	switch (id) {
-//	case _INT: return "`int`"; break;
-//	case _CHAR: return "`char`"; break;
-//	case _FLOAT: return "`float`"; break;
-//	case _ENUM: return "`enum`"; break;
-//	case _ARRAY: return "`array`"; break;
-//	case _LONG: return "`long`"; break;
-//	case _SHORT: return "`short`"; break;
-//	}
-//}
-
 char* vErr_get_type (int id) { return ""; }
+char* vErr_verbose (char* a1, uint a2, uint a3, uint a4) { return ""; }

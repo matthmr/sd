@@ -10,26 +10,29 @@
  */
 
 #ifndef LOCK_READ
-#  define LOCK_READ
+#  define LOCK_READ ///< lock: standard lock
 
 #  define HELP "\nMade by mH (https://github.com/matthmr)\n"\
                "\tsdread\t\t\t  => The standard SD interpreter\n\n"\
                "Usage:\tsdread - \"<expr>\"\t  => read from STDIN\n"\
                "\tsdread <file> \"<expr>\"\t  => <file> is SD source code\n"\
-               "\tsdread -s <file> \"<expr>\" => <file> is SD bytecode code (compiled)\n\n"\
+               "\tsdread -s <file> \"<expr>\" => <file> is SD bytecode code (compiled)\n"\
+               "\tsdread -m <file> \"<expr>\" => <file> is SD module\n\n"\
                "Info:\tsdread -h\t\t  => Displays this message and exits\n"\
                "\tsdread -v\t\t  => Displays the version and exits\n\n"\
-               "Note:\t\"<expr>\" is optional but must be used in quotes\n\n"
-#  define VERSION "v0.3.2"
+               "Note:\t\"<expr>\" is optional but must be used in quotes\n"\
+               "     \tRead more at sdread(1)\n\n"
+#  define VERSION "v0.4.0"
 
-// prompt for interactive mode
+/// @brief prompt for interactive mode
 #  define PROMPT "> "
 #  define NL_PROMPT "~ "
 
-#  define FILE_IS_SOURCE(x) (x >= SOURCE_DISK)
-#  define FILE_IS_BYTECODE(x) (x <= BYTECODE_FIFO)
-#  define FILE_IS_FIFO(x) (x == BYTECODE_FIFO || x == SOURCE_FIFO)
+#  define file_is_source(x) (x >= SOURCE_DISK)
+#  define file_is_bytecode(x) (x <= BYTECODE_FIFO)
+#  define file_is_fifo(x) (x == BYTECODE_FIFO || x == SOURCE_FIFO)
 
+// @brief file types for sdread arguments
 enum ftype {
 	BYTECODE_DISK,
 	BYTECODE_FIFO,
@@ -38,6 +41,7 @@ enum ftype {
 	SOURCE_FIFO,
 };
 
+/// @brief promise types for sdread arguments
 struct promise {
 	enum ftype ftype;
 
@@ -49,13 +53,15 @@ struct promise {
 
 extern struct promise p;
 
+/// @brief exit status for sdread
 enum exit {
 	EXIT_OK = 0,
 };
 
+/// @brief exit status for parseargs
 enum arg {
-	ARG_ERR = 1,
-	ARG_OK = 0,
+	ARG_ERR = -1,
+	ARG_OK,
 	ARG_DEF,
 	ARG_INFO,
 };

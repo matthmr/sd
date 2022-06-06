@@ -18,7 +18,7 @@
 #include <sd/lang/vm/vm.h>
 
 #include <sd/utils/types/shared.h>
-#include <sd/utils/err/verr.c>
+#include <sd/utils/err/verr.h>
 #include <sd/utils/utils.h>
 
 #if ADDR_BITS == 64

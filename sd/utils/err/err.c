@@ -34,19 +34,22 @@ static const char* verrfmt[] = {
 
 /// @brief error message manifest
 const char* errmsg[] = {
-	0x00,
 
-	" E0x01: no such file ", // sd <file>
-	" E0x02: missing file name ", // sd -s
-	" E0x03: cannot cast different assignment drivers (`proc` and `let`)", // proc a: let b: 1;
-	" E0x04: bad integer construction", // 0x0.a, 1..1
-	" E0x05: out-of-bound number", // 99....9
-	" E0x06: out-of-bound uword (maximum of 64 case-insensitive alpha-numeric characters plus '$' and '_')", // a...a
-	" E0x07: undefined uword cannot cast type ", // int a: 1;
-	" E0x08: keyword cannot be uword", // let let
-	" E0x09: unhookable word ", // a b
-	" E0x0a: missing ", // [1;
-	" E0x0b: literals are unhookable without expr token", // 1 1
+	// -- on call -- //
+	[ENOSUCH] = " E0x01: no such file ", // sd <file>
+	[EMISS] = " E0x02: missing file name ", // sd -s
+
+	// -- on run -- //
+	[EDRIV] = " E0x03: cannot cast different assignment drivers", // proc a: let b: 1;
+	[EINT] = " E0x04: bad integer construction", // 0x0.a, 1..1
+	[EOOBN] = " E0x05: out-of-bound number", // 99....9
+	[EOOBID] = " E0x06: out-of-bound identifier", // a...a
+	[EUNDEFID] = " E0x07: undefined identifier", // a;
+	[ENUID] = " E0x08: identifier cannot being with number", // 1a
+	[EKWID] = " E0x08: keyword cannot be identifier", // let let
+	[EUNHOID] = " E0x09: unhookable identifier ", // a b
+	[EMISS] = " E0x0a: missing ", // [1;
+	[EUNHOL] = " E0x0b: literals are unhookable without expression token", // 1 1
 
 };
 

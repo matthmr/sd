@@ -33,9 +33,9 @@ d_addr* regf;
 d_addr* regc;
 
 // -- program pointers -- //
-d_addr* s_top;
-d_addr* sp;
-d_addr* ip;
+byte* s_top;
+byte* sp;
+byte* ip;
 
 uint heapsize;
 uint tabsize;
@@ -47,6 +47,9 @@ void ret (void) { }
 void heap_alloc (int kib) {
 
 	static u8 call;
+
+	// DEBUG
+	return;
 
 	if (! call) {
 		H_LOCK (call);
@@ -62,6 +65,9 @@ void heap_alloc (int kib) {
 
 void tab_alloc (int kib) {
 	static u8 call;
+
+	// DEBUG
+	return;
 
 	if (! call) {
 		H_LOCK (call);

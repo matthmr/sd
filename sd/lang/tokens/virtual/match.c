@@ -39,7 +39,5 @@ static const vtid_match_txt mask[] = {
 const vtid_match vtoken_manifest_match = {
 	.txt = (vtid_match_txt*)txt,
 	.mask = (vtid_match_mask*)mask,
-	// so far, there are no compound matches that AREN'T
-	// also procedurally generated
 	.comp = (vtid_match_comp*)0,
 };

@@ -18,11 +18,11 @@
 
 byte tab_index_buffer[5]; // 4 + 4*7 = 32 bits
 
-static ALIGN_AS(unsigned) goid;
+//static ALIGN_AS(unsigned) goid;
 
-Tab tab = {
+/*Tab tab = {
 	.root = NULL,
 	.head = NULL,
 	.gidn = 0,
 	.gid = 0,
-};
+};*/

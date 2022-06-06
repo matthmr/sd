@@ -12,6 +12,7 @@
 
 // TODO: implement `double` data type
 // TODO: implement `wrap` and `unwrap` keywords
+// TODO: overwrite `T_` tokens with these as bytecode
 /// @brief keyword identification
 enum kwid {
 
@@ -44,7 +45,7 @@ enum kwid {
 	/* scope control */
 	_IMPORT = 0x0013,
 	_IMPL = 0x0014,
-	_EXPAND = 0x0015,
+	_UNWRAP = 0x0015,
 
 	/* built-in objects */
 	_NIL = 0x0016,
@@ -94,8 +95,8 @@ enum tid {
 	/* reference delimiters */
 	_OBJ_BEGIN = tid_append (0x001),
 	_OBJ_END = tid_append (0x0002),
-	_ARR_BEGIN = tid_append (0x0003),
-	_ARR_END = tid_append (0x0004),
+	_BOOL_LT = tid_append (0x0003),
+	_BOOL_GT = tid_append (0x0004),
 	_PROC_BEGIN = tid_append (0x0005),
 	_PROC_END = tid_append (0x0006),
 	_SEP = tid_append (0x0007),

@@ -31,15 +31,21 @@ byte data[BUFFER];
 promise p;
 exit RET = EXIT_OK;
 
-arg parseargs (int margc, char** margv) {
+/// @brief main command line argument parser
+/// @param hargc host's `argc` variable
+/// @param hargv host's `argv` variable
+/// @return
+///   - `enum args` listed returned values if erroed
+///   - `OK` if successfully set
+arg parseargs (int hargc, char** hargv) {
 
 	p.file = stdin;
 	p.ftype = SOURCE_DISK;
 
-	if (margc == 1)
+	if (hargc == 1)
 		return ARG_DEF;
 
-	else for (uint i = 1; i < margc; i++) {
+	else for (uint i = 1; i < hargc; i++) {
 
 		// resolve promise
 		if (p.PFILE) {
@@ -47,24 +53,24 @@ arg parseargs (int margc, char** margv) {
 			if (p.HFILE)
 				goto _arg_err;
 
-			else if (margv[i][0] == '-' && margv[i][1] == '\0') {
+			else if (hargv[i][0] == '-' && hargv[i][1] == '\0') {
 				p.file = stdin;
 				H_RESET (p.PFILE);
 				H_LOCK (p.HFILE);
 			}
 
-			else if (! (p.file = fopen (margv[i], "rb")))
-				Err (0x01, margv[i]);
+			else if (! (p.file = fopen (hargv[i], "rb")))
+				Err (0x01, hargv[i]);
 
 		}
 
 		// set promise
-		else if (margv[i][0] == '-') {
+		else if (hargv[i][0] == '-') {
 
-			if (margv[i][1] && margv[i][2]) // -**
+			if (hargv[i][1] && hargv[i][2]) // -**
 				goto _arg_err;
 
-			switch (margv[i][1]) {
+			switch (hargv[i][1]) {
 
 			// info
 			case 'v':
@@ -98,11 +104,11 @@ arg parseargs (int margc, char** margv) {
 		}
 
 		// resolve promise / skip promise
-		else { /// argv[i][0] != '-'
+		else { // argv[i][0] != '-'
 			if (!p.HFILE) {
 				p.ftype = p.PFILE? BYTECODE_DISK: SOURCE_DISK;
-				if (! (p.file = fopen (margv[i], "rb")))
-					Err (0x01, margv[i]);
+				if (! (p.file = fopen (hargv[i], "rb")))
+					Err (0x01, hargv[i]);
 			}
 			else
 				goto _arg_err;
@@ -117,7 +123,7 @@ arg parseargs (int margc, char** margv) {
 
 }
 
-/// TODO: unhandled `<expr>`: parse it and execute within main file context
+// TODO: unhandled `<expr>`: parse it and execute within main file context
 int main (int argc, char** argv) {
 
 	e_set (TIME_ARG);
@@ -131,7 +137,7 @@ int main (int argc, char** argv) {
 
 	pt_init ();
 
-	/// TODO: maybe accept multiple files as modules? this would become a loop
+	// TODO: maybe accept multiple files as modules? this would become a loop
 	
 	//Obj l_root;
 	//mkchild (&g_root, &l_root);
@@ -141,24 +147,28 @@ int main (int argc, char** argv) {
 	vm_init ();
 	initvmstack;
 
-	/// main callback loop (vm)
-	if (FILE_IS_SOURCE (p.ftype)) {
+	// main callback loop (vm)
+	if (file_is_source (p.ftype)) {
 		e_set (TIME_TXT);
-		while (src_callback != SRC_END) {
-			if (src_stack (src_callback))
+
+		while (src (src_callback)) {
+
+			if (scope_is_stack (src_callback)) {
 				stack_callback (src_callback);
+			}
+
 			parse_src (p.file, (char*)data, STDBUFFER);
 		}
 	}
 
-	/// TODO: bytecode callback loop
-	else if (FILE_IS_BYTECODE (p.ftype)) {
+	// TODO: bytecode callback loop
+	else if (file_is_bytecode (p.ftype)) {
 		e_set (TIME_BYTE);
 		parse_bc (p.file, data, STDBUFFER);
 	}
 
-	/// close `file` on exit if not a pipe
-	if (! FILE_IS_FIFO (p.ftype))
+	// close `file` on exit if not a pipe
+	if (! file_is_fifo (p.ftype))
 		fclose (p.file);
 
 	quit: return RET;

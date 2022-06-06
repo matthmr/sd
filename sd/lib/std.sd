@@ -1,9 +1,0 @@
-# Made by mH (https://github.com/matthmr)
-
-# This file is the main source for the standard SD library
-
-# -- MODULES -- #
-let Math;
-let String;
-let IO;
-let Prompt;

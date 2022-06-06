@@ -1,20 +1,26 @@
 # Binary
+core/
+bin/sd*
 *.o
 *.a
 *.so
-*core*
-bin/sd*
 
-# Dev
-.cache/
+# Config
 .vim/
 .vscode/
-unit/
-task/
-*.log
-*.task
-tags
 compile_*
+
+# Cache
+.cache/
+make/sources/sd.txt
+!make/sources/.keepme
+
+# Dev
+#unit/ # this is as of (31-May-22) a make target: test
+make/Sources.mk.m4*
+dev/
+tags*
+*.log*
 
 # Documentation
 *.gz

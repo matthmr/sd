@@ -18,6 +18,21 @@
 #  define POINT_TO '^' ///< format field for error pointer
 #  define EXTEND '~' ///< format field for error pointer extend
 
+// @brief error identifier
+enum err {
+	ENOSUCH,
+	EMISS,
+	EDRIV,
+	EINT,
+	EOOBN,
+	EOOBID,
+	EUNDEFID,
+	ENUID,
+	EKWID,
+	EUNHOID,
+	EUNHOL,
+};
+
 // TODO: change this?
 /// @brief error time definition
 typedef enum time {

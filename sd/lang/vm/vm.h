@@ -23,12 +23,13 @@
 
 #  include <sd/intr/limits.h>
 
-#  define __host__ d_addr *mstack
+#  define __host__ byte hstack = 0
 
 #  define mkvmstack \
     __host__; \
-    sp = mstack
+    sp = (d_addr*)&hstack
 
+// TODO:
 #  define initvmstack ;
 
 #  define MEM_INC 8 * KiB
@@ -53,10 +54,10 @@ extern byte* tab;
 extern uint heapsize;
 extern uint tabsize;
 
-extern d_addr* sp;
-extern d_addr* ip;
+extern byte* sp;
+extern byte* ip;
 
-extern d_addr* s_top;
+extern byte* s_top;
 
 extern d_addr reg[REG_N];
 

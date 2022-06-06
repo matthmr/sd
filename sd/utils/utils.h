@@ -41,12 +41,12 @@ void War (char*, const char*, char*);
 #  define RESET(X) if (X)  (X)=0
 #  define H_LOCK(X) (X)=1
 #  define H_RESET(X) (X)=0
-#  define MAX_OF(x) (x) 0|1 // as cast to `type`
-#  define POW2(x) (unsigned)(1u << x)
-#  define BIT(x) POW2(x)
-#  define BYTES(x) sizeof (x) / sizeof (*x)
+#  define MAX_OF(X) (X) (0|1) // as cast to `type`
+#  define POW2(X) (1u << X)
+#  define BIT(X) POW2(X)
+#  define BYTES(X) sizeof (X) / sizeof (*X)
 
 // string utils
-#  define __nl "\n"
+#  define __nl__ "\n"
 
 #endif

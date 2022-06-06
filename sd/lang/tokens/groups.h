@@ -21,7 +21,7 @@ enum kwty {
 	KWTY_FLOW,
 	KWTY_LOOP,
 	KWTY_ENV,
-	KWTY_ACC,
+	KWTY_AST,
 	KWTY_MOD,
 };
 

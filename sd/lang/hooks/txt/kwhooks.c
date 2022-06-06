@@ -31,7 +31,7 @@ static void kwty_obj_def (_Kw);
 static void kwty_qual (_Kw);
 static void kwty_flow (_Kw);
 static void kwty_env (_Kw);
-static void kwty_acc (_Kw);
+static void kwty_ast (_Kw);
 static void kwty_loop (_Kw);
 
 void kwty_obj_def (_Kw kw) {
@@ -56,7 +56,7 @@ void kwty_builtin_ty (_Kw kw) {
 void kwty_qual (_Kw kw) {}
 void kwty_flow (_Kw kw) {}
 void kwty_env (_Kw kw) {}
-void kwty_acc (_Kw kw) {}
+void kwty_ast (_Kw kw) {}
 void kwty_loop (_Kw kw) {}
 
 const _akw_handler akw_handler[] = {
@@ -67,5 +67,5 @@ const _akw_handler akw_handler[] = {
 	[KWTY_FLOW] = &kwty_flow,
 	[KWTY_LOOP] = &kwty_loop,
 	[KWTY_ENV] = &kwty_env,
-	[KWTY_ACC] = &kwty_acc,
+	[KWTY_AST] = &kwty_ast,
 };

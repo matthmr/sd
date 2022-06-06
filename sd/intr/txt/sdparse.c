@@ -223,8 +223,7 @@ void parser_stream (char* data, uint e_eof) {
 		else if (leading)
 			H_RESET (leading);
 
-		if (e_status == repeats && c == '\n' ||
-		   !e_status && c == '\n')
+		if (c == '\n' && (e_status == repeats || !e_status))
 			goto parser_not_found;
 
 		e_status = nfind_def (c);
@@ -237,7 +236,6 @@ void parser_stream (char* data, uint e_eof) {
 		next (data, &i, &wstart_i, &e_status, lnsize);
 
 		if (0) parser_not_found: { // TODO: this doesn't fit in with my callback schema
-
 			offset_i (&i, data, lnsize);
 			wsize = (i - wstart_i)+1;
 			strncpy (uword, (data + wstart_i), wsize);
