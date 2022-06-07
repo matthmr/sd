@@ -45,6 +45,7 @@ void War (char*, const char*, char*);
 #  define POW2(X) (1u << X)
 #  define BIT(X) POW2(X)
 #  define BYTES(X) sizeof (X) / sizeof (*X)
+#  define GET(X,Y) ((X) & ~(Y))
 
 // string utils
 #  define __nl__ "\n"

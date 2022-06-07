@@ -1,14 +1,16 @@
-interpreter-objects=sd/intr/txt/sdparse.o
-interpreter-libraries=lib/libsdparse.a \
+interpreter-objects= sd/intr/txt/sdparse.o
+interpreter-libraries= lib/libsdparse.a \
 	lib/libsdutils.a \
 	lib/libsdlang.a \
 	lib/libsdvm.a
+interpreter-libraries-soname= -lsdparse -lsdlang -lsdutils -lsdvm
 
-compiler-objects=sd/comp/sdc.o
-compiler-libraries=lib/libsdparse.a \
+compiler-objects= sd/comp/sdc.o
+compiler-libraries= lib/libsdparse.a \
 	lib/libsdutils.a \
 	lib/libsdlang.a \
 	lib/libsdvm.a
+compiler-libraries-soname= -lsdparse -lsdlang -lsdutils -lsdvm
 
 libsdutils-objects= sd/utils/utils.o \
 	sd/intr/txt/utils/txtutils.o \

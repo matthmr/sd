@@ -18,9 +18,9 @@ echo "[ INFO ] FIND=$FIND"
 {
 	$FIND sd/ -type f -name '*.c' > make/sources/sd.txt
 } && {
-	echo '[ OK ] Done. Saved to /make/sources/sd.txt'
+	echo '[ OK ] Done. Saved to make/sources/sd.txt'
 } || {
-	echo '[ !! ] Could not run `find` command'
+	echo "[ !! ] Could not run \`find' command"
 	exit 1
 }
 exit 0

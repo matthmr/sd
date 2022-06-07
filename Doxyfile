@@ -1,6 +1,6 @@
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = "sd"
-PROJECT_NUMBER         = "v0.4.0"
+PROJECT_NUMBER         = "v0.4.1"
 PROJECT_BRIEF          = "An extensible scripting language"
 PROJECT_LOGO           = "assets/sd.ico"
 OUTPUT_DIRECTORY       = "docs"

@@ -18,6 +18,7 @@ make/sources/sd.txt
 # Dev
 #unit/ # this is as of (31-May-22) a make target: test
 make/Sources*
+make/Flags.mk
 dev/
 tags*
 *.log*

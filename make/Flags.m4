@@ -1,8 +1,18 @@
-define(ADDR_BITS, `-DADDR_BITS=64')dnl
+include(make/defaults.m4)dnl
+define(makeflag, `$1?=M4FLAG_conf_$1')dnl
 dnl
-define(M4FLAG_limits, ADDR_BITS)dnl
-define(M4FLAG_precedence, ADDR_BITS)dnl
-define(M4FLAG_vm, ADDR_BITS)dnl
-define(M4FLAG_sdparse, ADDR_BITS)dnl
-undefine(ADDR_BITS)dnl
-include(make/Sources.mk.m4)
+makeflag(`CC')
+makeflag(`C_INCLUDE_PATH')
+makeflag(`BITS')
+makeflag(`CFLAGS')
+makeflag(`AR')
+makeflag(`ARFLAGS')
+makeflag(`GZ')
+makeflag(`CTAGS')
+makeflag(`STRIP')
+makeflag(`PREFIX')
+makeflag(`DOCS')
+makeflag(`SRCDOCS')
+makeflag(`TEST')
+dnl
+undefine(`makeflag')dnl

@@ -23,18 +23,17 @@ The Makefile has the following final targets:
 - language: makes the SD language libraries (this is a dependency for most targets)
 - docs: makes [doxygen](https://www.doxygen.nl/) HTML documentation (if `doxygen` is available).
 - clean: removes all compilation junk (`.o` and `.a` files, keeps `.so` and executables)
-- clean-docs: removes all documentation junk (man's `.gz` pages and doxygen's `docs/html` output)
 
 The default for `make` being run alone is `make install`.
 
-The Makefile also has a couple variables to pass through:
+The 'configure' script also has a couple options to pass through:
 
 - `CC`: the C compiler (cc)
 - `CFLAGS`: additional flags to pass to the compiler (-Wall)
 - `AR`: the ar archiver (ar)
 - `ARFLAGS`: the archiver flags (rc)
 - `C_INCLUDE_PATH`: additional include path to pass to the compiler (.)
-- `BITS`: the machine memory address bit length (`getconf LONG_BIT`)
+- `BITS`: the machine memory address bit length (64)
 - `PREFIX`: the prefix for the installation (/usr/local)
 
 and a couple booleans:
@@ -43,7 +42,8 @@ and a couple booleans:
 - `SRCDOCS`: install source code documentation (no)
 - `TEST`: run test suite before installing (yes)
 
-that can be overwriten at `make` time. Those variables are initialised in `make/Flags.mk`.
+that can also be overwriten at `make` time if passed as `make` variables, but it is encouraged
+to pass them as options to the `./configure` script.
 
 To fully compile the SD suite, run `./configure && make install`. 'configure' *must* be run first
 as it will autogenerate make targets in the `Sources.mk` file. This project *does not* use the
