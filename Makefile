@@ -1,18 +1,22 @@
-include make/Targets.mk
+-include make/Targets.mk
 -include make/Flags.mk
 -include make/Sources.mk
 
-VERSION:='v0.4.1'
+MAKEFILES=\
+	make/Targets.mk \
+	make/Flags.mk \
+	make/Sources.mk* \
+	make/sources/sd-sources.txt
+VERSION:= 'v0.4.1'
 
 default: install
 
-### BEGIN BASE ###
 clean:
 	@echo "[ .. ] Cleaning working directory"
 	@find -type f -name '*.[oa]' | xargs rm -rvf
 clean-make:
 	@echo "[ .. ] Cleaning make files"
-	@rm -rfv make/Sources.mk.m4 make/Sources.mk.m4.in make/Flags.mk make/Sources.mk
+	@rm -rfv ${MAKEFILES}
 clean-docs:
 	@echo "[ .. ] Cleaning documentation"
 	@rm -vrf man/**/*.gz
@@ -69,17 +73,6 @@ help:
 	  - DOCS: set to <yes> to install doxygen documentation, otherwise set to <no> (${DOCS}) \n\
 	  - SRCDOCS: set to <yes> to install source documentation, otherwise set to <no> (${SRCDOCS}) \n\
 	  - TEST: set to <yes> to run test suite, otherwise set to <no> (${TEST})"
-### END BASE ###
-
-### BEGIN TARGETS ###
-interpreter: ${interpreter-objects} ${interpreter-libraries}
-	@echo "[ CC -o bin/sdread ]"
-	@${CC} ${CFLAGS} -o bin/sdread $< -Llib ${interpreter-libraries-soname}
-	@echo "[ OK ] Finish compiling interpreter"
-compiler: ${compiler-objects} ${compiler-libraries}
-	@echo "[ CC -o bin/sdc ]"
-	@${CC} ${CFLAGS} -o bin/sdc $< -Llib ${compiler-libraries-soname}
-	@echo "[ OK ] Finish compiling compiler"
 man: man/man1/sdread.1 man/man1/sdc.1
 	@echo "[ .. ] Compressing 'sdread' man page"
 	@${GZ} -c man/man1/sdread.1 > man/man1/sdread.1.gz
@@ -88,26 +81,6 @@ man: man/man1/sdread.1 man/man1/sdc.1
 	@${GZ} -c man/man1/sdc.1 > man/man1/sdc.1.gz
 language: lib/libsd.so
 	@echo "[ TODO ] this is not implemented yet"
-### END TARGETS ###
-
-### BEGIN LIBRARIES ###
-lib/libsdutils.a: ${libsdutils-objects}
-	@echo "[ AR lib/libsdutils.a ]"
-	@${AR} ${ARFLAGS} $@ $?
-lib/libsdparse.a: ${libsdparse-objects}
-	@echo "[ AR lib/libsdparse.a ]"
-	@${AR} ${ARFLAGS} $@ $?
-lib/libsdlang.a: ${libsdlang-objects}
-	@echo "[ AR lib/libsdlang.a ]"
-	@${AR} ${ARFLAGS} $@ $?
-lib/libsdvm.a: ${libsdvm-objects}
-	@echo "[ AR lib/libsdvm.a ]"
-	@${AR} ${ARFLAGS} $@ $?
-lib/libsd.so:
-	@echo "[ .. ] Compiling to 'libsd.so' \(${VERSION}\)"
-### END LIBRARIES ###
-
-### BEGIN OPTIONAL ###
 tags:
 	@echo "[ .. ] Updating tags file"
 	@${CTAGS} -R .
@@ -135,6 +108,4 @@ ifeq (${TEST},yes)
 else
 	@echo "[ TODO ] this is not implemented yet"
 endif
-### END OPTIONAL ###
-
 .PHONY: tags interpreter man compiler language docs src-docs clean clean-docs help test sources

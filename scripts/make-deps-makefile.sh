@@ -11,8 +11,8 @@ Note:        Make sure to call this script from the repository root
 		;;
 esac
 
-[[ ! -f make/sources/sd.txt ]] && {
-	echo "[ !! ] No \`sd.txt' file found. Did you run \`make-sources.sh'?"
+[[ ! -f make/sources/sd-sources.txt ]] && {
+	echo "[ !! ] No \`sd-sources.txt' file found. Did you run \`make-sources.sh'?"
 	exit 1
 }
 [[ -z $SED ]] && SED=sed
@@ -25,7 +25,7 @@ echo "[ .. ] Flattening target output"
 $SED -E 's/.*\.o: (.*)\.c/\1.o: \1.c/g' make/Sources.mk.m4.in |\
 $SED -z 's/ \\\n//g' > make/Sources.mk.m4
 
-echo "[ .. ] Setting up make template"
+echo "[ .. ] Setting up make template for sources"
 $SED -Ei 's/((.*?\/(.*?)\.o): .*)$/\0\n\t@echo "[ CC \2 ]"\n\t@${CC} -I${C_INCLUDE_PATH} -c M4FLAG_mk_\3 ${CFLAGS} $< -o $@/g' make/Sources.mk.m4
 
 echo "[ .. ] Applying preprocessor flags from \`make/Flags.m4'"

@@ -10,8 +10,8 @@ Note:        Make sure to call this script from the repository root
 		;;
 esac
 
-[[ ! -f make/sources/sd.txt ]] && {
-	echo "[ !! ] No \`sd.txt' file found. Did you run \`make-sources.sh'?"
+[[ ! -f make/sources/sd-sources.txt ]] && {
+	echo "[ !! ] No \`sd-sources.txt' file found. Did you run \`make-sources.sh'?"
 	exit 1
 }
 [[ -z $CC ]] && CC=cc
@@ -32,6 +32,6 @@ while read src
 do
 	echo "[ CC -MM $src ]"
 	$CC -I. -MM $src >>$cache
-done < make/sources/sd.txt
+done < make/sources/sd-sources.txt
 
 echo '[ OK ] Done'

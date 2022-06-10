@@ -12,6 +12,36 @@ INCLUDE_FLAGS=(
 )
 INCLUDE_FLAG_PREFIX='M4FLAG_conf_'
 
+CALLEES=(
+	"make-defaults"
+	"make-sources"
+	"make-deps"
+	"make-deps-makefile"
+	"make-targets"
+)
+
+BUILDS_CALL=(
+"M4=\"\$M4\" M4FLAGS=\"\$M4FLAGS\" scripts/${CALLEES[0]}.sh"
+"CC=\"\$CC\"                       scripts/${CALLEES[1]}.sh"
+"FIND=\"\$FIND\"                   scripts/${CALLEES[2]}.sh"
+"SED=\"\$SED\" M4=\"\$M4\"         scripts/${CALLEES[3]}.sh"
+"M4=\"\$M4\" scripts/${CALLEES[4]}.sh"
+)
+
+function print_callees {
+	local len=${#CALLEES[@]}
+	for ((i = 0; i < $len; i++))
+	do
+
+		if (( $i > 0 ))
+		then
+			echo -n "$1"
+		fi
+
+		echo "CALLEE $((i+1)): ${CALLEES[$i]}"
+	done
+}
+
 case $1 in
 	'-h'|'--help')
 		printf "Usage:           ./configure [--start=<level> --stop=<level>]
@@ -22,20 +52,19 @@ Variables:       CC=\"C compiler (used in ./configure)\"
                  SED=\"sed-like command (used in ./configure)\"
                  M4=\"m4-like command (used in ./configure)\"
 
-Set flags:       --CC=, --BITS=, --C_INCLUDE_FLAGS=, --CFLAGS=,
-                 --AR=, --ARFLAGS=, --GZ=, --CTAGS=, --STRIP=,
-                 --PREFIX=
+Set flags:       --cc=, --bits=, --c_include_flags=, --cflags=,
+                 --ar=, --arflags=, --gz=, --ctags=, --strip=,
+                 --prefix=
 
-Include flags:   {-,+}DOCS, {-,+}SRCDOCS, {-,+}TEST
+Include flags:   {-,+}docs, {-,+}srcdocs, {-,+}test
 
 Note:            Make sure to call this script from the repository root
                  Use @\"\"@ notation to pass in values that contain spaces in them, for example:
 
-                             ./configure --CFLAGS=@\"-Wall -glldb\"@ --CC=clang
+                             ./configure --cflags=@\"-Wall -glldb\"@ --cc=clang
 
 
-Callees:         make-defaults{1} -> make-sources{2} -> make-deps{3} -> make-deps-makefile{4}
-                 To bound the build step, pass in \`--start=<level>' and/or \`--stop=<level>' as the FIRST
+Callees:         To bound the build step, pass in \`--start=<level>' and/or \`--stop=<level>' as the FIRST
                  and SECOND argument of the ./configure file. The order doesn't matter.
                  For example, to skip everything after \`make-defaults', you'd run:
 
@@ -47,6 +76,10 @@ Callees:         make-defaults{1} -> make-sources{2} -> make-deps{3} -> make-dep
 
                  A start-stop level of the same amount means only the build AT that level is going to be run
 
+                 The default callees are:
+
+                 $(print_callees "                 ")
+
 Run \`make help' to get an explanation of set- and include- flags
 "
 		exit 1
@@ -55,7 +88,7 @@ esac
 
 faux_args=
 __level_start=1 # fallbacks
-__level_stop=4 # fallbacks
+__level_stop=${#CALLEES[@]} # fallbacks
 level_start=$__level_start
 level_stop=$__level_stop
 function check_bounds {
@@ -173,6 +206,7 @@ function parse_flags {
 
 			flag=${flag:2} # ignore the '--'
 			local flag_arg=${flag%=*} # get argument
+			flag_arg=${flag_arg^^} # make it uppercase
 			local flag_cmd=${flag#*=} # get value
 
 			# set promise for closing `@'
@@ -212,6 +246,7 @@ function parse_flags {
 		then
 
 			local flag_arg=${flag:1} # ignore the '-' or '+' -> get flag
+			flag_arg=${flag_arg^^} # make it uppercase
 			local bool=${flag:0:1}
 
 			local found_inc_flag='no'
@@ -243,27 +278,13 @@ function call {
 	echo "[ INFO ] starting level: $level_start"
 	echo "[ INFO ] stopping level: $level_stop"
 
-	builds_verbose=(
-	"echo \"[ .. ] Calling 'scripts/make-defaults.sh'\""
-	"echo \"[ .. ] Calling 'scripts/make-sources.sh'\""
-	"echo \"[ .. ] Calling 'scripts/make-deps.sh'\""
-	"echo \"[ .. ] Calling 'scripts/make-deps-makefile.sh'\""
-	)
-
-	builds_call=(
-	"M4=\"$M4\" M4FLAGS=\"$M4FLAGS\" scripts/make-defaults.sh"
-	"CC=\"$CC\" scripts/make-sources.sh"
-	"FIND=\"$FIND\" scripts/make-deps.sh"
-	"SED=\"$SED\" M4=\"$M4\" M4FLAGS=\"$M4FLAGS\" scripts/make-deps-makefile.sh"
-	)
-
 	level_start=$((level_start-1))
 	level_stop=$((level_stop-1))
 
 	for ((i = $level_start; i <= $level_stop; i++))
 	do
-		eval ${builds_verbose[$i]}
-		eval ${builds_call[$i]}
+		echo "[ .. ] Calling 'scripts/${CALLEES[$i]}.sh'"
+		eval ${BUILDS_CALL[$i]}
 	done
 }
 

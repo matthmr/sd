@@ -1,4 +1,4 @@
-include(make/defaults.m4)dnl
+include(make/m4/defaults.m4)dnl
 define(makeflag, `$1?=M4FLAG_conf_$1')dnl
 dnl
 makeflag(`CC')

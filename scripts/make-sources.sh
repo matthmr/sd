@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 case $1 in
 	'-h'|'--help')
-		printf 'Usage:       scripts/make-targets.sh
+		printf 'Usage:       scripts/make-sources.sh
 Description: Generates a list of source files to compile (SD)
 Variables:   FIND="find-like command"
 Note:        Make sure to call this script from the repository root
@@ -16,9 +16,9 @@ echo '[ .. ] Finding C sources'
 echo "[ INFO ] FIND=$FIND"
 
 {
-	$FIND sd/ -type f -name '*.c' > make/sources/sd.txt
+	$FIND sd/ -type f -name '*.c' > make/sources/sd-sources.txt
 } && {
-	echo '[ OK ] Done. Saved to make/sources/sd.txt'
+	echo '[ OK ] Done. Saved to make/sources/sd-sources.txt'
 } || {
 	echo "[ !! ] Could not run \`find' command"
 	exit 1

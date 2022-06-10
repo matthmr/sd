@@ -12,13 +12,13 @@ compile_*
 
 # Cache
 .cache/
-make/sources/sd.txt
-!make/sources/.keepme
+make/sources/sd-sources.txt
 
 # Dev
 #unit/ # this is as of (31-May-22) a make target: test
 make/Sources.mk*
 make/Flags.mk
+make/Targets.mk
 dev/
 tags*
 *.log*
