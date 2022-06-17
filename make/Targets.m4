@@ -57,10 +57,6 @@ library(`sddata')
 library_obj(
 `sd/lang/tokens/txt.o',
 `sd/lang/tokens/virtual/kw/kwcomp.o',
-`sd/lang/tokens/virtual/match.o',
-`sd/lang/tokens/virtual/comp.o',
-`sd/lang/tokens/virtual/mask.o',
-`sd/lang/tokens/virtual/vt.o',
 )dnl
 library_gen
 dnl

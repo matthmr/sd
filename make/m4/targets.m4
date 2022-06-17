@@ -1,11 +1,11 @@
-define(`librec', `ifelse($1, `', ,`lib/lib$1.a librec(shift($*))')')dnl
-define(`libsorec', `ifelse($1, `', ,`-l$1 libsorec(shift($*))')')dnl
+define(`librec', `ifelse($1, `', ,`lib/lib$1.a librec(shift($@))')')dnl
+define(`libsorec', `ifelse($1, `', ,`-l$1 libsorec(shift($@))')')dnl
 define(`rec', `ifelse($1, `', ,`$1 rec(shift($@))')')dnl
 dnl
 dnl
 define(`target_lib', `dnl
-__target__`-libraries':= librec($*)
-__target__`-libraries-soname':= libsorec($*)
+__target__`-libraries':= librec($@)
+__target__`-libraries-soname':= libsorec($@)
 ')dnl
 define(`target_obj', `dnl
 __target__`-objects':= rec($@)

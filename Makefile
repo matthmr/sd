@@ -1,15 +1,15 @@
+default: install
+
 -include make/Targets.mk
 -include make/Flags.mk
 -include make/Sources.mk
 
-MAKEFILES=\
+MAKEFILES:= \
 	make/Targets.mk \
 	make/Flags.mk \
 	make/Sources.mk* \
 	make/sources/sd-sources.txt
 VERSION:= 'v0.4.1'
-
-default: install
 
 clean:
 	@echo "[ .. ] Cleaning working directory"

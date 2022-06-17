@@ -11,6 +11,7 @@
 #ifndef LOCK_TOKENS
 #  define LOCK_TOKENS
 
+#    include <sd/intr/txt/tokens/form.h>
 #    include <sd/utils/types/shared.h>
 #    include <sd/lang/tokens/groups.h>
 

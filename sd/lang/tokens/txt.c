@@ -9,16 +9,31 @@
  */
 
 #include <sd/lang/tokens/gen/txtmaps.h>
-#include <sd/lang/core/statement.h>
+#include <sd/lang/tokens/virtual/vt.h>
 #include <sd/lang/tokens/groups.h>
+#include <sd/lang/tokens/txtid.h>
 
 #include <sd/intr/txt/tokens/form.h>
 
 #include <sd/utils/types/shared.h>
 #include <sd/utils/utils.h>
 
-#define kw(a,b,c) { .kw = a, .id = b, .ty = c } ///< @brief keyword plain-text interface
-#define t(a,b,c,d) { .t = a, .id = b, .vty = c, .ty = d } ///< @brief token plain-text interface
+/// @brief keyword manifest interface macro
+#define __keyword__(_kw, _kwid, _cid, _cty) \
+[_kwid] = { \
+	.this = _kw, \
+	._ = __kcommon__ (_cid, _cty), \
+}
+
+/// @brief token manifest interface macro
+#define __token__(_t, _tid, _cid, _cty, _cprec, _cass, _cvt, _csfix, _vop, _vt) \
+[_tid] = { \
+	.token = { \
+		.this = _t, \
+		._ = __common__ (_cid, _cty, _cprec, _cass, _cvt, _csfix), \
+	}, \
+	.vt = _vop _vt, \
+}
 
 /// @brief keyword manifest
 ///
@@ -37,63 +52,62 @@
 /// @endverbatim
 const _Kw keyword_manifest[] = {
 
+	// TODO: redesign this
 	// -- ASSIGNMENT -- //
 	/* built-in data types */
-	[KW_BOOL] = kw ("bool", _BOOL, KWTY_BUILTIN_TY),
-	[KW_CHAR] = kw ("char", _CHAR, KWTY_BUILTIN_TY),
-	[KW_SHORT] = kw ("short", _SHORT, KWTY_BUILTIN_TY),
-	[KW_INT] = kw ("int", _INT, KWTY_BUILTIN_TY),
-	[KW_FLOAT] = kw ("float", _FLOAT, KWTY_BUILTIN_TY),
-	[KW_LONG] = kw ("long", _LONG, KWTY_BUILTIN_TY),
+	__keyword__ ("bool", KW_BOOL, _BOOL, KWTY_BUILTIN_TY),
 
+	// TODO: redesign this?
 	/* qualifiers */
-	[KW_CONST] = kw ("const", _CONST, KWTY_QUAL),
-	[KW_STATIC] = kw ("static", _STATIC, KWTY_QUAL),
-	[KW_UNSIGNED] = kw ("unsigned", _UNSIGNED, KWTY_QUAL),
-	[KW_SIGNED] = kw ("signed", _SIGNED, KWTY_QUAL),
+	__keyword__ ("const", KW_CONST, _CONST, KWTY_QUAL),
+	__keyword__ ("static", KW_STATIC, _STATIC, KWTY_QUAL),
+	__keyword__ ("unsigned", KW_UNSIGNED, _UNSIGNED, KWTY_QUAL),
+	__keyword__ ("signed", KW_SIGNED, _SIGNED, KWTY_QUAL),
 
 	/* modifiers */
-	[KW_ENUM] = kw ("enum", _ENUM, KWTY_MOD),
+	__keyword__ ("enum", KW_ENUM, _ENUM, KWTY_MOD),
 
 	/* object definition */
-	[KW_RM] = kw ("rm", _RM, KWTY_OBJ_DEF),
-	[KW_TYPE] = kw ("type", _TYPE, KWTY_OBJ_DEF),
-	[KW_TAG] = kw ("tag", _TAG, KWTY_OBJ_DEF),
-	[KW_LET] = kw ("let", _LET, KWTY_OBJ_DEF),
-	[KW_PROC] = kw ("proc", _PROC, KWTY_OBJ_DEF),
+	__keyword__ ("rm", KW_RM, _RM, KWTY_OBJ_DEF),
+	__keyword__ ("type", KW_TYPE, _TYPE, KWTY_OBJ_DEF),
+	__keyword__ ("tag", KW_TAG, _TAG, KWTY_OBJ_DEF),
+	__keyword__ ("let", KW_LET, _LET, KWTY_OBJ_DEF),
+	__keyword__ ("proc", KW_PROC, _PROC, KWTY_OBJ_DEF),
 
 	/* scope control */
-	[KW_IMPORT] = kw ("import", _IMPORT, KWTY_ENV),
-	[KW_IMPL] = kw ("impl", _IMPL, KWTY_ENV),
-	[KW_SCOPE] = kw ("scope", _SCOPE, KWTY_ENV),
-	[KW_HERE] = kw ("here", _HERE, KWTY_ENV),
-	[KW_UNWRAP] = kw ("unwrap", _UNWRAP, KWTY_ENV),
+	__keyword__ ("import", KW_IMPORT, _IMPORT, KWTY_ENV),
+	__keyword__ ("impl", KW_IMPL, _IMPL, KWTY_ENV),
+	__keyword__ ("scope", KW_SCOPE, _SCOPE, KWTY_ENV),
+	__keyword__ ("here", KW_HERE, _HERE, KWTY_ENV),
+	__keyword__ ("unwrap", KW_UNWRAP, _UNWRAP, KWTY_ENV),
+	__keyword__ ("wrap", KW_WRAP, _WRAP, KWTY_ENV),
 
 	// -- INTRINSIC -- //
 	/* built-in objects */
-	[KW_NIL] = kw ("nil", _NIL, KWTY_BUILTIN_OBJ),
-	[KW_TRUE] = kw ("true", _TRUE, KWTY_BUILTIN_OBJ),
-	[KW_FALSE] = kw ("false", _FALSE, KWTY_BUILTIN_OBJ),
+	__keyword__ ("nil", KW_NIL, _NIL, KWTY_BUILTIN_OBJ),
+	__keyword__ ("true", KW_TRUE, _TRUE, KWTY_BUILTIN_OBJ),
+	__keyword__ ("false", KW_FALSE, _FALSE, KWTY_BUILTIN_OBJ),
+	__keyword__ ("this", KW_THIS, _THIS, KWTY_BUILTIN_TY),
 
 	// -- FLOW -- //
 	/* flow control */
-	[KW_ASYNC] = kw ("async", _ASYNC, KWTY_FLOW),
-	[KW_SYNC] = kw ("sync", _SYNC, KWTY_FLOW),
-	[KW_END] = kw ("end", _END, KWTY_FLOW),
-	[KW_JUMP] = kw ("jump", _JUMP, KWTY_FLOW),
-	[KW_RET] = kw ("ret", _RET, KWTY_FLOW),
-	[KW_GOTO] = kw ("goto", _GOTO, KWTY_FLOW),
-	[KW_BRANCH] = kw ("branch", _BRANCH, KWTY_FLOW),
-	[KW_PEEK] = kw ("peek", _PEEK, KWTY_FLOW),
-	[KW_LABEL] = kw ("label", _LABEL, KWTY_FLOW),
+	__keyword__ ("async", KW_ASYNC, _ASYNC, KWTY_FLOW),
+	__keyword__ ("sync", KW_SYNC, _SYNC, KWTY_FLOW),
+	__keyword__ ("end", KW_END, _END, KWTY_FLOW),
+	__keyword__ ("jump", KW_JUMP, _JUMP, KWTY_FLOW),
+	__keyword__ ("ret", KW_RET, _RET, KWTY_FLOW),
+	__keyword__ ("goto", KW_GOTO, _GOTO, KWTY_FLOW),
+	__keyword__ ("branch", KW_BRANCH, _BRANCH, KWTY_FLOW),
+	__keyword__ ("peek", KW_PEEK, _PEEK, KWTY_FLOW),
+	__keyword__ ("label", KW_LABEL, _LABEL, KWTY_FLOW),
 
 	// -- MISC -- //
 	/* AST probe */
-	[KW_AS] = kw ("as", _AS, KWTY_AST),
-	[KW_RES] = kw ("res", _RES, KWTY_AST),
+	__keyword__ ("as", KW_AS, _AS, KWTY_AST),
+	__keyword__ ("res", KW_RES, _RES, KWTY_AST),
 
 	/* loops */
-	[KW_ITER] = kw ("iter", _ITER, KWTY_LOOP),
+	__keyword__ ("iter", KW_ITER, _ITER, KWTY_LOOP),
 
 };
 
@@ -105,56 +119,281 @@ const _Kw keyword_manifest[] = {
 const _T token_manifest[] = {
 
 	/* reference delimiters */
-	[T_OBJ_BEGIN] = t ('[', _OBJ_BEGIN, MATCH, TTY_OBJ_REF_DEL),
-	[T_OBJ_END] = t (']', _OBJ_END, MATCH, TTY_OBJ_REF_DEL),
-	[T_PROC_BEGIN] = t ('(', _PROC_BEGIN, MATCH, TTY_OBJ_REF_DEL),
-	[T_PROC_END] = t (')', _PROC_END, MATCH, TTY_OBJ_REF_DEL),
-	[T_SEP] = t (',', _SEP, AS_IS|SUFFIX_NOC2|SUFFIX_CHLD|SUFFIX_NOC1, TTY_OBJ_REF_DEL),
+	__token__ ('[', T_OBJ_BEGIN,
+		_OBJ_BEGIN, TTY_OBJ_REF_DEL, PREC_IRR, ASS_IRR, MATCH, SUFFIX_OPEN,
+		VIRT, __match__ (V_MMATCHER,
+			_OBJ_END, TTY_OBJ_REF_DEL, PREC_INF, ASS_IRR, AS_IS, SUFFIX_CLOSE,
+			DONE, 0)
+	),
+
+	__token__ (']', T_OBJ_END,
+		_OBJ_END, TTY_OBJ_REF_DEL, PREC_INF, ASS_IRR, MATCH, SUFFIX_CLOSE,
+		VIRT, __match__ (V_MMATCHEE,
+			_OBJ_BEGIN, TTY_OBJ_REF_DEL, PREC_IRR, ASS_IRR, AS_IS, SUFFIX_OPEN,
+			DONE, 0)
+	),
+
+	__token__ ('(', T_PROC_BEGIN,
+		_PROC_BEGIN, TTY_OBJ_REF_DEL, PREC_IRR, ASS_IRR, MATCH, SUFFIX_OPEN,
+		VIRT, __match__ (V_MMATCHER,
+			_PROC_END, TTY_OBJ_REF_DEL, 1u, LEFTRIGHT, AS_IS, SUFFIX_CLOSE,
+			DONE, 0)
+	),
+
+	__token__ (')', T_PROC_END,
+		_PROC_END, TTY_OBJ_REF_DEL, 1u, LEFTRIGHT, MATCH, SUFFIX_CLOSE,
+		VIRT, __match__ (V_MMATCHEE,
+			_PROC_BEGIN, TTY_OBJ_REF_DEL, PREC_IRR, ASS_IRR, AS_IS, SUFFIX_OPEN,
+			DONE, 0)
+	),
+
+	__token__ (',', T_SEP,
+		_SEP, TTY_OBJ_REF_DEL, AS_IS, 16u, LEFTRIGHT, SUFFIX_CHLD|SUFFIX_NOC1|SUFFIX_NOC2,
+		NOVIRT, NONEST
+	),
 
 	/* object reference */
-	[T_CHILD] = t ('/', _CHILD, COMPOUND_DIR|SUFFIX_NOC1|SUFFIX_CHLD, TTY_OBJ_REF),
-	[T_DEREF] = t ('@', _DEREF, AS_IS|SUFFIX_NOC1, TTY_OBJ_REF),
-	[T_CAST] = t ('.', _CAST, COMPOUND_DIR|SUFFIX_CHLD, TTY_OBJ_REF),
+	__token__ ('/', T_CHILD,
+		_CHILD, TTY_OBJ_REF, 1u, LEFTRIGHT, COMPOUND, SUFFIX_NOC1|SUFFIX_CHLD,
+		VIRT, __comp__ (_CHILD,
+			_MATH_DIV, TTY_MATH_OP, 4u, LEFTRIGHT, COMPOUND, SUFFIX_CHLD,
+			NEST, __comp__ (_ASSIGN,
+				_ASSIGN_DIV, TTY_OBJ_DEF, 14u, RIGHTLEFT, AS_IS, SUFFIX_CHLD,
+				DONE, 0)
+			)
+	),
+
+	__token__ ('@', T_REF,
+		_REF, TTY_OBJ_REF, 2u, RIGHTLEFT, AS_IS, SUFFIX_NOC1,
+		NOVIRT, NONEST
+	),
+
+	__token__ ('.', T_CAST,
+		_CAST, TTY_OBJ_REF, 13u, LEFTRIGHT, COMPOUND, SUFFIX_CHLD,
+		VIRT, __comp__ (_CAST,
+			_OBJ_PARENT, TTY_OBJ_REF, PREC_IRR, ASS_IRR, AS_IS, SUFFIX_CHLD,
+			DONE, 0)
+	),
 
 	/* object definition */
-	[T_BODY_BEGIN] = t ('{', _BODY_BEGIN, MATCH, TTY_OBJ_DEF),
-	[T_BODY_END] = t ('}', _BODY_END, MATCH, TTY_OBJ_DEF),
-	[T_ASSIGN] = t (':', _ASSIGN, COMPOUND_DIR|SUFFIX_CHLD, TTY_OBJ_DEF),
+	__token__ ('{', T_BODY_BEGIN,
+		_BODY_BEGIN, TTY_OBJ_DEF, PREC_IRR, ASS_IRR, MATCH, SUFFIX_OPEN,
+		VIRT, __match__ (V_MMATCHER,
+			_BODY_END, TTY_OBJ_DEF, PREC_IRR, ASS_IRR, AS_IS, SUFFIX_CLOSE,
+			DONE, 0)
+	),
+
+	__token__ ('}', T_BODY_END,
+		_BODY_END, TTY_OBJ_DEF, PREC_IRR, ASS_IRR, MATCH, SUFFIX_CLOSE,
+		VIRT, __match__ (V_MMATCHEE,
+			_BODY_BEGIN, TTY_OBJ_DEF, PREC_IRR, ASS_IRR, AS_IS, SUFFIX_OPEN,
+			DONE, 0)
+	),
+
+	__token__ (':', T_ASSIGN,
+		_ASSIGN, TTY_OBJ_DEF, 14u, RIGHTLEFT, COMPOUND, SUFFIX_CHLD,
+		VIRT, __comp__ (_ASSIGN,
+			_IN_ASSIGN, TTY_OBJ_DEF, PREC_IRR, ASS_IRR, AS_IS, SUFFIX_CLOSE,
+			DONE, 0)
+	),
 
 	/* expression control */
-	[T_EXPR_END] = t (';', _EXPR_END, AS_IS|SUFFIX_NOC2, TTY_EXPR),
-	[T_SELF] = t ('^', _SELF, COMPOUND_DIR, TTY_EXPR),
+	__token__ (';', T_EXPR_END,
+		_EXPR_END, TTY_EXPR, PREC_IRR, ASS_IRR, AS_IS, SUFFIX_IRR,
+		NOVIRT, NONEST
+	),
+
+	__token__ ('^', T_SELF,
+		_SELF, TTY_EXPR, PREC_IRR, ASS_IRR, COMPOUND, SUFFIX_IRR,
+		VIRT, __comp__ (_SELF,
+			_BIT_XOR, TTY_BITWISE_OP, 9u, LEFTRIGHT, AS_IS, SUFFIX_CHLD,
+			NEST, __comp__ (_ASSIGN,
+				_ASSIGN_BWXOR, TTY_OBJ_REF_DEL, 14u, RIGHTLEFT, AS_IS, SUFFIX_CHLD,
+				DONE, 0
+			)
+		)
+	),
 
 	/* misc syntax */
-	[T_CHAR] = t ('\'', _SCHAR, MATCH, TTY_SYN),
-	[T_STRING] = t ('"', _DCHAR, MATCH, TTY_SYN),
-	[T_COMMENT] = t ('#', _COMMENT, AS_IS, TTY_SYN),
-	[T_LIT] = t ('$', _LIT, COMPOUND_DIR|SUFFIX_NOC1, TTY_SYN),
+	__token__ ('\'', T_CHAR,
+		_SCHAR, TTY_SYN, PREC_IRR, ASS_IRR, MATCH, SUFFIX_OPEN,
+		VIRT, __match__ (V_MSELF,
+			_SCHAR, TTY_SYN, PREC_IRR, ASS_IRR, AS_IS, SUFFIX_CLOSE,
+			DONE, 0)
+	),
+
+	__token__ ('"', T_STRING,
+		_DCHAR, TTY_SYN, PREC_IRR, ASS_IRR, MATCH, SUFFIX_OPEN,
+		VIRT, __match__ (V_MSELF,
+			_DCHAR, TTY_SYN, PREC_IRR, ASS_IRR, AS_IS, SUFFIX_CLOSE,
+			DONE, 0)
+	),
+
+	__token__ ('#', T_COMMENT,
+		_COMMENT, TTY_SYN, PREC_IRR, ASS_IRR, AS_IS, SUFFIX_IRR,
+		NOVIRT, NONEST
+	),
+
+	__token__ ('$', T_LIT,
+		_LIT, TTY_SYN, PREC_IRR, ASS_IRR, COMPOUND, SUFFIX_NOC1,
+		NOVIRT, __comp__ (_LIT,
+			_MACRO_LIT, TTY_SYN, PREC_IRR, ASS_IRR, AS_IS, SUFFIX_NOC1,
+			DONE, 0)
+	),
 
 	/* math operation */
-	[T_MATH_PLUS] = t ('+', _MATH_PLUS, MASK|COMPOUND_DIR|COMPOUND_INDIR|SUFFIX_CHLD, TTY_MATH_OP),
-	[T_MATH_TIMES] = t ('*', _MATH_TIMES, COMPOUND_DIR|COMPOUND_INDIR|SUFFIX_CHLD, TTY_MATH_OP),
-	[T_MATH_MINUS] = t ('-', _MATH_MINUS, MASK|COMPOUND_DIR|COMPOUND_INDIR|SUFFIX_CHLD, TTY_MATH_OP),
+	__token__ ('+', T_MATH_PLUS,
+		_MATH_PLUS, TTY_MATH_OP, 4u, LEFTRIGHT, MASK|COMPOUND, SUFFIX_CHLD,
+		, ALL (
+			__mask__ (_MATH_UPLUS, TTY_MATH_OP, 2u, RIGHTLEFT, AS_IS, SUFFIX_NOC1,
+				DONE, 0),
+			__comp__ (_MATH_PLUS,
+				// TODO: differentiate increments (this is postfix increment)
+				_MATH_INC, TTY_MATH_OP, 1u, LEFTRIGHT, AS_IS, SUFFIX_NOC2,
+				DONE, 0
+			)
+		)
+	),
+
+	__token__ ('*', T_MATH_TIMES,
+		_MATH_TIMES, TTY_MATH_OP, 3u, LEFTRIGHT, COMPOUND, SUFFIX_CHLD,
+		VIRT, __comp__ (_ASSIGN,
+			_ASSIGN_TIMES, TTY_OBJ_DEF, 1u, RIGHTLEFT, AS_IS, SUFFIX_CHLD,
+			DONE, 0)
+	),
+
+	__token__ ('-', T_MATH_MINUS,
+		_MATH_MINUS, TTY_MATH_OP, 4u, LEFTRIGHT, MASK|COMPOUND, SUFFIX_CHLD,
+		, ALL (
+			__mask__ (_MATH_UMINUS, TTY_MATH_OP, 2u, RIGHTLEFT, AS_IS, SUFFIX_NOC1,
+				DONE, 0),
+			__comp__ (_MATH_MINUS,
+				_MATH_DEC, TTY_MATH_OP, 1u, LEFTRIGHT, AS_IS, SUFFIX_NOC2,
+				DONE, 0
+			)
+		)
+	),
 
 	/* bool comparison */
-	[T_BOOL_EQ] = t ('=', _BOOL_EQ, COMPOUND_INDIR|SUFFIX_CHLD, TTY_BOOL_CMP),
-	[T_BOOL_LT] = t ('<', _BOOL_LT, MATCH|COMPOUND_DIR|COMPOUND_INDIR|MASK|SUFFIX_CHLD, TTY_BOOL_CMP),
-	[T_BOOL_GT] = t ('>', _BOOL_GT, MATCH|COMPOUND_DIR|COMPOUND_INDIR|MASK|SUFFIX_CHLD, TTY_BOOL_CMP),
+	__token__ ('=', T_BOOL_EQ,
+		_BOOL_EQ, TTY_BOOL_CMP, 7u, LEFTRIGHT, AS_IS, SUFFIX_CHLD,
+		NOVIRT, NONEST
+	),
+
+	__token__ ('<', T_BOOL_LT,
+		_BOOL_LT, TTY_BOOL_CMP, 6u, LEFTRIGHT, COMPOUND|MASK, SUFFIX_CHLD,
+		, ALL (
+			__comp__ (_BOOL_LT,
+				_BIT_LS, TTY_BITWISE_OP, 5u, LEFTRIGHT, COMPOUND, SUFFIX_CHLD,
+				NEST, __comp__ (_ASSIGN,
+					_ASSIGN_BWLS, TTY_OBJ_DEF, 14u, RIGHTLEFT, AS_IS, SUFFIX_CHLD,
+					DONE, 0)
+			),
+			__comp__ (_BOOL_EQ,
+				_BOOL_LTEQ, TTY_BOOL_OP, 6u, LEFTRIGHT, AS_IS, SUFFIX_CHLD,
+				DONE, 0
+			),
+			__mask__ (_MOD_BEGIN, TTY_OBJ_REF_DEL, PREC_IRR, ASS_IRR, MATCH, SUFFIX_OPEN,
+				NEST, __match__ (V_MMATCHER,
+					_MOD_END, TTY_OBJ_REF_DEL, PREC_IRR, ASS_IRR, AS_IS, SUFFIX_CLOSE,
+					DONE, 0)
+			),
+			__mask__ (_ARR_BEGIN, TTY_OBJ_REF_DEL, PREC_IRR, ASS_IRR, MATCH, SUFFIX_OPEN,
+				NEST, __match__ (V_MMATCHER,
+					_ARR_END, TTY_OBJ_REF_DEL, 1u, LEFTRIGHT, AS_IS, SUFFIX_CLOSE,
+					DONE, 0)
+			),
+		)
+	),
+
+	__token__ ('>', T_BOOL_GT,
+		_BOOL_GT, TTY_BOOL_CMP, 6u, LEFTRIGHT, COMPOUND|MASK, SUFFIX_CHLD,
+		, ALL (
+			__comp__ (_BOOL_GT,
+				_BIT_RS, TTY_BITWISE_OP, 5u, LEFTRIGHT, COMPOUND, SUFFIX_CHLD,
+				NEST, __comp__ (_ASSIGN,
+					_ASSIGN_BWRS, TTY_OBJ_DEF, 14u, RIGHTLEFT, AS_IS, SUFFIX_CHLD,
+					DONE, 0)
+				),
+			__comp__ (_BOOL_EQ,
+				_BOOL_GTEQ, TTY_BOOL_OP, 6u, LEFTRIGHT, AS_IS, SUFFIX_CHLD,
+				DONE, 0
+			),
+			__mask__ (_MOD_END, TTY_OBJ_REF_DEL, PREC_IRR, ASS_IRR, MATCH, SUFFIX_CLOSE,
+				NEST, __match__ (V_MMATCHEE,
+					_MOD_BEGIN, TTY_OBJ_REF_DEL, PREC_IRR, ASS_IRR, AS_IS, SUFFIX_OPEN,
+					DONE, 0)
+				),
+			__mask__ (_ARR_END, TTY_OBJ_REF_DEL, 1u, LEFTRIGHT, MATCH, SUFFIX_CLOSE,
+				NEST, __match__ (V_MMATCHEE,
+					_ARR_BEGIN, TTY_OBJ_REF_DEL, PREC_IRR, ASS_IRR, AS_IS, SUFFIX_OPEN,
+					DONE, 0)
+				),
+		)
+	),
 
 	/* bool operation */
-	[T_BOOL_NEG] = t ('!', _BOOL_NEG, MASK|COMPOUND_DIR|COMPOUND_INDIR|SUFFIX_NOC1, TTY_BOOL_OP),
+	__token__ ('!', T_BOOL_NEG,
+		_BOOL_NEG, TTY_BOOL_OP, 3u, RIGHTLEFT, COMPOUND|MASK, SUFFIX_NOC1,
+		, ALL (
+			__mask__ (_WHILE, TTY_COND, 15u, LEFTRIGHT, AS_IS, SUFFIX_CHLD,
+				NEST, __comp__ (_BOOL_NEG,
+					_IN_WHILE, TTY_COND, 15u, LEFTRIGHT, AS_IS, SUFFIX_CHLD,
+					DONE, 0)
+				),
+			__comp__ (_BOOL_EQ,
+				_BOOL_NEQ, TTY_BOOL_OP, 7u, LEFTRIGHT, AS_IS, SUFFIX_CHLD,
+				DONE, 0),
+		)
+	),
 
 	/* bitwise operation */
-	[T_BIT_NEG] = t ('~', _BIT_NEG, AS_IS|SUFFIX_NOC1, TTY_BITWISE_OP),
-	[T_BIT_AND] = t ('&', _BIT_AND, COMPOUND_DIR|COMPOUND_INDIR|SUFFIX_CHLD, TTY_BITWISE_OP),
-	[T_BIT_OR] = t ('|', _BIT_OR, COMPOUND_DIR|COMPOUND_INDIR|SUFFIX_CHLD, TTY_BITWISE_OP),
+	__token__ ('~', T_BIT_NEG,
+		_BIT_NEG, TTY_BITWISE_OP, 3u, RIGHTLEFT, AS_IS, SUFFIX_NOC1,
+		NOVIRT, NONEST),
+
+	__token__ ('&', T_BIT_AND,
+		_BIT_AND, TTY_BITWISE_OP, 8u, LEFTRIGHT, COMPOUND, SUFFIX_CHLD,
+		, ALL (
+			__comp__ (_BIT_AND,
+				_BOOL_AND, TTY_BOOL_OP, 11u, LEFTRIGHT, AS_IS, SUFFIX_CHLD,
+				DONE, 0),
+			__comp__ (_ASSIGN,
+				_ASSIGN_BWAND, TTY_OBJ_REF, 14u, LEFTRIGHT, AS_IS, SUFFIX_CHLD,
+				DONE, 0)
+		)
+	),
+
+	__token__ ('|', T_BIT_OR,
+		_BIT_OR, TTY_BITWISE_OP, 10u, LEFTRIGHT, COMPOUND, SUFFIX_CHLD,
+		, ALL (
+			__comp__ (_BIT_OR,
+				_BOOL_OR, TTY_BOOL_OP, 12u, LEFTRIGHT, AS_IS, SUFFIX_CHLD,
+				DONE, 0),
+			__comp__ (_ASSIGN,
+				_ASSIGN_BWOR, TTY_OBJ_REF, 14u, LEFTRIGHT, AS_IS, SUFFIX_CHLD,
+				DONE, 0)
+		)
+	),
 
 	/* piping */
-	[T_PIPE] = t ('%', _PIPE, COMPOUND_DIR|SUFFIX_CHLD, TTY_PIPE),
+	__token__ ('%', T_PIPE,
+		_PIPE, TTY_PIPE, 1u, LEFTRIGHT, COMPOUND, SUFFIX_CHLD,
+		VIRT, __comp__ (_PIPE,
+			_MATH_MOD, TTY_MATH_OP, 4u, LEFTRIGHT, COMPOUND, SUFFIX_CHLD,
+			NEST, __comp__ (_ASSIGN,
+				_ASSIGN_MOD, TTY_OBJ_DEF, 14u, LEFTRIGHT, AS_IS, SUFFIX_CHLD,
+				DONE, 0)
+			)
+	),
 
 	/* conditional branching */
-	[T_IF] = t ('?', _IF, COMPOUND_DIR|MASK|SUFFIX_NOC2, TTY_COND),
-
+	__token__ ('?', T_IF,
+		_IF, TTY_COND, 15u, LEFTRIGHT, COMPOUND, SUFFIX_CHLD,
+		VIRT, __comp__ (_IF,
+			_IN_IF, 15u, LEFTRIGHT, TTY_COND, AS_IS, SUFFIX_CHLD, // TODO: this is not true
+			DONE, 0)
+	),
 };
 
 const uint keyword_manifest_len = BYTES (keyword_manifest);

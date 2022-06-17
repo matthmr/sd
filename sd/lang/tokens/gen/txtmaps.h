@@ -10,64 +10,60 @@
 #ifndef LOCK_TXTMAPS_KW
 #  define LOCK_TXTMAPS_KW ///< lock: lock keywords
 
-// TODO: implement `double` data type
-// TODO: implement `wrap` and `unwrap` keywords
 // TODO: overwrite `T_` tokens with these as bytecode
 /// @brief keyword identification
 enum kwid {
 
 	/* built-in data types */
-	_INT = 0x0001,
-	_CHAR = 0x0002,
-	_FLOAT = 0x0003,
-	_LONG = 0x0004,
-	_SHORT = 0x0005,
-	_BOOL = 0x0006,
+	_BOOL = 0x0001,
 
 	/* qualifiers */
-	_CONST = 0x0007,
-	_STATIC = 0x0008,
-	_UNSIGNED = 0x0009,
-	_SCOPE = 0x000a,
-	_HERE = 0x000b,
+	_CONST = 0x0002,
+	_STATIC = 0x0003,
+	_UNSIGNED = 0x0004,
+	_SCOPE = 0x0005,
+	_HERE = 0x0006,
 
 	/* modifiers */
-	_ENUM = 0x000c,
-	_SIGNED = 0x000d,
+	_ENUM = 0x0007,
+	_SIGNED = 0x0008,
 
 	/* object definition */
-	_RM = 0x000e,
-	_TYPE = 0x000f,
-	_TAG = 0x0010,
-	_LET = 0x0011,
-	_PROC = 0x0012,
+	_RM = 0x0009,
+	_TYPE = 0x000a,
+	_TAG = 0x000b,
+	_LET = 0x000c,
+	_PROC = 0x000d,
 
 	/* scope control */
-	_IMPORT = 0x0013,
-	_IMPL = 0x0014,
-	_UNWRAP = 0x0015,
+	_IMPORT = 0x000e,
+	_IMPL = 0x000f,
+	_UNWRAP = 0x0010,
+	_WRAP = 0x0011,
 
 	/* built-in objects */
-	_NIL = 0x0016,
-	_TRUE = 0x0017,
-	_FALSE = 0x0018,
+	_NIL = 0x0012,
+	_TRUE = 0x0013,
+	_FALSE = 0x0014,
+	_THIS = 0x0015,
 
 	/* flow control */
-	_ASYNC = 0x0019,
-	_SYNC = 0x001a,
-	_END = 0x001b,
-	_JUMP = 0x001c,
-	_RET = 0x001d,
-	_GOTO = 0x001e,
-	_BRANCH = 0x001f,
-	_PEEK = 0x0020,
-	_LABEL = 0x0021,
+	_ASYNC = 0x0016,
+	_SYNC = 0x0017,
+	_END = 0x0018,
+	_JUMP = 0x0019,
+	_RET = 0x001a,
+	_GOTO = 0x001b,
+	_BRANCH = 0x001c,
+	_PEEK = 0x001d,
+	_LABEL = 0x001e,
 
 	/* literal syntax */
-	_AS = 0x0022,
+	_AS = 0x001f,
+	_RES = 0x0020,
 
 	/* loops */
-	_ITER = 0x0023,
+	_ITER = 0x0021,
 
 };
 
@@ -103,7 +99,7 @@ enum tid {
 
 	/* object reference */
 	_CHILD = tid_append (0x0008),
-	_DEREF = tid_append (0x0009),
+	_REF = tid_append (0x0009),
 	_CAST = tid_append (0x000a),
 
 	/* object definition */
