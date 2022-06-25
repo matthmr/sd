@@ -2,8 +2,8 @@
 case $1 in
 	'-h'|'--help')
 		printf 'Usage:       scripts/make-targets.sh
-Description: Generates a list of source files to compile (SD)
-Variables:   FIND="find-like command"
+Description: Generates a list of targets to compile (SD)
+Variables:   M4="m4-like command"
 Note:        Make sure to call this script from the repository root
 '
 		exit 1

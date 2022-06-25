@@ -12,41 +12,42 @@
 #ifndef LOCK_ERR
 #  define LOCK_ERR ///< lock: standard lock
 
-#  define NO_INFO "\n" ///< format field for no-info error
-#  define NO_LINEINFO "" ///< format field for no-line-info error
+#  define POINT '^' ///< @brief format field for error pointer
+#  define EXTEND '~' ///<  @brief format field for error pointer extend
 
-#  define POINT_TO '^' ///< format field for error pointer
-#  define EXTEND '~' ///< format field for error pointer extend
-
-// @brief error identifier
+/// @brief error identifier
+/// @note at parse/execution level,
+///       errors can double as exit
+///       code, so they start as 1
+///       in the enum
 enum err {
-	ENOSUCH,
-	EMISS,
-	EDRIV,
-	EINT,
-	EOOBN,
-	EOOBID,
-	EUNDEFID,
-	ENUID,
-	EKWID,
-	EUNHOID,
-	EUNHOL,
+	/* ENOSUCH = 1, */
+	EDRIV=1, // driver cast
+	EINT, // bad integer constr
+	EOOBID, // out-of-bound-identifier length
+	EOOBN, // out-of-bound number
+	EUNDEFID, // undefined identifier
+	EKWID, // keyword as identifier
+	EUNHOID, // unhookable identifier
+	EMISSMATCH, // missing matcher
+	EUNHOL, // unhookable literal
 };
 
-// TODO: change this?
-/// @brief error time definition
-typedef enum time {
-	TIME_ARG,
-	TIME_TXT,
-	TIME_BYTE,
-	TIME_COMP,
-} Time;
+struct file_info {
+	char* filename;
+	char* line;
+	char* column;
+};
+
+struct error_info {
+	char* line;
+	char* msg;
+};
+
+typedef struct file_info FInfo;
+typedef struct error_info EInfo;
 
 extern const char* errmsg[];
 
-extern char* fmt;
-extern char* vfmt;
-
 void Err (int, char*);
-void e_set (Time);
 #endif

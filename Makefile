@@ -9,7 +9,7 @@ MAKEFILES:= \
 	make/Flags.mk \
 	make/Sources.mk* \
 	make/sources/sd-sources.txt
-VERSION:= 'v0.4.1'
+VERSION:="v0.4.1"
 
 clean:
 	@echo "[ .. ] Cleaning working directory"

@@ -16,7 +16,7 @@
 #include <sd/intr/txt/tokens/form.h>
 
 #include <sd/utils/types/shared.h>
-#include <sd/utils/utils.h>
+#include <sd/utils/macros.h>
 
 /// @brief keyword manifest interface macro
 #define __keyword__(_kw, _kwid, _cid, _cty) \
@@ -251,7 +251,8 @@ const _T token_manifest[] = {
 				// TODO: differentiate increments (this is postfix increment)
 				_MATH_INC, TTY_MATH_OP, 1u, LEFTRIGHT, AS_IS, SUFFIX_NOC2,
 				DONE, 0
-			)
+			),
+			ENDALL
 		)
 	),
 
@@ -270,7 +271,8 @@ const _T token_manifest[] = {
 			__comp__ (_MATH_MINUS,
 				_MATH_DEC, TTY_MATH_OP, 1u, LEFTRIGHT, AS_IS, SUFFIX_NOC2,
 				DONE, 0
-			)
+			),
+			ENDALL
 		)
 	),
 
@@ -303,6 +305,7 @@ const _T token_manifest[] = {
 					_ARR_END, TTY_OBJ_REF_DEL, 1u, LEFTRIGHT, AS_IS, SUFFIX_CLOSE,
 					DONE, 0)
 			),
+			ENDALL
 		)
 	),
 
@@ -329,6 +332,7 @@ const _T token_manifest[] = {
 					_ARR_BEGIN, TTY_OBJ_REF_DEL, PREC_IRR, ASS_IRR, AS_IS, SUFFIX_OPEN,
 					DONE, 0)
 				),
+			ENDALL
 		)
 	),
 
@@ -344,6 +348,7 @@ const _T token_manifest[] = {
 			__comp__ (_BOOL_EQ,
 				_BOOL_NEQ, TTY_BOOL_OP, 7u, LEFTRIGHT, AS_IS, SUFFIX_CHLD,
 				DONE, 0),
+			ENDALL
 		)
 	),
 
@@ -360,7 +365,8 @@ const _T token_manifest[] = {
 				DONE, 0),
 			__comp__ (_ASSIGN,
 				_ASSIGN_BWAND, TTY_OBJ_REF, 14u, LEFTRIGHT, AS_IS, SUFFIX_CHLD,
-				DONE, 0)
+				DONE, 0),
+			ENDALL
 		)
 	),
 
@@ -372,7 +378,8 @@ const _T token_manifest[] = {
 				DONE, 0),
 			__comp__ (_ASSIGN,
 				_ASSIGN_BWOR, TTY_OBJ_REF, 14u, LEFTRIGHT, AS_IS, SUFFIX_CHLD,
-				DONE, 0)
+				DONE, 0),
+			ENDALL
 		)
 	),
 

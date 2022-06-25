@@ -21,7 +21,10 @@
                "\tsdread -s <file> \"<expr>\" => <file> is SD bytecode code (compiled)\n\n"\
                "Info:\tsdc -h\t\t  => Displays this message and exits\n"\
                "\tsdc -v\t\t  => Displays the version and exits\n\n"\
-               "Note:\tif <file> is `-`, then <file> is STDIN\n"\
+               "Note:\tif <file> is `-', then <file> is STDIN\n"\
                "     \t\"<expr>\" is optional but must be used in quotes\n\n"
 
+
+#  define VERSION \
+	v0.4.1
 #endif

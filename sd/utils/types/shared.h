@@ -8,7 +8,7 @@
  */
 
 #ifndef NULL
-#  define NULL ((void*)0x0)
+#  define NULL ((void*)0)
 #endif
 
 #ifndef LOCK_8BIT_TYPES

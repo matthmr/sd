@@ -13,8 +13,8 @@ INCLUDE_FLAGS=(
 INCLUDE_FLAG_PREFIX='M4FLAG_conf_'
 
 CALLEES=(
-	"make-defaults"
-	"make-sources"
+	"make-flags"
+	"find-sources"
 	"make-deps"
 	"make-deps-makefile"
 	"make-targets"
@@ -28,23 +28,17 @@ BUILDS_CALL=(
 "M4=\"\$M4\" scripts/${CALLEES[4]}.sh"
 )
 
-function print_callees {
+function print_targets {
 	local len=${#CALLEES[@]}
 	for ((i = 0; i < $len; i++))
 	do
-
-		if (( $i > 0 ))
-		then
-			echo -n "$1"
-		fi
-
-		echo "CALLEE $((i+1)): ${CALLEES[$i]}"
+		echo "Target[$((i+1))]: ${CALLEES[$i]}"
 	done
 }
 
 case $1 in
 	'-h'|'--help')
-		printf "Usage:           ./configure [--start=<level> --stop=<level>]
+		printf "Usage:           ./configure [--help -h] [--targets -t] [--start=<level> --stop=<level>] [--only=<level>]
 Description:     Runs the build script suite for SD
 
 Variables:       CC=\"C compiler (used in ./configure)\"
@@ -63,30 +57,35 @@ Note:            Make sure to call this script from the repository root
 
                              ./configure --cflags=@\"-Wall -glldb\"@ --cc=clang
 
-
-Callees:         To bound the build step, pass in \`--start=<level>' and/or \`--stop=<level>' as the FIRST
+Targets:         To bound the build step, pass in \`--start=<level>' and/or \`--stop=<level>' as the FIRST
                  and SECOND argument of the ./configure file. The order doesn't matter.
-                 For example, to skip everything after \`make-defaults', you'd run:
+                 For example, to skip everything after the first target exclusively, you'd run:
 
                                           ./configure --stop=1
 
-                 To skip everything before \`make-deps', you'd run:
+                 To skip everything before the third target exclusively, you'd run:
 
                                           ./configure --start=3
 
-                 A start-stop level of the same amount means only the build AT that level is going to be run
+                 To execute only one target pass in \`--only=<level>'
 
-                 The default callees are:
+                 To get a list of targets, run:
 
-                 $(print_callees "                 ")
+                                          ./configure --targets
 
 Run \`make help' to get an explanation of set- and include- flags
 "
 		exit 1
 		;;
+	'-t'|'--targets')
+		print_targets
+		exit 1
+		;;
 esac
 
-faux_args=
+# faux_args are actually one more than the actual faux args
+faux_args=1
+
 __level_start=1 # fallbacks
 __level_stop=${#CALLEES[@]} # fallbacks
 level_start=$__level_start
@@ -99,23 +98,50 @@ function check_bounds {
 	if [[ -z $first ]]
 	then
 		faux_args=1
+
 	elif [[ -z $second ]]
 	then
 		faux_args=2
+
 	else
 		faux_args=3
 	fi
 
-	# both are empty
-	[[ -z $first && -z $second ]] && return 0
+	local opt_arg=
+	local opt_cmd=
+
+	# test `--only'; `only' is always the first one
+	opt_arg=${first%=*}
+	opt_cmd=${first#*=}
+
+	# apply `--only'
+	{
+		[[ $opt_arg = '--only' ]]
+	} && {
+		if [[ $opt_cmd -ge $level_start && $opt_cmd -le $level_stop ]]
+		then
+			level_start=$opt_cmd
+			level_stop=$opt_cmd
+			faux_args=2
+
+			# sanity check
+			if [[ "$level_start" -gt "$__level_stop" || "$level_stop" -gt "$__level_stop" ]]
+			then
+				return 1
+			fi
+			return 0
+		else
+			return 1
+		fi
+	} || {
+		opt_arg=
+		opt_cmd=
+	}
 
 	local isFirst='yes'
 
 	local hasStart='no'
 	local hasStop='no'
-
-	local opt_arg=
-	local opt_cmd=
 
 	for opt in $first $second
 	do
@@ -179,6 +205,7 @@ function check_bounds {
 		fi
 
 	done
+
 }
 
 promise_closing='no'
@@ -274,7 +301,6 @@ function parse_flags {
 }
 
 function call {
-
 	echo "[ INFO ] starting level: $level_start"
 	echo "[ INFO ] stopping level: $level_stop"
 

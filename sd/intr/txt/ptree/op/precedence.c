@@ -7,8 +7,6 @@
  * for operator precedence
  */
 
-#include <sd/intr/txt/ptree/op/precedence.h>
-
 #include <sd/lang/expr/expr.h>
 
 #define _PREC OP_FLOWLOOP
@@ -25,23 +23,22 @@
 const Prec opptab[] = {
 
 	[OP_MEMCHILD] = {1, LR},       // '/'
+	[OP_UMATHINC] = {1, LR},       // '++'
+	[OP_UMATHDEC] = {1, LR},       // '--'
+	[OP_MEMCALL] = {1, LR},        // '()'
+	[OP_MEMARR] = {1, LR},         // '<>'
 
-	[OP_UMATHINC] = {2, LR},       // '++'
-	[OP_UMATHDEC] = {2, LR},       // '--'
-	[OP_MEMCALL] = {2, LR},        // '()'
-	[OP_MEMARR] = {2, LR},         // '<>'
+	[OP_UMATHPLUS] = {2, RL},      // '+a'
+	[OP_UMATHMINUS] = {2, RL},     // '-a'
+	[OP_LOGNOT] = {2, RL},         // '!'
+	[OP_BITWNOT] = {2, RL},        // '~'
 
-	[OP_UMATHPLUS] = {3, RL},      // '+a'
-	[OP_UMATHMINUS] = {3, RL},     // '-a'
-	[OP_LOGNOT] = {3, RL},         // '!'
-	[OP_BITWNOT] = {3, RL},        // '~'
+	[OP_MATHTIMES] = {3, LR},      // '*'
+	[OP_MATHDIV] = {3, LR},        // '//'
+	[OP_MATHMOD] = {3, LR},        // '%%'
 
-	[OP_MATHTIMES] = {4, LR},      // '*'
-	[OP_MATHDIV] = {4, LR},        // '//'
-	[OP_MATHMOD] = {4, LR},        // '%%'
-
-	[OP_MATHPLUS] = {5, LR},       // '+'
-	[OP_MATHMINUS] = {5, LR},      // '-'
+	[OP_MATHPLUS] = {4, LR},       // '+'
+	[OP_MATHMINUS] = {4, LR},      // '-'
 
 	[OP_BITWRS] = {5, LR},         // '>>'
 	[OP_BITWLS] = {5, LR},         // '>>'

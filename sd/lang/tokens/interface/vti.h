@@ -14,7 +14,7 @@
 #  include <sd/lang/tokens/groups.h>
 
 #  include <sd/utils/types/shared.h>
-#  include <sd/utils/utils.h>
+#  include <sd/utils/macros.h>
 
 /// @brief common interface for virtual tokens
 #  define __common__(_cid, _cty, _cprec, _cass, _cvt, _csfix) \
@@ -64,10 +64,10 @@ typedef enum sfix Sfix;
 
 #  define LEFTRIGHT '\0'
 #  define RIGHTLEFT '\1'
+#  define ASS_IRR '\0'
 
 #  define PREC_IRR -1u /// @note this is true as long as there is no operation with 4294967295th precendence
 #  define PREC_INF 0u
-#  define ASS_IRR '\0'
 
 struct _t_common_prec {
 	const char ass;

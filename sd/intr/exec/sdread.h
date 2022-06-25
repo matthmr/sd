@@ -22,7 +22,8 @@
                "\tsdread -v\t\t  => Displays the version and exits\n\n"\
                "Note:\t\"<expr>\" is optional but must be used in quotes\n"\
                "     \tRead more at sdread(1)\n\n"
-#  define VERSION "v0.4.0"
+#  define VERSION\
+	v0.4.1
 
 /// @brief prompt for interactive mode
 #  define PROMPT "> "

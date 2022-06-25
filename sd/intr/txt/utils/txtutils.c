@@ -14,16 +14,15 @@
 #include <sd/intr/txt/utils/txtutils.h>
 
 #include <sd/utils/types/shared.h>
-#include <sd/utils/err/verr.h>
-#include <sd/utils/utils.h>
+#include <sd/utils/macros.h>
 
 #include <sd/lang/hooks/txt/txthooks.h>
-#include <sd/lang/core/statement.h>
+#include <sd/lang/tokens/txtid.h>
 #include <sd/lang/tokens/txt.h>
 
-#define st_comp(x) dir? (x)<=t_end: (x)>=t_start ///< compares the manifest index according with `dir`
-#define st_advance(x) dir? (x++): (x--) ///< advances the manifest index according to `dir`
-#define st_get dir? t_start: t_end ///< gets a limit acording to `dir`
+#define st_comp(x) (dir? (x)<=t_end: (x)>=t_start) ///< compares the manifest index according with `dir`
+#define st_advance(x) (dir? (x++): (x--)) ///< advances the manifest index according to `dir`
+#define st_get (dir? t_start: t_end) ///< gets a limit acording to `dir`
 
 /// @brief advances the buffer index, stopping on an invalid character
 ///
@@ -230,8 +229,8 @@ bool tfind_def (char c) {
 
 	// looks for out-of-bound chars
 	if (
-	    c < token_manifest[t_start].t ||
-	    c > token_manifest[t_end].t
+	    c < token_manifest[t_start].token.this ||
+	    c > token_manifest[t_end].token.this
 	) return not_found;
 
 

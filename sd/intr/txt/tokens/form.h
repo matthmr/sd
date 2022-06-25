@@ -11,25 +11,33 @@
 #ifndef LOCK_LANG_TXT
 #  define LOCK_LANG_TXT ///< lock: standard lock
 
+#  include <sd/lang/tokens/interface/vkwi.h>
 #  include <sd/lang/tokens/interface/vti.h>
 #  include <sd/lang/tokens/gen/txtmaps.h>
+#  include <sd/lang/tokens/virtual/vt.h>
 #  include <sd/lang/tokens/groups.h>
-
-#  include <sd/utils/utils.h>
+#  include <sd/utils/macros.h>
 
 /// @brief plain-text keyword interface
-typedef struct _kw {
-	const char* kw;
-	const Kwid id;
-	const Kwty ty;
-} _Kw;
+struct _kw {
+	const char* this; ///< plain-text representation
+	const _Kw_common _; ///< @brief common interface
+};
+
+typedef struct _kw _Kw;
+
+// `struct _t`
+struct __t {
+	const char this; ///< @brief plain-text representation
+	const _T_common _; ///< @brief common interface
+};
 
 /// @brief plain-text token interface
-typedef struct _t {
-	const char t;
-	const Tid id;
-	const Vty vty;
-	const Tty ty;
-} _T;
+struct _t {
+	const struct __t token; ///< @brief proper text inteface
+	const _vT vt; ///< @brief virtualisation interface
+};
+
+typedef struct _t _T;
 
 #endif

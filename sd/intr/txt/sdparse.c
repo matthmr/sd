@@ -13,9 +13,8 @@
 #include <stdio.h>
 
 #include <sd/utils/types/shared.h>
-#include <sd/utils/err/verr.h>
 #include <sd/utils/err/err.h>
-#include <sd/utils/utils.h>
+#include <sd/utils/macros.h>
 
 #include <sd/lang/hooks/txt/txthooks.h>
 #include <sd/lang/hooks/txt/literal.h>

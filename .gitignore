@@ -22,6 +22,7 @@ make/Targets.mk
 dev/
 tags*
 *.log*
+*.in
 
 # Documentation
 *.gz

@@ -14,13 +14,14 @@
 #  include <sd/lang/tokens/virtual/gen/tid.h>
 
 #  include <sd/utils/types/shared.h>
-#  include <sd/utils/utils.h>
+#  include <sd/utils/macros.h>
 
 // manifest nesters
 #  define NEST &(struct _vt)
 #  define VIRT (struct _vt)
 #  define NONEST { 0 }
 #  define NOVIRT (struct _vt)
+#  define ENDALL { .this = { .vty = VNONE }, .next = (struct _vt*)0 }
 
 #  define DONE (struct _vt*)
 #  define ALL(...) \
@@ -101,6 +102,9 @@ struct vt_mask {
 	const _T_common _;
 };
 
+/// @note the union give a ~54%
+/// decrease in memory than all
+/// its fields
 // `struct _vt_virtual`
 union __vt_virtual {
 	const struct vt_mask mask;

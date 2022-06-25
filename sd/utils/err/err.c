@@ -9,60 +9,86 @@
  * centralized
  */
 
+
+#include <stdio.h>
+#include <stdlib.h>
+
+// TODO: ignore colors at runtime
+#include <sd/utils/verbose/colors.h>
 #include <sd/utils/err/err.h>
-#include <sd/utils/utils.h>
 
-char* fmt; ///< @brief normal error format
-char* vfmt; ///< @brief verbose error format
+/// @brief error formating for run/compile-time
+///
+/// It formats as such
+/// @verbatim
+///
+///    %s:%s:%s %s
+///    ^  ^  ^   ^ error message
+///    |  |  | column number
+///    |  | line number
+///    | filename
+///
+/// @endverbatim
+static const char* efmt[] =\
+	BOLD ("%s:%s:%s:")\
+	RED_FG("error: ")\
+	STYLE(__BOLD__, " %s\n") __RESET__;
 
-/// @brief normal error formating for run/compile-time
-static const char* errfmt[] = {
-	[TIME_ARG] = "arg:%s%s\n",
-	[TIME_TXT] = "main:%s%s\n",
-	[TIME_BYTE] = "main:%s%s\n",
-	[TIME_COMP] = "compile:%s%s\n"
-};
-
-// TODO: file:LN ERR: ...
 /// @brief verbose error formating for run/compile-time
-static const char* verrfmt[] = {
-	[TIME_ARG] = "arg:%s%s%s\n",
-	[TIME_TXT] = "main:%s%s%s\n",
-	[TIME_BYTE] = "main:%s%s%s\n",
-	[TIME_COMP] = "compile:%s%s%s\n"
-};
+/// It formats as such
+/// @verbatim
+///
+///    %s | %s\n%s
+///    ^    ^  ^ error message (optional)
+///    |    | line
+///    | line number
+///
+/// @endverbatim
+static const char* vefmt[] =\
+	LIGHT_GREY_FG ("\n%s |")\
+	__RESET__ " %s\n"\
+	GREEN_FG ("%s") __RESET__; // TODO: make verbose error messaging
+                             // optional at compile-time
+                             // TODO: did-you-mean
 
 /// @brief error message manifest
 const char* errmsg[] = {
 
-	// -- on call -- //
-	[ENOSUCH] = " E0x01: no such file ", // sd <file>
-	[EMISS] = " E0x02: missing file name ", // sd -s
+	/* [ENOSUCHFILE] = " E0x01: no such file", // sd <file> */
+	/* [EMISSFILE] = " E0x02: missing file name", // sd -s */
+
+	[0] = NULL,
 
 	// -- on run -- //
-	[EDRIV] = " E0x03: cannot cast different assignment drivers", // proc a: let b: 1;
-	[EINT] = " E0x04: bad integer construction", // 0x0.a, 1..1
-	[EOOBN] = " E0x05: out-of-bound number", // 99....9
-	[EOOBID] = " E0x06: out-of-bound identifier", // a...a
-	[EUNDEFID] = " E0x07: undefined identifier", // a;
-	[ENUID] = " E0x08: identifier cannot being with number", // 1a
-	[EKWID] = " E0x08: keyword cannot be identifier", // let let
-	[EUNHOID] = " E0x09: unhookable identifier ", // a b
-	[EMISS] = " E0x0a: missing ", // [1;
-	[EUNHOL] = " E0x0b: literals are unhookable without expression token", // 1 1
+	[EDRIV] = "E0x01: cannot cast different assignment drivers", // proc a: let b: 1;
+	[EINT] = "E0x02: bad integer construction", // 0x0.a, 1..1
+	[EOOBID] = "E0x03: out-of-bound identifier", // a...a
+	[EOOBN] = "E0x04: out-of-bound number", // 99....9
+	[EUNDEFID] = "E0x05: undefined identifier", // a;
+	[EKWID] = "E0x06: keyword cannot be identifier", // let let
+	[EUNHOID] = "E0x07: unhookable identifier", // a b
+	[EMISSMATCH] = "E0x08: missing appropiate matcher", // [1;
+	[EUNHOL] = "E0x09: literals are unhookable", // 1 1
 
 };
-
-/// @brief error time setter
-/// @param t time to be set to
-void e_set (Time t) {
-	fmt = (char*) errfmt[t];
-	vfmt = (char*) verrfmt[t];
-}
 
 /// @brief standard error exitter
 /// @param code exit code
 /// @param info message to send to the error handler
-void Err (int code, char* info) {
-	Die (fmt, errmsg[code], info, code);
+void Err (int ecode, FInfo finfo, EInfo einfo) {
+
+	// error header
+	fprintf (stderr, efmt,
+		finfo.filename,
+		finfo.line,
+		finfo.column,
+		efmt[ecode]);
+
+	// error body
+	fprintf (stderr, vefmt,
+		finfo.line,
+		einfo.line,
+		einfo.msg);
+
+	exit (ecode);
 }
