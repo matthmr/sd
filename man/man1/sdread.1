@@ -1,9 +1,13 @@
-.TH "SDREAD" "" "May 2022" "" ""
+.TH "SDREAD" "" "June 2022" "" ""
 .SH "NAME"
 \fBsdread\fR \- The default SD language interpreter
 .SH SYNOPSIS
 .P
-\fBsdread\fR [\-i] [[\-s] <file\.\.\.>] [[\-m] <module\.\.\.>] [[\-E] "<expr>"]
+\fBsdread\fR [ \fI\-i\fR, \fI\-\-int\fR ]
+       [ [ \fI\-b\fR, \fI\-\-byte\fR ] <\fIfile\fR\|\.\.\.> ]
+       [ [ \fI\-m\fR, \fI\-\-mod\fR ] <\fImodule\fR\|\.\.\.>]
+       [ [ \fI\-e\fR, \fI\-\-expr\fR ] <\fIexpr\fR\|\.\.\.> ]
+       <\fIfile\fR\|\.\.\.>
 .SH DESCRIPTION
 .P
 \fBsdread\fR is the default plain\-text & bytecode interpreter for the SD language\.
@@ -21,32 +25,37 @@ T}|T{
 T}
 _
 T{
-\-
+\fI\-\fR
 T}|T{
-streams plain\-text file from \fBSDTIN\fR\|\.
+streams file from \fBSDTIN\fR\|\.
 T}
 T{
-\-s
-T}|T{
-streams bytecode file\.
-T}
-T{
-\-i
+\fI\-i\fR, \fI\-\-int\fR
 T}|T{
 runs in interactive mode; can be combined with \fI\-s\fR and \fI\-m\fR
 T}
 T{
-\-m
+\fI\-b\fR, \fI\-\-byte\fR
+T}|T{
+streams bytecode file\.
+T}
+T{
+\fI\-m\fR, \fI\-\-mod\fR
 T}|T{
 runs the \fBmain\fP procedure of a given module\.
 T}
 T{
-\-h
+\fI\-e\fR, \fI\-\-expr\fR
+T}|T{
+parses \fBexpr\fP and executes it \fBafter\fR parsing the file\.
+T}
+T{
+\fI\-h\fR, \fI\-\-help\fR
 T}|T{
 displays a help message, then exits\.
 T}
 T{
-\-v
+\fI\-v\fR, \fI\-\-version\fR
 T}|T{
 displays the current version, then exits\.
 T}
@@ -89,5 +98,5 @@ mH (https://github\.com/matthmr)
 .RE
 .SH VERSION
 .P
-\fBSD\fR is at version \fIv0\.4\.0\fR as of May 2022\.
+\fBSD\fR is at version \fIv0\.4\.1\fR as of June 2022\.
 

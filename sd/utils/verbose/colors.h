@@ -24,6 +24,7 @@
 #  define ITALICS(x) __ESC__ __ITALICS__ x
 #  define UNDERLINE(x) __ESC__ __UNDERLINE__ x
 #  define INVERT(x) __ESC__ __INVERT__ x
+#  define RESET(x) __RESET__ x
 
 #  define STYLE(x,y) __ESC__ "0;" x y
 

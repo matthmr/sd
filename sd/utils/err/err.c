@@ -29,52 +29,51 @@
 ///    | filename
 ///
 /// @endverbatim
-static const char* efmt[] =\
+static const char efmt[] =\
 	BOLD ("%s:%s:%s:")\
 	RED_FG("error: ")\
-	STYLE(__BOLD__, " %s\n") __RESET__;
+	STYLE(__BOLD__, " %s") \
+	RESET("\n");
 
 /// @brief verbose error formating for run/compile-time
 /// It formats as such
 /// @verbatim
 ///
 ///    %s | %s\n%s
-///    ^    ^  ^ error message (optional)
+///    ^    ^   ^ error pointer
 ///    |    | line
 ///    | line number
 ///
 /// @endverbatim
-static const char* vefmt[] =\
-	LIGHT_GREY_FG ("\n%s |")\
-	__RESET__ " %s\n"\
-	GREEN_FG ("%s") __RESET__; // TODO: make verbose error messaging
+static const char vefmt[] =\
+	LIGHT_GREY_FG ("\n%s |") \
+	RESET (" %s\n") \
+	GREEN_FG ("%s") RESET ("\n"); // TODO: make verbose error messaging
                              // optional at compile-time
                              // TODO: did-you-mean
 
 /// @brief error message manifest
-const char* errmsg[] = {
+const char* emsg[] = {
 
-	/* [ENOSUCHFILE] = " E0x01: no such file", // sd <file> */
-	/* [EMISSFILE] = " E0x02: missing file name", // sd -s */
-
-	[0] = NULL,
+	[0] = (char*)0,
 
 	// -- on run -- //
-	[EDRIV] = "E0x01: cannot cast different assignment drivers", // proc a: let b: 1;
-	[EINT] = "E0x02: bad integer construction", // 0x0.a, 1..1
-	[EOOBID] = "E0x03: out-of-bound identifier", // a...a
-	[EOOBN] = "E0x04: out-of-bound number", // 99....9
-	[EUNDEFID] = "E0x05: undefined identifier", // a;
-	[EKWID] = "E0x06: keyword cannot be identifier", // let let
-	[EUNHOID] = "E0x07: unhookable identifier", // a b
-	[EMISSMATCH] = "E0x08: missing appropiate matcher", // [1;
-	[EUNHOL] = "E0x09: literals are unhookable", // 1 1
+	[EDRIV] = "cannot cast different assignment drivers", // proc a: let b: 1;
+	[EINT] = "bad integer construction", // 0x0.a, 1..1
+	[EOOBID] = "out-of-bound identifier", // a...a
+	[EOOBN] = "out-of-bound number", // 99....9
+	[EUNDEFID] = "undefined identifier", // a;
+	[EKWID] = "keyword cannot be identifier", // let let
+	[EUNHOID] = "unhookable identifier", // a b
+	[EMISSMATCH] = "missing appropiate matcher", // [1;
+	[EUNHOL] = "literals are unhookable", // 1 1
 
 };
 
 /// @brief standard error exitter
 /// @param code exit code
-/// @param info message to send to the error handler
+/// @param finfo file info
+/// @param einfo error info
 void Err (int ecode, FInfo finfo, EInfo einfo) {
 
 	// error header
@@ -82,7 +81,7 @@ void Err (int ecode, FInfo finfo, EInfo einfo) {
 		finfo.filename,
 		finfo.line,
 		finfo.column,
-		efmt[ecode]);
+		emsg[ecode]);
 
 	// error body
 	fprintf (stderr, vefmt,

@@ -21,9 +21,8 @@
 ///       code, so they start as 1
 ///       in the enum
 enum err {
-	/* ENOSUCH = 1, */
-	EDRIV=1, // driver cast
-	EINT, // bad integer constr
+	EDRIVCAST=1, // driver cast
+	EBADINT, // bad integer constr
 	EOOBID, // out-of-bound-identifier length
 	EOOBN, // out-of-bound number
 	EUNDEFID, // undefined identifier
@@ -41,7 +40,7 @@ struct file_info {
 
 struct error_info {
 	char* line;
-	char* msg;
+	char* ptr;
 };
 
 typedef struct file_info FInfo;
@@ -49,5 +48,5 @@ typedef struct error_info EInfo;
 
 extern const char* errmsg[];
 
-void Err (int, char*);
+void Err (int, FInfo, EInfo);
 #endif

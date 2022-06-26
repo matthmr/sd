@@ -18,8 +18,6 @@ void parser_bstream (byte** data) { }
  * and load module roots */
 void parse_bc (FILE* file, byte* data, const uint BCLINE_LIMIT) {
 
-	e_set (TIME_BYTE);
-
 	while (fgets (data, BCLINE_LIMIT, file) != NULL)
 		parser_bstream (&data);
 

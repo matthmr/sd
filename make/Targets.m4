@@ -39,9 +39,7 @@ library_gen
 dnl
 library(`sdutils')dnl
 library_obj(
-`sd/utils/utils.o',
 `sd/intr/txt/utils/txtutils.o',
-`sd/utils/err/verr.o',
 `sd/utils/err/err.o'
 )dnl
 library_gen

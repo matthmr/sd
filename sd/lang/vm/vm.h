@@ -14,10 +14,10 @@
 #  include <sd/utils/types/shared.h>
 
 #  ifdef LOCK_UTILS
-#    include <sd/utils/utils.h>
+#    include <sd/utils/macros.h>
 #  else
 #    define LOCK_UTILS
-#    include <sd/utils/utils.h>
+#    include <sd/utils/macros.h>
 #    undef LOCK_UTILS
 #  endif
 
@@ -31,6 +31,11 @@
 
 // TODO:
 #  define initvmstack ;
+
+#  define vm_init(x) \
+	mkvmstack; \
+	_vm_init (x); \
+	initvmstack
 
 #  define MEM_INC 8 * KiB
 
@@ -69,7 +74,7 @@ extern d_addr* regf;
 // -- memory layout -- //
 void heap_alloc(int);
 void tab_alloc(int);
-void vm_init(void);
+void _vm_init(void);
 
 // -- flow -- //
 void jump_ip(d_addr);

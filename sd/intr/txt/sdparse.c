@@ -32,10 +32,11 @@
 #include <sd/intr/limits.h>
 
 uint e_eof; ///< counter: counts how many characters until `EOF` OR until the end of the file buffer
-uint ln = 1; ///< indexer: indexes the current line
-uint wstart_i = 0; ///< indexer: indexes the start of a *probable* word
-uint wsize = 0; ///< counter: counts the size of a word that is in the @p word buffer
 uint t; ///< indexer: indexes the current element in one of manifests; defined in `txtutils`
+
+ulong ln = 1; ///< indexer: indexes the current line
+ulong wstart_i = 0; ///< indexer: indexes the start of a *probable* word
+ulong wsize = 0; ///< counter: counts the size of a word that is in the @p word buffer
 
 char gbuffer[STDBUFFER]; ///< buffer: as in "Global BUFFER"; main text buffer for sdparse
 char uword[STDUWORD]; ///< buffer: as in "User WORD"; main user word (variable name) buffer for sdparse, lengthed by @p STDUWORD

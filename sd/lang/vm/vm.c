@@ -81,7 +81,10 @@ void tab_alloc (int kib) {
 
 }
 
-void vm_init (void) {
+/// @brief SDVM initialiser
+/// @note this function is not called directly
+///       but rather through a macro
+void _vm_init (void) {
 
 	// -- set memory pointers -- //
 	s_top = sp;

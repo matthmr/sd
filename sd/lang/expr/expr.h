@@ -16,7 +16,7 @@
 #  include <sd/lang/vm/vm.h>
 #  undef LOCK_VM
 
-#  include <sd/utils/utils.h>
+#  include <sd/utils/macros.h>
 
 // TODO: make `op` also have AST operations
 //       (function argument, function body, ...)

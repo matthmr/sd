@@ -36,6 +36,7 @@ typedef unsigned char byte;
 
 typedef void* addr;
 typedef unsigned int uint;
+typedef unsigned int ulong;
 
 typedef unsigned char u8;
 typedef unsigned short u16;

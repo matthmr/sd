@@ -1,7 +1,11 @@
 # sdread - The default SD language interpreter
 
 ## SYNOPSIS
-**sdread** [-i] [[-s] <file...>] [[-m] <module...>] [[-E] "<expr>"]
+**sdread** [ *-i*, *--int* ]
+       [ [ *-b*, *--byte* ] <*file*...> ]
+       [ [ *-m*, *--mod* ] <*module*...>]
+       [ [ *-e*, *--expr* ] <*expr*...> ]
+       <*file*...>
 
 ## DESCRIPTION
 **sdread** is the default plain-text & bytecode interpreter for the SD language.
@@ -10,14 +14,15 @@ SD source code and execute them. It also wraps around **sdbcparse.c** to do the
 same but with bytecode instead.
 
 ## OPTIONS
-|    |                                                             |
-|----|-------------------------------------------------------------|
-| -  | streams plain-text file from **SDTIN**.                     |
-| -s | streams bytecode file.                                      |
-| -i | runs in interactive mode; can be combined with *-s* and *-m*|
-| -m | runs the `main` procedure of a given module.                |
-| -h | displays a help message, then exits.                        |
-| -v | displays the current version, then exits.                   |
+|                       |                                                             |
+|-----------------------|-------------------------------------------------------------|
+| *-*                   | streams file from **SDTIN**.                     |
+| *-i*, *--int*         | runs in interactive mode; can be combined with *-s* and *-m*|
+| *-b*, *--byte*        | streams bytecode file.                                      |
+| *-m*, *--mod*         | runs the `main` procedure of a given module.                |
+| *-e*, *--expr*        | parses `expr` and executes it **after** parsing the file.   |
+| *-h*, *--help*        | displays a help message, then exits.                        |
+| *-v*, *--version*     | displays the current version, then exits.                   |
 
 ## EXPRESSIONS
 **sdread** can be run with an optional expression passed as a **single argument** string. The *object manager* will parse its contents asynchronously from the
@@ -44,4 +49,4 @@ bundle of the modules.
 	mH (https://github.com/matthmr)
 
 ## VERSION
-**SD** is at version *v0.4.0* as of May 2022.
+**SD** is at version *v0.4.1* as of June 2022.
