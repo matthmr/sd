@@ -11,24 +11,21 @@
  */
 
 #ifndef ADDR_BITS
-/// memory address size; can
-/// be overwritten by `ADDR_BITS`
-/// in the Makefile
-#  define ADDR_BITS 64
+#  define ADDR_BITS 64 ///< memory address size fallback
 #endif
 
 #ifndef LOCK_INTR_LIMITS
 #  define LOCK_INTR_LIMITS ///< lock: standard lock
 
-#  include <sd/utils/types/shared.h>
-#  include <sd/utils/macros.h>
+#  include "utils/types/shared.h"
+#  include "utils/macros.h"
 
 // size utils
-#  define KiB POW2 (10) *b
-#  define MiB POW2 (10) *KiB
-#  define GiB POW2 (10) *MiB
+#  define KiB * POW2 (10) *b
+#  define MiB * POW2 (10) *KiB
+#  define GiB * POW2 (10) *MiB
 
-#  define FBUFFER 4*KiB     ///< buffer size for SD source code text
+#  define FBUFFER 4 KiB     ///< buffer size for SD source code text
 
 // standards
 #  define STDBUFFER FBUFFER

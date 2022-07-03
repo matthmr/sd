@@ -19,6 +19,7 @@ make/sources/sd-sources.txt
 make/Sources.mk*
 make/Flags.mk
 make/Targets.mk
+unit/tmp/
 dev/
 tags*
 *.log*

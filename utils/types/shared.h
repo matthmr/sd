@@ -31,7 +31,7 @@ typedef unsigned char byte;
 #  define LOCK_BYTE_TYPES ///< lock: lock multiple bit length typedefs
 
 #  define LOCK_INTR_LIMITS
-#  include <sd/intr/limits.h>
+#    include <sd/intr/limits.h>
 #  undef LOCK_INTR_LIMITS
 
 typedef void* addr;

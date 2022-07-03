@@ -9,168 +9,217 @@
  * and execute it on the fly
  */
 
-#include <stdio.h>
-
 #include <sd/lang/callback/vmcb.h>
 #include <sd/lang/obj/ot.h>
 #include <sd/lang/vm/vm.h>
 
 #include <sd/intr/bytecode/sdbcparse.h>
 #include <sd/intr/txt/ptree/ptree.h>
+#include <sd/intr/exec/sdread.h>
 #include <sd/intr/txt/sdparse.h>
 #include <sd/intr/limits.h>
 
-#include <sd/utils/types/shared.h>
-#include <sd/utils/err/err.h>
-#include <sd/utils/utils.h>
+#include "arg/argparser.h"
 
-#undef LOCK_DATA
-#include <sd/intr/exec/sdread.h>
+#define PROG "sdread"
 
-byte data[BUFFER];
-promise p;
-exit RET = EXIT_OK;
+byte data[FBUFFER];
 
-/// @brief main command line argument parser
-/// @param hargc host's `argc` variable
-/// @param hargv host's `argv` variable
-/// @return
-///   - `enum args` listed returned values if erroed
-///   - `OK` if successfully set
-arg parseargs (int hargc, char** hargv) {
+// TODO: HERE: seperate by `char` v. `string` instead
+// of by flag type?
+/// @brief flag manifest implementation,
+/// lexicographically sorted at compile
+/// time
+const FlagManifest flag_manifest = {
 
-	p.file = stdin;
-	p.ftype = SOURCE_DISK;
-
-	if (hargc == 1)
-		return ARG_DEF;
-
-	else for (uint i = 1; i < hargc; i++) {
-
-		// resolve promise
-		if (p.PFILE) {
-
-			if (p.HFILE)
-				goto _arg_err;
-
-			else if (hargv[i][0] == '-' && hargv[i][1] == '\0') {
-				p.file = stdin;
-				H_RESET (p.PFILE);
-				H_LOCK (p.HFILE);
-			}
-
-			else if (! (p.file = fopen (hargv[i], "rb")))
-				Err (0x01, hargv[i]);
-
+	SINGLE (
+		(Flag[]) {
+			__as_char__ ('b', ACTION_BYTE, MUL, '\0'),
+			__as_char__ ('e', ACTION_EXPR, ONE, '\0'),
+			__as_char__ ('h', ACTION_HELP, NONE, '\0'),
+			__as_char__ ('i', ACTION_INTERACTIVE, NONE, '\0'),
+			__as_char__ ('m', ACTION_MODULE, MUL, '\0'),
+			__as_char__ ('s', ACTION_SOURCE, MUL, '\0'),
+			__as_char__ ('v', ACTION_VERSION, NONE, '\0')
 		}
+	),
 
-		// set promise
-		else if (hargv[i][0] == '-') {
-
-			if (hargv[i][1] && hargv[i][2]) // -**
-				goto _arg_err;
-
-			switch (hargv[i][1]) {
-
-			// info
-			case 'v':
-				fputs ("sdread " VERSION "\n", stdout);
-				return ARG_INFO;
-				break;
-			case 'h':
-				fputs (HELP, stdout);
-				return ARG_INFO;
-				break;
-
-			// set promise -- `BYTECODE_DISK`
-			case 's':
-				LOCK (p.PFILE);
-				p.ftype = BYTECODE_DISK;
-				break;
-
-			// skip promise -- `SOURCE_DISK` : stdin
-			case '\0':
-				p.ftype = SOURCE_DISK;
-				p.file = stdin;
-				H_LOCK (p.HFILE);
-				break;
-
-			default: _arg_err: // -?
-				fputs ("[ !! ] Bad usage. See sdread -h\n", stderr);
-				return ARG_ERR;
-				break;
-			}
-
+	DOUBLE (
+		(Flag[]) {
+			__as_string__ ("byte", ACTION_BYTE, MUL, '\0'),
+			__as_string__ ("expr", ACTION_EXPR, MUL, '\0'),
+			__as_string__ ("help", ACTION_HELP, NONE, '\0'),
+			__as_string__ ("int", ACTION_INTERACTIVE, NONE, '\0'),
+			__as_string__ ("mod", ACTION_MODULE, MUL, '\0'),
+			__as_string__ ("source", ACTION_SOURCE, MUL, '\0'),
+			__as_string__ ("version", ACTION_VERSION, NONE, '\0'),
 		}
+	),
 
-		// resolve promise / skip promise
-		else { // argv[i][0] != '-'
-			if (!p.HFILE) {
-				p.ftype = p.PFILE? BYTECODE_DISK: SOURCE_DISK;
-				if (! (p.file = fopen (hargv[i], "rb")))
-					Err (0x01, hargv[i]);
-			}
-			else
-				goto _arg_err;
-		}
+	// not yet implemented
+	.flag_singlelong.this = NULL,
+	.flag_comp.this = NULL,
 
-	}
+};
 
-	if (p.PFILE && !p.HFILE)
-		Err (0x02, "");
+const char* emsg[] = {
+	[0] = (char*)0,
 
+	[EBADARG] = "no such argument ",
+	[ENOSUCHFILE] = "no such file ",
+	[EMISSFILE] = "missing filename",
+	[EMISSARG] = "missing argument",
+};
+
+/// @brief error formating for argparsing
+///
+/// It formats as such
+/// @verbatim
+///
+/// %s: error: %s %s
+/// ^          ^  ^ error detail
+/// |          | error message
+/// | program name
+///
+/// @endverbatim
+static const char efmt[] =\
+	BOLD ("%s: ")\
+	RED_FG ("error: ")\
+	STYLE (__BOLD__, "%s")\
+	RESET ("\n");
+
+static enum sdparse_err ecode;
+static char** earg = NULL;
+
+static long error_header (void) {
+	fprintf (stderr, efmt, emsg[ecode], *earg);
+	return ecode;
+};
+
+function const header = &error_header;
+function const body = NULL;
+
+static ArgData arg = {
+	.file = &(struct arg_file) {
+		.this = NULL,
+		.ftype = SOURCE_DISK,
+	},
+	.fnum = 0,
+};
+static struct arg_file** argfile = &arg.file;
+
+static Astatus action_panic (char* cargv, char** cenv) {
+	return error_header ();
+	//return ARG_ERR;
+}
+static Astatus action_help (char* cargv, char** cenv) {
+	fputs (HELP, stdout);
+	return ARG_INFO;
+};
+static Astatus action_version (char* cargv, char** cenv) {
+	fputs ("sdread " VERSION "\n", stdout);
+	return ARG_INFO;
+};
+static Astatus action_interactive (char* cargv, char** cenv) {
+	// TODO
 	return ARG_OK;
-
+}
+static Astatus action_file (char* cargv, char** cenv) {
+	(*argfile)->this = fopen (cargv, "rb");
+	return (*argfile)->this? ARG_OK: ARG_VERR;
 }
 
-// TODO: unhandled `<expr>`: parse it and execute within main file context
-int main (int argc, char** argv) {
+const FlagAction flagaction_manifest[] = {
+	[ACTION_HELP] = &action_help,
+	[ACTION_VERSION] = &action_version,
+	[ACTION_INTERACTIVE] = &action_interactive,
+	[ACTION_SOURCE] = &action_file,
+	[ACTION_BYTE] = &action_file,
+	[ACTION_MODULE] = NULL, // TODO
+	[ACTION_EXPR] = NULL, // TODO
+};
 
-	e_set (TIME_ARG);
-	arg ret = parseargs (argc, argv);
+Astatus promise (void) {
+	return ARG_OK;
+};
 
-	if (ret == ARG_ERR)
-		return ret;
+const Default defarg = &action_file; ///< @brief simple arg (flagless or not) handler
+const SingleDash sdash = &action_file; ///< @brief single dash handler
+const DoubleDash ddash = &action_panic;
 
-	else if (ret == ARG_INFO)
-		goto quit;
+int main (int argc, char** argv, char** env) {
 
-	pt_init ();
 
-	// TODO: maybe accept multiple files as modules? this would become a loop
-	
-	//Obj l_root;
-	//mkchild (&g_root, &l_root);
-	//g_self = CAST_addr l_root;
+	struct arg_file* afile = *argfile;
 
-	mkvmstack;
-	vm_init ();
-	initvmstack;
+	Astatus astatus = ARG_OK;
+	for (uint i = 1; i < argc; i++) {
+		astatus = parseargs (PROG, argv[i], env);
 
-	// main callback loop (vm)
-	if (file_is_source (p.ftype)) {
-		e_set (TIME_TXT);
+		// handle exemption of the main loop
+		switch (astatus) {
 
-		while (src (src_callback)) {
+		// display generic error message; kill the program
+		case ARG_ERR:
+			Err (ecode, header, body);
+			break;
 
-			if (scope_is_stack (src_callback)) {
-				stack_callback (src_callback);
-			}
+		// show info (implicit action); skip main loop
+		case ARG_INFO:
+			goto skip;
+			break;
 
-			parse_src (p.file, (char*)data, STDBUFFER);
+		// handle error with a verbose error message; kill the program
+		case ARG_VERR: {
+
+		};
+		break;
+
+		default: break;
 		}
 	}
 
-	// TODO: bytecode callback loop
-	else if (file_is_bytecode (p.ftype)) {
-		e_set (TIME_BYTE);
-		parse_bc (p.file, data, STDBUFFER);
+	FILE* file = afile->this;
+
+	// initialise parse tree
+	pt_init ();
+
+	// initialise object table
+	// Obj groot, lroot;
+	// ot_init (&groot);
+	// mkchild (&groot, gself = &lroot);
+
+	// initialise SDVM
+	vm_init ();
+
+	// main callback loop (vm)
+	callback_loop: for (; file; file++) {
+
+		if (file_is_source (afile->ftype)) {
+			while (src (src_callback)) {
+
+				// if the callback is a stack callback, do what it says
+				if (scope_is_stack (src_callback)) {
+					stack_callback (src_callback);
+				}
+				else // otherwise continue buffering
+					parse_src (afile->this, (char*)data, STDBUFFER);
+
+			}
+		}
+
+		// TODO: bytecode callback loop
+		else if (file_is_bytecode (afile->ftype)) {
+			parse_bc (afile->this, (char*)data, STDBUFFER);
+		}
+
 	}
 
-	// close `file` on exit if not a pipe
-	if (! file_is_fifo (p.ftype))
-		fclose (p.file);
+	// close `file' on exit if not a pipe
+	for (uint i = 0; i < arg.fnum; i++)
+		if (! file_is_fifo (afile->ftype))
+			fclose (afile->this);
 
-	quit: return RET;
+	skip: return 0;
 
 }

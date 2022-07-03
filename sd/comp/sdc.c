@@ -11,7 +11,6 @@
  * in other units.
  */
 
-#define VERSION "v0.1.0"
 #include <stdio.h>
 
 #include <sd/utils/types/shared.h>
@@ -28,8 +27,6 @@ int main (int argc, char** argv) {
 	bool promise = false;
 
 	FILE* file;
-
-	e_set (argtime);
 
 	if (argc > 1)
 	for (i = 1; i < argc; i++) {
