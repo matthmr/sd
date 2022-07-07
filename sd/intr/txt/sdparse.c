@@ -12,10 +12,6 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <sd/utils/types/shared.h>
-#include <sd/utils/err/err.h>
-#include <sd/utils/macros.h>
-
 #include <sd/lang/hooks/txt/txthooks.h>
 #include <sd/lang/hooks/txt/literal.h>
 #include <sd/lang/tokens/groups.h>
@@ -31,19 +27,90 @@
 #include <sd/intr/exec/sdread.h>
 #include <sd/intr/limits.h>
 
-uint e_eof; ///< counter: counts how many characters until `EOF` OR until the end of the file buffer
-uint t; ///< indexer: indexes the current element in one of manifests; defined in `txtutils`
+uint e_eof; ///< @brief how many characters until `EOF` OR until the end of the file buffer
+uint t; ///< @brief the current element in one of manifests; defined in `txtutils`
 
-ulong ln = 1; ///< indexer: indexes the current line
-ulong wstart_i = 0; ///< indexer: indexes the start of a *probable* word
-ulong wsize = 0; ///< counter: counts the size of a word that is in the @p word buffer
+ulong ln = 1; ///< @brief the current line
+ulong wstart_i = 0; ///< @brief the start of a *probable* word
+ulong wsize = 0; ///< @brief the size of a word that is in the @p word buffer
 
-char gbuffer[STDBUFFER]; ///< buffer: as in "Global BUFFER"; main text buffer for sdparse
-char uword[STDUWORD]; ///< buffer: as in "User WORD"; main user word (variable name) buffer for sdparse, lengthed by @p STDUWORD
-char word[STDWORD]; ///< buffer: main word buffer, lengthed by @p STDWORD
+char gbuffer[STDBUFFER]; ///< @brief main text buffer for sdparse
+char uword[STDUWORD]; ///< @brief main user word (variable name) buffer for sdparse, lengthed by @p STDUWORD
+char word[STDWORD]; ///< @brief main word buffer, lengthed by @p STDWORD
 
 static uint gbuffer_size = BUFFER; ///< @p gbuffer size, mostly constant
 static char* ins_p = gbuffer;
+
+/// @brief error message manifest
+static const char* emsg[] = {
+
+	[0] = (char*)0,
+
+	// -- on run -- //
+	[EDRIVCAST] = "cannot cast different assignment drivers", // proc a: let b: 1;
+	[EBADINT] = "bad integer construction", // 0x0.a, 1..1
+	[EOOBID] = "out-of-bound identifier", // a...a
+	[EOOBN] = "out-of-bound number", // 99....9
+	[EUNDEFID] = "undefined identifier", // a;
+	[EKWID] = "keyword cannot be identifier", // let let
+	[EUNHOID] = "unhookable identifier", // a b
+	[EMISSMATCH] = "missing appropiate matcher", // [1;
+	[EUNHOL] = "literals are unhookable", // 1 1
+
+};
+
+/// @brief error formating for run/compile-time
+///
+/// It formats as such
+/// @verbatim
+///
+///    %s:%s:%s %s
+///    ^  ^  ^   ^ error message
+///    |  |  | column number
+///    |  | line number
+///    | filename
+///
+/// @endverbatim
+static const char efmt[] =\
+	BOLD ("%s:%s:%s:")\
+	RED_FG("error: ")\
+	STYLE(__BOLD__, " %s") \
+	RESET("\n");
+
+/// @brief verbose error formating for run/compile-time
+/// It formats as such
+/// @verbatim
+///
+///    %s | %s\n%s
+///    ^    ^   ^ error pointer
+///    |    | line
+///    | line number
+///
+/// @endverbatim
+static const char vefmt[] =\
+	LIGHT_GREY_FG ("\n%s |") \
+	RESET (" %s\n") \
+	GREEN_FG ("%s") RESET ("\n"); // TODO: make verbose error messaging
+                             // optional at compile-time
+                             // TODO: did-you-mean
+
+static long error_header (void) {
+	fprintf (stderr, efmt,
+		finfo.filename,
+		finfo.line,
+		finfo.column,
+		emsg[ecode]);
+}
+
+static long error_body (void) {
+	fprintf (stderr, vefmt,
+		finfo.line,
+		einfo.line,
+		einfo.ptr);
+}
+
+function const header = &error_header;
+function const body = &error_body;
 
 /// @brief advances the current buffer index to the next word
 ///
@@ -57,7 +124,11 @@ static char* ins_p = gbuffer;
 /// @param wstart_i points to the start of a word in the current buffer
 /// @param e points to the current exit status of nfind_def
 /// @param lnsize same as e_eof
-void next (char* data, uint* i, uint* wstart_i, bool* e, const uint lnsize) {
+static void next (char* data,
+                  uint* i,
+                  uint* wstart_i,
+                  bool* e,
+                  const uint lnsize) {
 
 	switch (*e) {
 
@@ -166,7 +237,7 @@ void next (char* data, uint* i, uint* wstart_i, bool* e, const uint lnsize) {
 ///
 /// @param data the main buffer
 /// @param e_eof the buffer length
-void parser_stream (char* data, uint e_eof) {
+static void parser_stream (char* data, uint e_eof) {
 
 	uint i = 0;
 
@@ -179,6 +250,16 @@ void parser_stream (char* data, uint e_eof) {
 
 	// main parsing loop
 	for (i = 0; i < lnsize; i++) {
+
+		// TODO: change the locking system to a static function
+		
+		Lock l = lock ();
+
+		switch (l) {
+		case LOCK_STREAM:
+			continue;
+			break;
+		}
 
 		// main stream locker
 		if (lock_stream) {
@@ -259,11 +340,7 @@ void parser_stream (char* data, uint e_eof) {
 /// @param buffer_size the buffer size
 void parse_src (FILE* file, char* _data, const uint buffer_size) {
 
-	// vm callback handle
-	if (1)
-		;//
-	else // if not on callback, act as if being called for the first time
-		ln = 1;
+	// TODO: callback handle
 
 	do {
 		e_eof = fread (_data, 1, buffer_size, file);

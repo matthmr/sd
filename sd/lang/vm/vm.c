@@ -12,9 +12,6 @@
 
 #include <sd/intr/limits.h>
 
-#include <sd/utils/types/shared.h>
-#include <sd/utils/types/cast.h>
-
 #define LOCK_EXPRFN
 #include <sd/lang/vm/tab/tab.h>
 #include <sd/lang/expr/expr.h>

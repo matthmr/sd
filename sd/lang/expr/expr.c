@@ -13,6 +13,4 @@
 #include <sd/lang/expr/expr.h>
 #include <sd/lang/vm/vm.h>
 
-#include <sd/utils/types/shared.h>
-
 void expr_exec (void) { }

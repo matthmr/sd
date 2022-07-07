@@ -17,7 +17,7 @@
 #  include "arg/argparser.h"
 
 #  define VERSION\
-	"v0.4.1"
+	"v0.4.2"
 
 /// @brief prompt for interactive mode
 #  define PROMPT "> "
@@ -43,6 +43,28 @@ enum action {
 	ACTION_SOURCE,
 	ACTION_BYTE,
 	ACTION_INTERACTIVE,
+	ACTION_INTERPRETER,
+};
+
+/// @brief flag ids
+enum id {
+
+	// single flags
+	_EXPR_BEFORE,
+	_BYTE,
+	_EXPR_AFTER,
+	_HELP,
+	_INTERACTIVE,
+	_MODULE,
+	_SOURCE,
+	_VERSION,
+
+	// double flags
+	// TODO: as of 202207062339, they are all just alternatives,
+	// so we don't need to repeat ourselves
+	
+	// compound flags
+	_I_COLOR,
 };
 
 typedef enum ftype Ftype;
@@ -50,13 +72,15 @@ typedef enum action Action;
 
 // `struct arg_data`
 struct arg_file {
-	FILE* this;
+	FILE *this;
 	Ftype ftype;
 };
 
+typedef struct arg_file ArgFile;
+
 /// @brief sdread's argument data interface
 struct arg_data {
-	struct arg_file* file; // this is actually an array (malloc is used)
+	ArgFile *file; // this is actually an array (malloc is used)
 	unsigned int fnum;
 };
 
@@ -67,8 +91,9 @@ typedef struct arg_data ArgData;
 ///       at top level exits with
 ///       its corresposing error exit
 ///       code at <sd/utils/err/err.h>
-enum sdread_err {
-	EBADARG=1,
+enum exit {
+	EOK = 0, ///< @brief default success
+	EBADARG,
 	ENOSUCHFILE,
 	EMISSFILE,
 	EMISSARG,
@@ -88,11 +113,13 @@ typedef enum exit Exit;
 MADEBY ("mH", "https://github.com/matthmr") \
 DESCRIPTION ("sdread", "The standard SD interpreter") \
 USAGE ( \
-	FLAG_VAL ("sdread", "byte", "b", "<file...>", "Streams bytecode file") \
-	FLAG_VAL ("sdread", "source", "s", "<file...>", "Streams source file (used to override `--byte')") \
-	FLAG_VAL ("sdread", "mod", "m", "<mod...>", "Runs the main procedure of `mod'") \
+	FLAG_VAL ("sdread", "byte", "b", "<file...>", "Streams a bytecode file") \
+	FLAG_VAL ("sdread", "source", "s", "<file...>", "Streams a plain-text source file (used to override `--byte')") \
+	FLAG_VAL ("sdread", "mod", "m", "<mod...>", "Runs the `main' procedure of `mod'") \
 	FLAG_VAL ("sdread", "expr", "e", "<expr...>", "Parses `expr' and executes it after parsing the file") \
+	FLAG_VAL ("sdread", "Expr", "E", "<expr...>", "Parses `expr' and executes it before parsing the file") \
 	FLAG_NOVAL ("sdread", "int", "i", "Runs in interactive mode") \
+	"\n" \
 	FLAG_NOVAL ("sdread", "help", "h", "Displays this message and exits") \
 	FLAG_NOVAL ("sdread", "version", "v", "Displays the version and exits") \
 ) \

@@ -31,7 +31,7 @@ struct error_info {
 typedef struct file_info FInfo;
 typedef struct ferror_info FEInfo;
 
-typedef long (*function) (void);
+typedef int (*function) (void);
 
 extern function const header;
 extern function const body;

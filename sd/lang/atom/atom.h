@@ -10,7 +10,7 @@
 #ifndef LOCK_ATOM
 #  define LOCK_ATOM
 
-#  include <sd/utils/types/shared.h>
+#  include "utils/types/shared.h"
 
 typedef union op {
 	uint math_op;

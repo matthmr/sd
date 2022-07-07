@@ -13,11 +13,10 @@
 
 #include <stdio.h>
 
-#include <sd/utils/types/shared.h>
-#include <sd/utils/err/err.h>
-#include <sd/utils/types/shared.h>
 #include <sd/intr/limits.h>
 #include <sd/comp/sdc.h>
+
+#include "utils/err/err.h"
 
 int main (int argc, char** argv) {
 

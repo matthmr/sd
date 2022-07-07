@@ -15,9 +15,6 @@
 
 #include <sd/intr/txt/tokens/form.h>
 
-#include <sd/utils/types/shared.h>
-#include <sd/utils/macros.h>
-
 /// @brief keyword manifest interface macro
 #define __keyword__(_kw, _kwid, _cid, _cty) \
 [_kwid] = { \
@@ -36,20 +33,7 @@
 }
 
 /// @brief keyword manifest
-///
-/// The keywords are sorted by:
-/// @verbatim
-///   1. alphabetic - repetition - size
-///      aabc
-///      aa
-///      bbcd
-///      bb
-///
-///   2. alphabetic - plain - size
-///      abcd
-///      bcde
-///      cdef
-/// @endverbatim
+/// The keywords are sorted lexicographically at compile time
 const _Kw keyword_manifest[] = {
 
 	// TODO: redesign this
@@ -112,10 +96,7 @@ const _Kw keyword_manifest[] = {
 };
 
 /// @brief plain-text token manifest
-/// @note the `SUFFIX` bit field only applies to
-///       their immidiate (plain-text) forms,
-///       virtual forms **may** have different
-///       types of suffixing
+/// The tokens are sorted numerically at compile time
 const _T token_manifest[] = {
 
 	/* reference delimiters */

@@ -13,8 +13,8 @@
 
 #  include <sd/lang/tokens/groups.h>
 
-#  include <sd/utils/types/shared.h>
-#  include <sd/utils/macros.h>
+#  include "utils/types/shared.h"
+#  include "utils/macros.h"
 
 /// @brief common interface for virtual tokens
 #  define __common__(_cid, _cty, _cprec, _cass, _cvt, _csfix) \

@@ -13,9 +13,6 @@
 
 #include <sd/intr/txt/utils/txtutils.h>
 
-#include <sd/utils/types/shared.h>
-#include <sd/utils/macros.h>
-
 #include <sd/lang/hooks/txt/txthooks.h>
 #include <sd/lang/tokens/txtid.h>
 #include <sd/lang/tokens/txt.h>
@@ -179,14 +176,14 @@ bool nbound_def (char c, uint size, uint* t_start, uint* t_end, bool manifest_t)
 	char _c;
 
 	do {
-		block = size/2;
+		block = size << 1;
 
 		switch (manifest_t) {
 		case KEYWORD_MANIFEST:
-			_c = *keyword_manifest[block + l_offset].kw;
+			_c = *keyword_manifest[block + l_offset].this;
 			break;
 		case TOKEN_MANIFEST:
-			_c = token_manifest[block + l_offset].t;
+			_c = token_manifest[block + l_offset].token.this;
 			break;
 		}
 
@@ -202,7 +199,7 @@ bool nbound_def (char c, uint size, uint* t_start, uint* t_end, bool manifest_t)
 			continue;
 		}
 
-		else if (c == _c) {
+		else {
 			if (manifest_t == TOKEN_MANIFEST)
 				t = block+l_offset;
 			*t_start = block;

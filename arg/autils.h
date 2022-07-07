@@ -25,7 +25,7 @@
 #  define MORE(x) "\nInfo:\n\tRead more at " x "\n\n"
 
 // manifest utils
-#  define __bytes__(...) (sizeof (__VA_ARGS__)) / (sizeof (Flag))
+#  define __bytes__(t,...) (sizeof (__VA_ARGS__)) / (sizeof (t))
 #  define BLOCK_SIZE 4
 
 #endif

@@ -29,8 +29,9 @@
 #  define ATOI(x) ((!NUMBER(x))? -1: (x) - 48)
 
 // language-specific utils
-/// @note this macro does not consider the index of the character,
-///       that rule is implemented directly in parsing
+/// @note this macro does not consider what the index of the character
+/// in the identifier's name is, that rule is implemented directly
+/// in parsing
 #  define VALID(x) (\
 	LOWER_ALPHA(x) ||\
 	UPPER_ALPHA(x) ||\
@@ -38,17 +39,11 @@
 	(x) == '_')
 
 // general purpose utils
-#  define TOGGLE(x) (x) = (x)^1
-#  define LOCK(x) if (!X) (x)=1
-#  define RESET(x) if (x)  (x)=0
-#  define H_LOCK(x) (x)=1
-#  define H_RESET(x) (x)=0
-#  define MAX_OF(x) (x) (0|1) // as cast to `type`
 #  define POW2(x) (1u << x)
 #  define BIT(x) POW2(x)
 #  define BYTES(x) sizeof (x) / sizeof (*x)
 #  define GET(x,y) ((x) & (y))
-#  define MASK(x,y) ((x) | (y))
+#  define ADD(x,y) ((x) | (y))
 
 // string utils
 #  define __nl__ "\n"

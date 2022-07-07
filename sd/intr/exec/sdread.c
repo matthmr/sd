@@ -25,8 +25,12 @@
 
 byte data[FBUFFER];
 
-// TODO: HERE: seperate by `char` v. `string` instead
-// of by flag type?
+COMPFLAG (__comp_flag_i, ACTION_INTERPRETER,
+	(FlagComp[]) {
+		__as_comp__ ("color", "no", _I_COLOR, NONE, '\0'),
+	}
+);
+
 /// @brief flag manifest implementation,
 /// lexicographically sorted at compile
 /// time
@@ -34,31 +38,29 @@ const FlagManifest flag_manifest = {
 
 	SINGLE (
 		(Flag[]) {
-			__as_char__ ('b', ACTION_BYTE, MUL, '\0'),
-			__as_char__ ('e', ACTION_EXPR, ONE, '\0'),
-			__as_char__ ('h', ACTION_HELP, NONE, '\0'),
-			__as_char__ ('i', ACTION_INTERACTIVE, NONE, '\0'),
-			__as_char__ ('m', ACTION_MODULE, MUL, '\0'),
-			__as_char__ ('s', ACTION_SOURCE, MUL, '\0'),
-			__as_char__ ('v', ACTION_VERSION, NONE, '\0')
+			__as_char__ ('E', _EXPR_BEFORE, ACTION_EXPR, MUL, '\0', NULL),
+			__as_char__ ('b', _BYTE, ACTION_BYTE, MUL, '\0', NULL),
+			__as_char__ ('e', _EXPR_AFTER, ACTION_EXPR, MUL, '\0', NULL),
+			__as_char__ ('h', _HELP, ACTION_HELP, NONE, '\0', NULL),
+			__as_char__ ('i', _INTERACTIVE, ACTION_INTERACTIVE, COMP, '\0', &__comp_flag_i),
+			__as_char__ ('m', _MODULE, ACTION_MODULE, MUL, '\0', NULL),
+			__as_char__ ('s', _SOURCE, ACTION_SOURCE, MUL, '\0', NULL),
+			__as_char__ ('v', _VERSION, ACTION_VERSION, NONE, '\0', NULL),
 		}
 	),
 
 	DOUBLE (
 		(Flag[]) {
-			__as_string__ ("byte", ACTION_BYTE, MUL, '\0'),
-			__as_string__ ("expr", ACTION_EXPR, MUL, '\0'),
-			__as_string__ ("help", ACTION_HELP, NONE, '\0'),
-			__as_string__ ("int", ACTION_INTERACTIVE, NONE, '\0'),
-			__as_string__ ("mod", ACTION_MODULE, MUL, '\0'),
-			__as_string__ ("source", ACTION_SOURCE, MUL, '\0'),
-			__as_string__ ("version", ACTION_VERSION, NONE, '\0'),
+			__as_string__ ("Expr", _EXPR_BEFORE, ACTION_EXPR, MUL, '\0', NULL),
+			__as_string__ ("byte", _BYTE, ACTION_BYTE, MUL, '\0', NULL),
+			__as_string__ ("expr", _EXPR_AFTER, ACTION_EXPR, MUL, '\0', NULL),
+			__as_string__ ("help", _HELP, ACTION_HELP, NONE, '\0', NULL),
+			__as_string__ ("int", _INTERACTIVE, ACTION_INTERACTIVE, NONE, '\0', NULL),
+			__as_string__ ("mod", _MODULE, ACTION_MODULE, MUL, '\0', NULL),
+			__as_string__ ("source", _SOURCE, ACTION_SOURCE, MUL, '\0', NULL),
+			__as_string__ ("version", _VERSION, ACTION_VERSION, NONE, '\0', NULL),
 		}
 	),
-
-	// not yet implemented
-	.flag_singlelong.this = NULL,
-	.flag_comp.this = NULL,
 
 };
 
@@ -91,7 +93,7 @@ static const char efmt[] =\
 static enum sdparse_err ecode;
 static char** earg = NULL;
 
-static long error_header (void) {
+static int error_header (void) {
 	fprintf (stderr, efmt, emsg[ecode], *earg);
 	return ecode;
 };
@@ -99,6 +101,7 @@ static long error_header (void) {
 function const header = &error_header;
 function const body = NULL;
 
+// @unit.delete(ARGPARSER) START
 static ArgData arg = {
 	.file = &(struct arg_file) {
 		.this = NULL,
@@ -106,32 +109,41 @@ static ArgData arg = {
 	},
 	.fnum = 0,
 };
-static struct arg_file** argfile = &arg.file;
+static struct arg_file **argfile = &arg.file;
+// @unit.delete(ARGPARSER) END
 
-static Astatus action_panic (char* cargv, char** cenv) {
-	return error_header ();
-	//return ARG_ERR;
+// default handlers
+static Astatus action_panic (char *cargv) {
+	return error_header (); /* @unit.replace(ARGPARSER)
+	return ARG_OK; */
 }
-static Astatus action_help (char* cargv, char** cenv) {
+static Astatus action_help (char *cargv) {
 	fputs (HELP, stdout);
 	return ARG_INFO;
 };
-static Astatus action_version (char* cargv, char** cenv) {
+static Astatus action_version (char *cargv) {
 	fputs ("sdread " VERSION "\n", stdout);
 	return ARG_INFO;
 };
-static Astatus action_interactive (char* cargv, char** cenv) {
+static Astatus action_interactive (char *cargv) {
 	// TODO
 	return ARG_OK;
 }
-static Astatus action_file (char* cargv, char** cenv) {
+static Astatus action_file (char *cargv) {
 	(*argfile)->this = fopen (cargv, "rb");
 	return (*argfile)->this? ARG_OK: ARG_VERR;
+}
+
+// compound handlers
+static Astatus action_interpreter (char *cargv) {
+	// TODO
+	return ARG_OK;
 }
 
 const FlagAction flagaction_manifest[] = {
 	[ACTION_HELP] = &action_help,
 	[ACTION_VERSION] = &action_version,
+	[ACTION_INTERPRETER] = &action_interpreter,
 	[ACTION_INTERACTIVE] = &action_interactive,
 	[ACTION_SOURCE] = &action_file,
 	[ACTION_BYTE] = &action_file,
@@ -139,25 +151,32 @@ const FlagAction flagaction_manifest[] = {
 	[ACTION_EXPR] = NULL, // TODO
 };
 
-Astatus promise (void) {
+Astatus promise (const Flag *FLAG, char *arg) {
 	return ARG_OK;
 };
 
 const Default defarg = &action_file; ///< @brief simple arg (flagless or not) handler
 const SingleDash sdash = &action_file; ///< @brief single dash handler
-const DoubleDash ddash = &action_panic;
+const DoubleDash ddash = &action_panic; ///< @brief double dash handler
 
-int main (int argc, char** argv, char** env) {
+int main (int argc, char **argv, char **env) {
 
-
-	struct arg_file* afile = *argfile;
+	ArgFile *afile = *argfile;
 
 	Astatus astatus = ARG_OK;
-	for (uint i = 1; i < argc; i++) {
-		astatus = parseargs (PROG, argv[i], env);
+	char *ARG = NULL;
+
+	// main argument loop
+	for (uint i = 1; i < argc && (ARG = argv[i]); i++) {
+	disambiguate: astatus = parseargs (PROG, (char*)(ARG + stroffset));
 
 		// handle exemption of the main loop
 		switch (astatus) {
+
+		// handle disambiguation callback
+		case ARG_MORE:
+			goto disambiguate;
+			break;
 
 		// display generic error message; kill the program
 		case ARG_ERR:

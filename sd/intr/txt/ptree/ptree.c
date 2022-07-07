@@ -15,9 +15,6 @@
 #include <sd/lang/hooks/txt/txthooks.h>
 #include <sd/lang/vm/vm.h>
 
-#include <sd/utils/types/shared.h>
-#include <sd/utils/macros.h>
-
 #include <sd/intr/txt/ptree/ptree.h>
 #include <sd/intr/limits.h>
 

@@ -8,8 +8,6 @@
  * the SD vm table
  */
 
-#include <sd/utils/types/shared.h>
-
 #include <sd/lang/core/bitmap/bitmap.h>
 #include <sd/lang/vm/tab/tab.h>
 #include <sd/lang/vm/vm.h>

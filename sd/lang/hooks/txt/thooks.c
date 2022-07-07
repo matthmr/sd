@@ -19,9 +19,7 @@
 #include <sd/intr/txt/ptree/ptree.h>
 #include <sd/intr/txt/sdparse.h>
 
-#include <sd/utils/err/verr.h>
-#include <sd/utils/err/err.h>
-#include <sd/utils/utils.h>
+#include "utils/err/err.h"
 
 #define host_unary(x) (\
 	x[UNARY]->type == TY_DRIVER || x[UNARY]->item._.driver != DRIVER_UNARY\
@@ -42,7 +40,7 @@ static void tty_syn (_T);
 
 void tty_syn (_T t) {
 
-	switch (t.t) {
+	switch (t.token.this) {
 	case '#':
 		lstream (H_LOCK (gs_ctxt.cmt));
 		break;
@@ -68,7 +66,7 @@ void tty_math_op (_T t) {
 		goto _tty_math_op_prefix;
 
 _tty_math_op_infix:
-	switch (t.t) {
+	switch (t.token.this) {
 	case '+':
 		ptree_add_op (OP_MATHPLUS);
 		break;
@@ -85,7 +83,7 @@ _tty_math_op_infix:
 	return;
 
 _tty_math_op_prefix:
-	switch (t.t) {
+	switch (t.token.this) {
 	case '+':
 		ptree_add_uop (OP_UMATHPLUS);
 		break;
@@ -99,7 +97,7 @@ _tty_math_op_prefix:
 
 void tty_bitwise_op (_T t) {
 
-	switch (t.t) {
+	switch (t.token.this) {
 	case '~':
 		break;
 
@@ -114,7 +112,7 @@ void tty_bitwise_op (_T t) {
 
 void tty_obj_ref_del (_T t) {
 
-	switch (t.t) {
+	switch (t.token.this) {
 	case '>':
 		break;
 
@@ -148,7 +146,7 @@ void tty_bool_cmp (_T t) {} // has doubles
 
 void tty_obj_ref (_T t) {
 
-	switch (t.t) {
+	switch (t.token.this) {
 	case '/':
 		break;
 	case '@':
@@ -161,7 +159,7 @@ void tty_obj_ref (_T t) {
 
 void tty_obj_def (_T t) {
 
-	switch (t.t) {
+	switch (t.token.this) {
 	case ':':
 		break;
 	case '{':
@@ -176,7 +174,7 @@ void tty_bool_op (_T t) {} // doubles
 
 void tty_expr (_T t) {
 
-	switch (t.t) {
+	switch (t.token.this) {
 	case ';':
 		if (ptree.curr.bracket) // missing closing bracket
 			vErr (0x0a, "]", "");

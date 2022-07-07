@@ -11,8 +11,9 @@
 #ifndef LOCK_OBJ_TREE
 #  define LOCK_OBJ_TREE
 
-#  include <sd/utils/types/shared.h>
 #  include <sd/lang/tokens/groups.h>
+
+#  include "utils/types/shared.h"
 
 struct data {
 	void* data;

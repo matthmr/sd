@@ -9,9 +9,9 @@
 #ifndef LOCK_MASKS
 #  define LOCK_MASKS
 
-#  include <sd/utils/types/shared.h>
-
 #  include <sd/lang/expr/expr.h>
+
+#  include "utils/types/shared.h"
 
 /*static byte sync_masks[] = {
 	[SYNC_OBJ] = 0x00, // 0 000 0000

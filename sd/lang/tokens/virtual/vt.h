@@ -13,8 +13,8 @@
 
 #  include <sd/lang/tokens/virtual/gen/tid.h>
 
-#  include <sd/utils/types/shared.h>
-#  include <sd/utils/macros.h>
+#  include "utils/types/shared.h"
+#  include "utils/macros.h"
 
 // manifest nesters
 #  define NEST &(struct _vt)
@@ -122,7 +122,7 @@ struct _vt_virtual {
 /// pointer-cast nesting *or* linked list nesting
 struct _vt {
 	const struct _vt_virtual this;
-	const struct _vt* next;
+	const struct _vt *next;
 };
 
 typedef struct _vt _vT;

@@ -11,7 +11,7 @@
 #ifndef LOCK_LITERAL
 #  define LOCK_LITERAL
 
-#  include <sd/utils/types/shared.h>
+#  include "utils/types/shared.h"
 
 // these headers don't SEGFAULT as per C standard of
 // the '&&' operator

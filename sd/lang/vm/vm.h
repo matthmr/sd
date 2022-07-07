@@ -11,13 +11,13 @@
 #ifndef LOCK_VM
 #  define LOCK_VM
 
-#  include <sd/utils/types/shared.h>
+#  include "utils/types/shared.h"
 
 #  ifdef LOCK_UTILS
-#    include <sd/utils/macros.h>
+#    include "utils/macros.h"
 #  else
 #    define LOCK_UTILS
-#    include <sd/utils/macros.h>
+#    include "utils/macros.h"
 #    undef LOCK_UTILS
 #  endif
 

@@ -11,14 +11,14 @@
 #ifndef LOCK_CORE_SEMANTICS
 #  define LOCK_CORE_SEMANTICS ///< lock: standard lock
 
-#  include <sd/utils/types/shared.h>
+#  include "utils/types/shared.h"
 
 /// @brief keywords
 /// these are what gets sorted at compile time
 /// as seen in `txt.c`
 enum keyword {
-	KW_AS,
 	KW_ASYNC,
+	KW_AS,
 	KW_BOOL,
 	KW_BRANCH,
 	KW_CONST,

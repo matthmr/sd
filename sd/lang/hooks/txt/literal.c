@@ -17,16 +17,13 @@
 #include <sd/lang/hooks/txt/literal.h>
 #include <sd/lang/vm/vm.h>
 
-#include <sd/utils/types/shared.h>
-#include <sd/utils/err/verr.h>
-#include <sd/utils/utils.h>
-
 #if ADDR_BITS == 64
 double getd_num (char* s, uint dot_offset) { return 0.F; }
 #endif
 
 float get_fnum (char* s, uint dot_offset) { return 0.f; }
 
+// TODO: make this use a common interface for keyword {pre,ap}pending
 d_addr get_num_with_base (char* s, uint rel, u8 base) {
 
 	d_addr exp = 1;

@@ -12,11 +12,11 @@
 #  define LOCK_EXPR ///< lock: lock operators and bit qualification
 
 #  define LOCK_VM
-#  include <sd/utils/types/shared.h>
+#  include "utils/types/shared.h"
 #  include <sd/lang/vm/vm.h>
 #  undef LOCK_VM
 
-#  include <sd/utils/macros.h>
+#  include "utils/macros.h"
 
 // TODO: make `op` also have AST operations
 //       (function argument, function body, ...)

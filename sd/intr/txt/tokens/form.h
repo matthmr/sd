@@ -16,11 +16,12 @@
 #  include <sd/lang/tokens/gen/txtmaps.h>
 #  include <sd/lang/tokens/virtual/vt.h>
 #  include <sd/lang/tokens/groups.h>
-#  include <sd/utils/macros.h>
+
+#  include "utils/macros.h"
 
 /// @brief plain-text keyword interface
 struct _kw {
-	const char* this; ///< plain-text representation
+	const char *this; ///< plain-text representation
 	const _Kw_common _; ///< @brief common interface
 };
 

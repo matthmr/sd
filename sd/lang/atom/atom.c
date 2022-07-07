@@ -7,8 +7,6 @@
  * for the SDVM
  */
 
-#include <sd/utils/types/shared.h>
-
 #include <sd/lang/atom/atom.h>
 #include <sd/lang/vm/vm.h>
 
