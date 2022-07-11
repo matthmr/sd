@@ -40,7 +40,8 @@ dnl
 library(`sdutils')dnl
 library_obj(
 `sd/intr/txt/utils/txtutils.o',
-`sd/utils/err/err.o'
+`utils/err/err.o',
+`arg/argparser.o'
 )dnl
 library_gen
 dnl

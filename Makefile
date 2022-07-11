@@ -1,15 +1,46 @@
 default: install
+help:
+	@echo -e "[ targets available ] \n\
+	  - interpreter: main interpreter for SD (sdread) \n\
+	  - compiler: main compiler for SD (sdc) \n\
+	  - language: main library for SD (libsd.so) \n\
+	  - man: compresses man pages \n\
+	  - install: runs all of the above and moves files to the appropiate locations \n\
+	  - clean: cleans working directory (*.o and *.a files) \n\
+	  - clean-docs: cleans documentation (*.gz files and files under /docs/html/) \n\
+	  - clean-make: cleans make files \n\
+	  - tags: produces tags file for editors that use it \n\
+	  - docs: generates and install doxygen html documentation \n\
+	  - src-docs: install plain-text source code documentation \n\
+	  - help: displays this message \n\
+	 \n\
+	[ variables available ] \n\
+	  - CC: C compiler (${CC}) \n\
+	  - C_INCLUDE_PATH: include path (-I${C_INCLUDE_PATH}) \n\
+	  - BITS: machine memmory address bit length (e.g 32, 64) (${BITS}) \n\
+	  - CFLAGS: CC flags (${CFLAGS}) \n\
+	  - AR: archiver (${AR}) \n\
+	  - ARFLAGS: archiver flags (${ARFLAGS}) \n\
+	  - GZ: gzip compressor (${GZ}) \n\
+	  - CTAGS: ctags-like command (${CTAGS}) \n\
+	  - PREFIX: prefix for installation (${PREFIX}) \n\
+	  - STRIP: strip-like command (${STRIP}) \n\
+	 \n\
+	[ booleans available ] \n\
+	  - DOCS: set to <yes> to install doxygen documentation, otherwise set to <no> (${DOCS}) \n\
+	  - SRCDOCS: set to <yes> to install source documentation, otherwise set to <no> (${SRCDOCS}) \n\
+	  - TEST: set to <yes> to run test suite, otherwise set to <no> (${TEST})"
 
--include make/Targets.mk
--include make/Flags.mk
--include make/Sources.mk
+include make/Targets.mk
+include make/Flags.mk
+include make/Sources.mk
 
 MAKEFILES:= \
 	make/Targets.mk \
 	make/Flags.mk \
 	make/Sources.mk* \
 	make/sources/sd-sources.txt
-VERSION:="v0.4.1"
+VERSION:="v0.4.2"
 
 clean:
 	@echo "[ .. ] Cleaning working directory"
@@ -42,37 +73,6 @@ install: language interpreter compiler man docs src-docs test
 	@mkdir -vp ${PREFIX}/man/man3 2>/dev/null
 	@cp -vR man/man3/*.3.gz ${PREFIX}/man/man3 || echo [ !! ] No permission to move man pages to ${PREFIX}/man
 	@echo "[ OK ] Done!"
-help:
-	@echo -e "[ targets available ] \n\
-	  - interpreter: main interpreter for SD (sdread) \n\
-	  - compiler: main compiler for SD (sdc) \n\
-	  - language: main library for SD (libsd.so) \n\
-	  - man: compresses man pages \n\
-	  - install: runs all of the above and moves files to the appropiate locations \n\
-	  - clean: cleans working directory (*.o and *.a files) \n\
-	  - clean-docs: cleans documentation (*.gz files and files under /docs/html/) \n\
-	  - clean-make: cleans make files \n\
-	  - tags: produces tags file for editors that use it \n\
-	  - docs: generates and install doxygen html documentation \n\
-	  - src-docs: install plain-text source code documentation \n\
-	  - help: displays this message \n\
-	 \n\
-	[ variables available ] \n\
-	  - CC: C compiler (${CC}) \n\
-	  - C_INCLUDE_PATH: include path (-I${C_INCLUDE_PATH}) \n\
-	  - BITS: machine memmory address bit length (e.g 32, 64) (${BITS}) \n\
-	  - CFLAGS: CC flags (${CFLAGS}) \n\
-	  - AR: archiver (${AR}) \n\
-	  - ARFLAGS: archiver flags (${ARFLAGS}) \n\
-	  - GZ: gzip compressor (${GZ}) \n\
-	  - CTAGS: ctags-like command (${CTAGS}) \n\
-	  - PREFIX: prefix for installation (${PREFIX}) \n\
-	  - STRIP: strip-like command (${STRIP}) \n\
-	 \n\
-	[ booleans available ] \n\
-	  - DOCS: set to <yes> to install doxygen documentation, otherwise set to <no> (${DOCS}) \n\
-	  - SRCDOCS: set to <yes> to install source documentation, otherwise set to <no> (${SRCDOCS}) \n\
-	  - TEST: set to <yes> to run test suite, otherwise set to <no> (${TEST})"
 man: man/man1/sdread.1 man/man1/sdc.1
 	@echo "[ .. ] Compressing 'sdread' man page"
 	@${GZ} -c man/man1/sdread.1 > man/man1/sdread.1.gz
@@ -88,7 +88,7 @@ docs:
 ifeq (${DOCS},yes)
 	@echo "[ .. ] Making html documentation with doxygen"
 	@doxygen
-	@echo "[ .. ] Moving html documentation to '${PREFIX}/share/doc/sd'"
+	@echo "[ .. ] Moving html documentation to '${PREFIX}/share/doc/sd/html'"
 	@mkdir -vp ${PREFIX}/share/doc/sd/html 2>/dev/null
 	@cp -vR docs/html/* ${PREFIX}/share/doc/sd/html || echo [ !! ] No permission to move documentation to ${PREFIX}/share/doc/sd
 else
@@ -104,8 +104,9 @@ else
 endif
 test:
 ifeq (${TEST},yes)
-	@echo "[ TODO ] this is not implemented yet"
+	@${MAKE} -C unit test
 else
-	@echo "[ TODO ] this is not implemented yet"
+	@echo "[ .. ] Ignoring unit tests"
 endif
-.PHONY: tags interpreter man compiler language docs src-docs clean clean-docs help test sources
+.PHONY: tags interpreter man compiler language \
+	docs src-docs clean clean-docs clean-make help test

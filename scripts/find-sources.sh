@@ -16,7 +16,7 @@ echo '[ .. ] Finding C sources'
 echo "[ INFO ] FIND=$FIND"
 
 {
-	$FIND * -type f -name '*.c' > make/sources/sd-sources.txt
+	$FIND sd arg utils -type f -name '*.c' > make/sources/sd-sources.txt
 } && {
 	echo '[ OK ] Done. Saved to make/sources/sd-sources.txt'
 } || {

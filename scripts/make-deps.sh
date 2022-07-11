@@ -20,7 +20,7 @@ echo '[ .. ] Making dependencies'
 
 echo "[ INFO ] CC=$CC"
 
-cache=make/Sources.mk.m4.in
+cache=make/Sources.mk.m4.mm
 if [[ -f $cache ]]
 then
 	printf ''>$cache

@@ -4,6 +4,7 @@ bin/sd*
 *.o
 *.a
 *.so
+*.core
 
 # Config
 .vim/
@@ -11,15 +12,15 @@ bin/sd*
 compile_*
 
 # Cache
-.cache/
+.*cache*/
 make/sources/sd-sources.txt
 
 # Dev
-#unit/ # this is as of (31-May-22) a make target: test
+#unit/ # this is as of 202205311042 a make target: test
 make/Sources.mk*
 make/Flags.mk
 make/Targets.mk
-unit/tmp/
+unit/test/src/*.[ch]
 dev/
 tags*
 *.log*

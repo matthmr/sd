@@ -16,47 +16,47 @@
 #  include "arg/autils.h"
 
 // manifest item macros
-#  define __as_char__(x,i,y,z,w,c) \
+#  define __as_char__(_as_char,_id,_action,_am,_sep,_comp) \
 { \
 	._ = { \
-		.as_char = x, \
+		.as_char = _as_char, \
 	}, \
 	.common = { \
-		.id = i, \
-		.action = y, \
-		.am = z, \
-		.sep = w, \
-		.comp = (CompSizeManifest*)c, \
+		.id = _id, \
+		.action = _action, \
+		.am = _am, \
+		.sep = _sep, \
+		.comp = (CompSizeManifest*)_comp, \
 	}, \
 }
-#  define __as_string__(x,i,y,z,w,c) \
+#  define __as_string__(_as_string,_id,_action,_am,_sep,_comp) \
 { \
 	._ = { \
-		.as_string = x, \
+		.as_string = _as_string, \
 	}, \
 	.common = { \
-		.id = i, \
-		.action = y, \
-		.am = z, \
-		.sep = w, \
-		.comp = c, \
-	}\
+		.id = _id, \
+		.action = _action, \
+		.am = _am, \
+		.sep = _sep, \
+		.comp = (CompSizeManifest*)_comp, \
+	}, \
 }
-#  define __as_comp__(x,y,i,z,w) \
+#  define __as_comp__(_as_string,_alt,_id,_am,_sep) \
 { \
 	.flag = { \
 		._ = { \
-			.as_string = x, \
+			.as_string = _as_string, \
 		}, \
 		.common = { \
-			.id = i, \
+			.id = _id, \
 			.action = ACTION_NULL, \
-			.am = w, \
-			.sep = w, \
+			.am = _am, \
+			.sep = _sep, \
 			.comp = NULL , \
 		}\
 	}, \
-	.alt = y, \
+	.alt = _alt, \
 }
 
 // manifest definitions macros
@@ -102,6 +102,7 @@ enum flag_amount {
 	VAL = BIT (3), ///< @brief `sep`-separated value(s) [-a=b]
 	COMP = BIT (4), ///< @brief `comp`-compound value(s) [-ab=c]
 	COMPDEF = BIT (5), ///< @brief user defined `comp`-compound value(s) [-aBC]
+	NOCOMP = BIT (6), ///< @brief internal use: used to mask the compound manifest
 };
 
 typedef enum flag_amount FlagAmount;
@@ -115,7 +116,6 @@ struct flag_common {
 	                     ///< is on another var; it uses implicit promises
 	const void *comp;    ///< @brief common flag compound; left to type cast set by
 	                     ///< `FlagCommon::am == COMP` to `CompSizeManifest`
-	                     ///< (the main interface)
 };
 
 typedef struct flag_common FlagCommon;
@@ -161,7 +161,7 @@ struct flag_manifest {
 // `struct size_manifest_single_comp`
 struct flag_comp {
 	const Flag flag; // manifest element
-	const char *alt; // generally negation, as in ('X', 'noX')
+	const char *alt; // generally negation, as in ('X', 'X-disable')
 };
 
 typedef struct flag_comp FlagComp;
@@ -177,9 +177,9 @@ typedef struct comp_size_manifest CompSizeManifest;
 
 typedef struct flag_manifest FlagManifest;
 
-typedef Astatus (*Default) (char*),
-                (*SingleDash) (char*),
-                (*DoubleDash) (char*);
+typedef Astatus (*Default) (int, char*),
+                (*SingleDash) (int, char*),
+                (*DoubleDash) (int, char*);
 
 typedef Default FlagAction;
 
@@ -200,21 +200,16 @@ extern uint stroffset;  ///< @brief iteration offset WITH RESPECT TO
 extern const char *ARG; ///< @brief the original argument; arguments
                         ///< will get truncated as it iterates
 
-/// @brief default arg callback interface
-struct arg_callback {
-	FlagAmount am;
-	Flag *flag;
+// `ffind` return value
+enum parseargs_status {
+	NOTFOUND = 0,
+	FOUND,
+	DISAMSTR,
+	DISAMCOMP,
 };
 
-typedef struct arg_callback ArgCallback;
-
-/// @brief `argparser.c` callback
-extern ArgCallback CALLBACK[2];
-
-// `parseargs` internal exit status
-#  define NOTFOUND '\0'
-#  define FOUND '\1'
-#  define ARGMORE '\2'
+typedef enum parseargs_status FFstatus; // ffind -> parse
+typedef char FBstatus; // fbound -> ffind
 
 Astatus promise (const Flag*, char*);
 Astatus parseargs (const char*, char*);

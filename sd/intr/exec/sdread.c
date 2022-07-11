@@ -22,18 +22,22 @@
 #include "arg/argparser.h"
 
 #define PROG "sdread"
+#define DIS "-disable"
+#define EN "-enable"
 
 byte data[FBUFFER];
 
-COMPFLAG (__comp_flag_i, ACTION_INTERPRETER,
+COMPFLAG (_o, ACTION_OPTION,
 	(FlagComp[]) {
-		__as_comp__ ("color", "no", _I_COLOR, NONE, '\0'),
+		__as_comp__ ("color", DIS, _I_COLOR, NONE, '\0'),
 	}
 );
 
 /// @brief flag manifest implementation,
-/// lexicographically sorted at compile
-/// time
+/// lexicographically sorted at compile-time
+/// @note single flags with `NONE` as their
+/// `am` field compound if possible (i.e. it
+/// can override)
 const FlagManifest flag_manifest = {
 
 	SINGLE (
@@ -42,8 +46,9 @@ const FlagManifest flag_manifest = {
 			__as_char__ ('b', _BYTE, ACTION_BYTE, MUL, '\0', NULL),
 			__as_char__ ('e', _EXPR_AFTER, ACTION_EXPR, MUL, '\0', NULL),
 			__as_char__ ('h', _HELP, ACTION_HELP, NONE, '\0', NULL),
-			__as_char__ ('i', _INTERACTIVE, ACTION_INTERACTIVE, COMP, '\0', &__comp_flag_i),
+			__as_char__ ('i', _INT, ACTION_INT, COMP, '\0', NULL),
 			__as_char__ ('m', _MODULE, ACTION_MODULE, MUL, '\0', NULL),
+			__as_char__ ('o', _NONE, ACTION_NONE, NONE, '\0', &_o),
 			__as_char__ ('s', _SOURCE, ACTION_SOURCE, MUL, '\0', NULL),
 			__as_char__ ('v', _VERSION, ACTION_VERSION, NONE, '\0', NULL),
 		}
@@ -55,7 +60,7 @@ const FlagManifest flag_manifest = {
 			__as_string__ ("byte", _BYTE, ACTION_BYTE, MUL, '\0', NULL),
 			__as_string__ ("expr", _EXPR_AFTER, ACTION_EXPR, MUL, '\0', NULL),
 			__as_string__ ("help", _HELP, ACTION_HELP, NONE, '\0', NULL),
-			__as_string__ ("int", _INTERACTIVE, ACTION_INTERACTIVE, NONE, '\0', NULL),
+			__as_string__ ("int", _INT, ACTION_INT, NONE, '\0', NULL),
 			__as_string__ ("mod", _MODULE, ACTION_MODULE, MUL, '\0', NULL),
 			__as_string__ ("source", _SOURCE, ACTION_SOURCE, MUL, '\0', NULL),
 			__as_string__ ("version", _VERSION, ACTION_VERSION, NONE, '\0', NULL),
@@ -91,7 +96,7 @@ static const char efmt[] =\
 	RESET ("\n");
 
 static enum sdparse_err ecode;
-static char** earg = NULL;
+static char **earg = NULL;
 
 static int error_header (void) {
 	fprintf (stderr, efmt, emsg[ecode], *earg);
@@ -101,86 +106,107 @@ static int error_header (void) {
 function const header = &error_header;
 function const body = NULL;
 
-// @unit.delete(ARGPARSER) START
-static ArgData arg = {
-	.file = &(struct arg_file) {
-		.this = NULL,
-		.ftype = SOURCE_DISK,
+#ifndef UNIT_LOCK_self
+static Arg arg = {
+	.data = {
+		.file = &(struct arg_file) {
+			.this = NULL,
+			.ftype = SOURCE_DISK,
+		},
+		.fnum = 0,
+		.expr = NULL,
 	},
-	.fnum = 0,
+	.set = {0}, // &_set,
 };
-static struct arg_file **argfile = &arg.file;
-// @unit.delete(ARGPARSER) END
+static ArgFile **argfile = &arg.data.file;
+#endif
 
 // default handlers
-static Astatus action_panic (char *cargv) {
-	return error_header (); /* @unit.replace(ARGPARSER)
-	return ARG_OK; */
+static Astatus action_panic (int cl, char *arg) {
+#ifndef UNIT_LOCK_self
+	return error_header ();
+#endif
+//@unit.replacewith ACTION
 }
-static Astatus action_help (char *cargv) {
+static Astatus action_help (int cl, char *arg) {
 	fputs (HELP, stdout);
 	return ARG_INFO;
 };
-static Astatus action_version (char *cargv) {
+static Astatus action_version (int cl, char *arg) {
 	fputs ("sdread " VERSION "\n", stdout);
 	return ARG_INFO;
 };
-static Astatus action_interactive (char *cargv) {
-	// TODO
+static Astatus action_int (int cl, char *arg) {
+	// return aset (_INT);
 	return ARG_OK;
 }
-static Astatus action_file (char *cargv) {
-	(*argfile)->this = fopen (cargv, "rb");
-	return (*argfile)->this? ARG_OK: ARG_VERR;
+static Astatus action_file (int cl, char *arg) {
+#ifndef LOCK_UNIT
+	switch (cl) {
+	case _BYTE:
+		break;
+	case _SOURCE:
+	default: // assume flagless file as of type `source'
+		break;
+	}
+	return ARG_OK;
+#endif
+//@unit.replacewith ACTION
 }
 
 // compound handlers
-static Astatus action_interpreter (char *cargv) {
-	// TODO
+static Astatus action_option (int cl, char *arg) {
 	return ARG_OK;
 }
 
 const FlagAction flagaction_manifest[] = {
-	[ACTION_HELP] = &action_help,
-	[ACTION_VERSION] = &action_version,
-	[ACTION_INTERPRETER] = &action_interpreter,
-	[ACTION_INTERACTIVE] = &action_interactive,
-	[ACTION_SOURCE] = &action_file,
-	[ACTION_BYTE] = &action_file,
-	[ACTION_MODULE] = NULL, // TODO
-	[ACTION_EXPR] = NULL, // TODO
+	[ACTION_HELP] = &action_help, // --help
+	[ACTION_VERSION] = &action_version, // --version
+	[ACTION_INT] = &action_int, // --int
+
+	[ACTION_SOURCE] = &action_file, // sd file.sd
+	[ACTION_BYTE] = &action_file, // sd -b file.sd
+	[ACTION_MODULE] = NULL, // TODO // --mod
+	[ACTION_EXPR] = NULL, // TODO // --expr
+
+	[ACTION_OPTION] = &action_option, // -o*
 };
 
 Astatus promise (const Flag *FLAG, char *arg) {
-	return ARG_OK;
+	return flagaction_manifest[FLAG->common.action]
+	  (FLAG->common.id, arg);
 };
 
 const Default defarg = &action_file; ///< @brief simple arg (flagless or not) handler
 const SingleDash sdash = &action_file; ///< @brief single dash handler
-const DoubleDash ddash = &action_panic; ///< @brief double dash handler
+const DoubleDash ddash = &action_file; ///< @brief double dash handler
 
 int main (int argc, char **argv, char **env) {
 
+#ifndef UNIT_LOCK_self
 	ArgFile *afile = *argfile;
+#endif
 
 	Astatus astatus = ARG_OK;
 	char *ARG = NULL;
 
 	// main argument loop
 	for (uint i = 1; i < argc && (ARG = argv[i]); i++) {
-	disambiguate: astatus = parseargs (PROG, (char*)(ARG + stroffset));
+		arg: astatus = parseargs (PROG, (char*)(ARG + stroffset));
 
 		// handle exemption of the main loop
 		switch (astatus) {
 
 		// handle disambiguation callback
 		case ARG_MORE:
-			goto disambiguate;
+			goto arg;
 			break;
 
-		// display generic error message; kill the program
+		// display a generic error message; kill the program
 		case ARG_ERR:
+#ifndef UNIT_LOCK_self
 			Err (ecode, header, body);
+#endif
 			break;
 
 		// show info (implicit action); skip main loop
@@ -189,15 +215,18 @@ int main (int argc, char **argv, char **env) {
 			break;
 
 		// handle error with a verbose error message; kill the program
-		case ARG_VERR: {
-
-		};
-		break;
+		case ARG_VERR:
+			// TODO: implement this
+			goto skip;
+			break;
 
 		default: break;
 		}
+
+		// try to cat, error on fail
 	}
 
+#ifndef UNIT_LOCK_self
 	FILE* file = afile->this;
 
 	// initialise parse tree
@@ -216,17 +245,14 @@ int main (int argc, char **argv, char **env) {
 
 		if (file_is_source (afile->ftype)) {
 			while (src (src_callback)) {
-
 				// if the callback is a stack callback, do what it says
 				if (scope_is_stack (src_callback)) {
 					stack_callback (src_callback);
 				}
 				else // otherwise continue buffering
 					parse_src (afile->this, (char*)data, STDBUFFER);
-
 			}
 		}
-
 		// TODO: bytecode callback loop
 		else if (file_is_bytecode (afile->ftype)) {
 			parse_bc (afile->this, (char*)data, STDBUFFER);
@@ -235,10 +261,12 @@ int main (int argc, char **argv, char **env) {
 	}
 
 	// close `file' on exit if not a pipe
-	for (uint i = 0; i < arg.fnum; i++)
+	for (uint i = 0; i < arg.data.fnum; i++)
 		if (! file_is_fifo (afile->ftype))
 			fclose (afile->this);
+#endif
 
 	skip: return 0;
 
 }
+//@unit.main main

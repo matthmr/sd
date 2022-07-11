@@ -17,35 +17,22 @@
 #define FS_DOUBLE '\2'
 
 uint stroffset = 0;
-ArgCallback CALLBACK[] = {
-	{
-		.am = NONE,
-		.flag = NULL,
-	}
-};
-static uint CNDX = 0;
 
-static bool f_status = '\0';
-
-/// @brief the flag that was DEFINITELY found
+/// @brief the flag that was found *or* the flag to disam
 static const Flag *FLAG = NULL;
-static const int flag_id = 0;
+
+/// @brief the flag status: single, double or none
+static bool f_status = '\0';
 
 // `fbound_def`
 #define nfound 0
 #define npass 1
 #define noob 2
 
-static void callback_add (Flag *flag, FlagAmount am) {
-	CALLBACK[CNDX].flag = (Flag*) flag;
-	CALLBACK[CNDX].am = am;
-	CNDX++;
-}
-
 /// @brief bounds the seek area via binary partitioning
 /// @note `fbound_def` separates by data type, not by flag type
-static bool fbound_def (char cc, const Flag *man, uint size,
-                        bool manty, uint *start, uint *end) {
+static FBstatus fbound_def (char cc, const Flag *man, uint size,
+                            bool manty, uint *start, uint *end) {
 
 	int loffset = 0, roffset = 0;
 	int _loffset = 0, _roffset = 0; // NOTE: these serve as {under,over}shot buffers
@@ -64,10 +51,10 @@ static bool fbound_def (char cc, const Flag *man, uint size,
 
 	while (block >= BLOCK_SIZE) {
 		block = block >> 1;
-		FlagData common = man[loffset]._;
+		FlagData fdata = man[loffset]._;
 
 		// get the manifest character
-		mc = (manty == FS_SINGLE? common.as_char: common.as_string[stroffset]);
+		mc = (manty == FS_SINGLE? fdata.as_char: fdata.as_string[stroffset]);
 
 		// too big: increase `loffset`
 		// [ x x x x y x ] => x x x [ x y x ]
@@ -76,11 +63,11 @@ static bool fbound_def (char cc, const Flag *man, uint size,
 			_loffset = loffset;
 			loffset += block;
 			*start = loffset;
-			FlagData common = man[loffset]._;
 
 			// adjust for overshot
-			if (cc <
-			    (manty == FS_SINGLE? common.as_char: common.as_string[stroffset])) {
+			FlagData fdata = man[loffset]._;
+			mc = (manty == FS_SINGLE? fdata.as_char: fdata.as_string[stroffset]);
+			if (cc < mc) {
 				*end = *start;
 				loffset = _loffset;
 				*start = loffset;
@@ -96,11 +83,11 @@ static bool fbound_def (char cc, const Flag *man, uint size,
 			_roffset = size - roffset;
 			roffset += block;
 			*end = size - roffset;
-			FlagData common = man[loffset]._;
 
 			// adjust for undershot
-			if (cc >
-			    (manty == FS_SINGLE? common.as_char: common.as_string[stroffset])) {
+			FlagData fdata = man[loffset]._;
+			mc = (manty == FS_SINGLE? fdata.as_char: fdata.as_string[stroffset]);
+			if (cc > mc) {
 				*start = *end;
 				roffset = _roffset;
 				*end = _roffset;
@@ -115,15 +102,15 @@ static bool fbound_def (char cc, const Flag *man, uint size,
 		}
 	}
 
-	finish: return (cc == mc)? nfound: npass;
+	return (cc == mc)? nfound: npass;
 }
 
 /// @brief flag manifest finder
 /// @note `ffind_def` separates by flag type, not by data type
-static bool ffind_def (char c, char *arg, bool manty) {
+static FFstatus ffind_def (char c, char *arg, bool manty) {
 
 	const SizeManifest *sflag;
-	const Flag *flag;
+	const Flag *man;
 	uint len;
 
 	// set the iterator
@@ -131,29 +118,25 @@ static bool ffind_def (char c, char *arg, bool manty) {
 		? (&flag_manifest.flag_single)
 		: (&flag_manifest.flag_double));
 
-	if (! (flag = sflag->this)) return NOTFOUND;
-	else len = sflag->len;
+	if (! (man = sflag->this))
+		return NOTFOUND;
+	else
+		len = sflag->len;
 
 	uint f_start = 0, f_end = sflag->len;
+	bool estatus = fbound_def (c, man, len, manty, &f_start, &f_end);
 
-	bool estatus = fbound_def (c, flag, len, manty,
-	                           &f_start, &f_end);
-
-	if (estatus != npass) {
+	if (estatus != npass)
 		goto notfound;
-	}
 
 	char _c;
 
 	// seek(char)
 	if (manty == FS_SINGLE) {
 		for (uint i = f_start; i <= f_end; i++) { // TODO: `dir`-compliant seek
-			if (flag[i]._.as_char == c) {
-				callback_add ((Flag*) &flag[i], flag[i].common.comp? COMP: NONE);
-				if (flag[i].common.comp)
-					return ARGMORE;
-				else
-					return FOUND;
+			if (man[i]._.as_char == c) {
+				FLAG = &man[i];
+				return FLAG->common.am == COMP? DISAMCOMP: FOUND;
 			}
 		}
 		return NOTFOUND;
@@ -162,26 +145,24 @@ static bool ffind_def (char c, char *arg, bool manty) {
 	// seek(string)
 	else {
 		// safe back-seek
-		_c = flag[f_start]._.as_string[stroffset];
-		while (f_start && flag[f_start]._.as_string[stroffset] == _c) {
+		_c = man[f_start]._.as_string[stroffset];
+		while (f_start && man[f_start]._.as_string[stroffset] == _c) {
 			f_start--;
 		}
 
 		// safe foward-seek
-		_c = flag[f_end]._.as_string[stroffset];
+		_c = man[f_end]._.as_string[stroffset];
 		len = sflag->len;
-		while (f_end < len && flag[f_end]._.as_string[stroffset] == _c) {
+		while (f_end < len && man[f_end]._.as_string[stroffset] == _c) {
 			f_end++;
 		}
 
 		// take it from there
 		for (uint i = f_start; i <= f_end; i++) {
-			if (! strcmp (arg, (flag[i]._.as_string + stroffset))) {
-				callback_add ((Flag*) &flag[i], flag[i].common.comp? COMP: NONE);
-				stroffset++;
-				return ARGMORE;
+			if (! strcmp (arg, (man[i]._.as_string + stroffset))) {
+				FLAG = &man[i];
+				return FOUND;
 			}
-			return FOUND;
 		}
 	}
 
@@ -189,12 +170,14 @@ static bool ffind_def (char c, char *arg, bool manty) {
 }
 
 /// @brief main argument parser
-/// @param proc caller name
+/// @param proc caller name (used in error messaging)
 /// @param arg caller provided argument
 /// @param env caller provided `env`
 Astatus parseargs (const char *prog, char *arg) {
 
 	// TODO: make use of environment variables
+
+	//@unit.log "[ arg/argparser.c`parseargs#arg ]" arg
 
 	bool e_status = false;
 	char c;
@@ -220,6 +203,8 @@ Astatus parseargs (const char *prog, char *arg) {
 
 			}
 
+			//@unit.logexp "[ arg/argparser.c:fs_status ]" fs_status
+			//@unit.assertexp fs_status
 			// fall-through - go to flag check
 			if (! arg[i]) goto dangle;
 			else goto find;
@@ -235,7 +220,7 @@ Astatus parseargs (const char *prog, char *arg) {
 		}
 
 		// set any promises if needed
-		if (e_status != ARGMORE) {
+		if (e_status < DISAMSTR) {
 			return promise (FLAG, arg);
 		}
 		else
@@ -246,13 +231,13 @@ Astatus parseargs (const char *prog, char *arg) {
 	// we use default flag handlers
 	dangle: switch (f_status) {
 	case FS_SINGLE:
-		sdash (arg);
+		sdash (-1, arg);
 		break;
 	case FS_DOUBLE:
-		ddash (arg);
+		ddash (-1, arg);
 		break;
 	default:
-		defarg (arg);
+		defarg (-1, arg);
 		break;
 	}
 
